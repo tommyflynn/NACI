@@ -1,0 +1,257 @@
+\documentclass[]{elsarticle} %review=doublespace preprint=single 5p=2 column
+%%% Begin My package additions %%%%%%%%%%%%%%%%%%%
+\usepackage[hyphens]{url}
+
+  \journal{International Journal of Nursing Studies} % Sets Journal name
+
+
+\usepackage{lineno} % add
+  \linenumbers % turns line numbering on
+
+\usepackage{graphicx}
+%%%%%%%%%%%%%%%% end my additions to header
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \usepackage{fontspec}
+  \ifxetex
+    \usepackage{xltxtra,xunicode}
+  \fi
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \newcommand{\euro}{€}
+\fi
+% use microtype if available
+\IfFileExists{microtype.sty}{\usepackage{microtype}}{}
+\bibliographystyle{elsarticle-harv}
+\ifxetex
+  \usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \usepackage[unicode=true]{hyperref}
+\fi
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={},
+            pdftitle={Racialized Network Structures of Clinical Interactions in the ED},
+            colorlinks=false,
+            urlcolor=blue,
+            linkcolor=magenta,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+
+\setcounter{secnumdepth}{5}
+% Pandoc toggle for numbering sections (defaults to be off)
+
+
+% tightlist command for lists without linebreak
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+% Pandoc citation processing
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+% for Pandoc 2.8 to 2.10.1
+\newenvironment{cslreferences}%
+  {}%
+  {\par}
+% For Pandoc 2.11+
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+
+
+
+\begin{document}
+
+
+\begin{frontmatter}
+
+  \title{Racialized Network Structures of Clinical Interactions in the
+ED}
+    \author[Emory University]{Tommy Flynn\corref{1}}
+   \ead{tommy.flynn@emory.edu} 
+    \author[Emory University]{Kate Yeager}
+   \ead{kyeager@emory.edu} 
+    \author[Emory University]{Ymir Vigfusson}
+   \ead{ymir@emory.edu} 
+    \author[Emory University]{David Wright}
+   \ead{david.wright@emory.edu} 
+    \author[Emory University]{Dian Evans}
+   \ead{dian.evans@emory.edu} 
+    \author[Emory University]{Vicki Hertzberg}
+   \ead{vhertzberg@emory.edu} 
+      \address[Emory University]{1520 Clifton Rd, Atlanta, GA, 30322}
+      \cortext[1]{Corresponding Author}
+  
+  \begin{abstract}
+  Network science methodologies offer unique opportunities to study
+  real-world human interactions in diverse contexts. The emergency
+  department (ED) is a complex dynamic environment in which clinical
+  care and patient experience depend on the quality of clinician-patient
+  and clinician-clinician encounters, or clinical interactions. Clinical
+  interactions (CIs) are multidimensional social phenomena embedded at
+  the center of healthcare services and one of the primary pathways
+  thought to cause racial healthcare disparities. Evidence of racial
+  disparities in the quality of care provided to Black patients compared
+  to White patients in U.S. EDs is strong. One roadblock to
+  understanding social and clinical mechanisms is the need for research
+  methods suited for dynamic complexity inherent to clinical
+  interactions in the ED. The purpose of this study is to describe a
+  network analysis of clinical interactions (NACI) and the effects of
+  patient race on structural network variables in an urban ED in the
+  Southern United States. We conducted a secondary analysis of
+  observational clinical data to describe how patients' racial
+  affiliations relate to CI network structures. Network data were
+  generated passively with radiofrequency identification (RFID) tags
+  worn by patients and clinicians during their time in the ED. Clinical
+  interactions were measured as RFID tag proximity within 1 m. Patient
+  demographic and clinical data points were gathered from medical
+  records.
+  \end{abstract}
+  
+ \end{frontmatter}
+
+Understanding healthcare disparities is an ongoing research priority for
+leading institutions and universities in the United States. Network
+science draws on the perspectives, philosophies, and methods of various
+qualitative and quantitative research traditions to understand
+relationships between objects embedded in complex systems. Focusing a
+network science lens on clinical interactions in the complex ED
+environment may add to current evidence of patient-clinician dimensions
+of racial healthcare disparities. The purpose of this paper is to report
+a secondary data analysis of clinical interactions in the Emergency
+Department of a large academic hospital in the Southern U.S. using
+social network analyses of ED clinical interactions between patients and
+healthcare personnel. We report a secondary analysis of longitudinal ED
+contact network data. Data were collected previously using a prospective
+longitudinal observational study design. The purpose of the parent study
+was to describe contact characteristics among patients and staff in the
+ED of a busy urban hospital to help inform cross-infection control
+measures (Lowery-North et al., 2013). Finding Meaning in Social Network
+Structure\\
+The meaning of network structures depends on researchers' decisions
+about how to define individual actors (i.e., nodes) and their
+inter-relational connections (i.e., ties). In fact, the research
+question under investigation is considered the guiding force behind
+conceptual and operational interpretations of networks. For example,
+consider network data generated by a novel contact tracing app designed
+to track viral exposures in a given population. This hypothetical
+network data would consist of individuals at risk of exposure (nodes),
+proximity to other nodes (ties), and exposure status (attribute). As
+node nj's number of social contacts (degree centrality) increase, nj's
+risk of exposure increases. As more attribute data are available, say
+vaccination status, the meanings of network structures (e.g., degree
+centrality) are reconsidered. When studying ED network data, we can
+assume that a tie between patient and clinician nodes is a part of
+service delivery: specifically, a patient-clinician interactions (i.e.,
+clinical interactions). In some healthcare settings, clinical
+interactions are the building blocks of clinical relationships with
+broader implications for quality and equity. Clinical relationships are,
+however, beyond the purview of this paper. By defining network
+connections as clinician-patient interactions, its centrality is a
+measure of--at the least--quantity of direct clinical care, and--we
+hypothesize--important dimensions of quality clinical care like
+clinician-patient communication, changes in patient acuity, and ED
+throughput. Passive Location Collection with Radiofrequency
+Identification (RFID) RFID systems are used in a number of hospitals
+nationwide (Page, 2007), commonly for supply chain management, passive
+patient identification, safe medication administration, patient
+tracking, and asset tracking (Yao et al., 2012). RFID systems consist of
+small tags or badges that emit radio-frequencies that are picked up by
+sensors located strategically so that every RFID badge is always
+identifiable to at least 3 sensors for location by triangulation (Yao et
+al., 2012). The presence of RFID-enabled healthcare facilities
+nationwide will allow for replication of this research, and the
+evaluation of equity improvement interventions can be done with some
+minor alterations to existing hardware. Compared to other technologies
+used for locating resources, the inexpensive and unobtrusive design of
+RFID tags make them ideal for healthcare applications. Additionally,
+person-to-person proximity data, such as ours, is likely the most
+informative sensor-generated data for mapping and studying human
+networks (Pentland, 2012). Method This secondary analysis and its parent
+study independently received ethics approval by institutional review
+board. Sampling strategy and data collection methods were described
+previously (Lowery-North et al., 2013) Sampling Sampling strategies in
+network research are defined by the purpose of the research at
+hand.(Borgatti et al., 2013) Sample size calculations have not yet been
+developed for a study designed to compare the networks of various
+individuals. In addition, most network analysis research to date does
+not use random sampling, instead often describing entire populations
+(Borgatti et al., 2013). When studying networks, sampling is more
+concerned with defining the bounds of the network and the nature of the
+relationships between nodes (Borgatti et al., 2013) The data were
+collected with a random sampling of one day shift and one night shift
+from a single academic urban ED every week over the course of one year.
+A total of 104 shifts of data were collected for the original study
+(Lowery-North et al., 2013). The sampling strategy was selected to
+minimize sampling bias related to seasonal or weekly fluctuations in
+census, acuity, and ED staffing changes (Lowery-North et al., 2013). Due
+to various technical complications and personnel issues during the year,
+data from a number of shifts scheduled for data collection were deemed
+inadequate for analyses. 81 12-hours shifts were available for the
+current study.
+
+\hypertarget{references}{%
+\section*{References}\label{references}}
+\addcontentsline{toc}{section}{References}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-RN150}{}}%
+Borgatti, S.P., Everett, M.G., Johnson, J.A., 2013. Analyzing social
+networks. Sage Publications Inc, Thousand Oaks, CA.
+
+\leavevmode\vadjust pre{\hypertarget{ref-RN1}{}}%
+Lowery-North, D.W., Hertzberg, V.S., Elon, L., Cotsonis, G., Hilton,
+S.A., Vaughns 2nd, C.F., Hill, E., Shrestha, A., Jo, A., Adams, N.,
+2013. Measuring social contacts in the emergency department. PLoS One 8,
+e70854.
+doi:\href{https://doi.org/10.1371/journal.pone.0070854}{10.1371/journal.pone.0070854}
+
+\leavevmode\vadjust pre{\hypertarget{ref-RN364}{}}%
+Page, L., 2007. Hospitals tune in to RFID. Materials management in
+health care. 16, 18--20.
+
+\leavevmode\vadjust pre{\hypertarget{ref-RN259}{}}%
+Pentland, A., 2012. The new science of building great teams. Harvard
+Business Review 90, 60--69.
+
+\leavevmode\vadjust pre{\hypertarget{ref-RN257}{}}%
+Yao, W., Chu, C.-H., Li, Z., 2012. The adoption and implementation of
+RFID technologies in healthcare: A literature review. Journal of Medical
+Systems 36, 3507--3525.
+doi:\href{https://doi.org/10.1007/s10916-011-9789-8}{10.1007/s10916-011-9789-8}
+
+\end{CSLReferences}
+
+
+\end{document}
