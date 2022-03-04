@@ -1,27 +1,71 @@
 ---
 title: "Network Analysis of Clinical Interactions (NACI): Data Cleaning Log"
 output: html_notebook
+editor_options: 
+  chunk_output_type: console
 ---
 # Versioning & Setup  
 
-```{r setup, include=FALSE, tidy=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
+```{r setup, include=FALSE}
 # This is an example setup chunk from the N741 project
-# knitr::opts_chunk$set(echo = FALSE, tidy=TRUE, warning=FALSE, message=FALSE)
-library(igraph)
+knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data",
+                      echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+# options(na.action = na.warn)??
+
+
+# Load packages
+# library(igraph)
 library(haven)
 library(tidyverse)
-library(lubridate)
-library(pander)
-library(printr)
-library(forcats)
-library(modelr)
-# options(na.action = na.warn)
+# library(lubridate)
+# library(pander)
+# library(printr)
+# library(forcats)
+# library(modelr)
+
 ```
 
 
+Copied from "Data/IPIRC readme file for final code and location-by-second datasets.docx":
+Has sid, date, and columns representing every second of the day (a very wide file).
+Each row contains the locations (numeric values) for that sid-date.
+Recall that sids can repeat over shifts (tags re-used on other patients; staff have permanent tags).
 
-```{r data import}
-# read in the edges
+Cpat.zip = all shifts, patient locations per second
+Cstaff.zip==all shifts, staff locations per second
+
+*Room locations with square footage are in an Excel file, which links location numbers to location names
+
+
+```{r data import & transform}
+
+# setwd("~/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data")
+
+# 1a. read "completepat.sas7bdat", 
+pt_complete <- 
+  read_sas("/Users/tommy-two/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data/completepat.sas7bdat")
+# 2a. subset first 10 observations for data transformation code preparation
+pt_head <- head(pt_complete) %>% 
+  # 3a. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "time_seconds," and placing respective observations for each "floc" variable into a "location" column
+  pivot_longer(cols = starts_with("floc"), names_to = "time_seconds", values_to = "location") %>% 
+  # 4a. Remove the prefix "floc" from all observations now under "time_seconds"
+  mutate(time_seconds = as.integer(str_replace(time_seconds, "floc", "")), 
+         shift_num_ampm = str_trim(shift_num_ampm),
+         shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")),
+         am_pm = str_extract(shift_num_ampm, "am|pm")) # %>% 
+  # 5. Filter out all rows for which no location was recorded
+  # filter(!is.na(location))
+glimpse(pt_head)
+# ----
+# 1b. read "completestaff.sas7bdat"
+staff_c <- 
+  read_sas("/Users/tommy-two/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data/completestaff.sas7bdat")
+
+
+cc_popn <- read_sas("/Users/tommy-two/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data/Data_Files/chief_complaints_popn.sas7bdat")
+
 # edges <- haven::read_sas("tommy_edges_2009.sas7bdat") 
 # read in the node traits: nodes
 # nodes <- haven::read_sas("tommy_nodes_2009.sas7bdat")
@@ -40,7 +84,7 @@ alldates <- c(PTS_d8s, Nodes_d8s , Edges_D8s)
 alldates <- unique(alldates) # There are 49 total unique dates across all three tbls, but only 35 in edges!
 ```
 
-```{r Chief Complaint Levels}
+```{r Chief Complaint Levels, eval=FALSE}
 # Chief complaint is a string with more than 300 variables (mostly referring to the same short-list of complaints (i.e. many duplicates)). Re-level with fct_collapse() in a mutate() call.
 
 patients_cc <- patients %>% mutate(CC_group = fct_collapse(Chief_Complaint,
@@ -259,7 +303,7 @@ patients_cc <- patients %>% mutate(CC_group = fct_collapse(Chief_Complaint,
 ))
 ```
 
-```{r Tidy Data}
+```{r chunk-tidy?, eval=FALSE}
 # names(nodes)
 # Now clean the patients data to include: acuity recorded, race black or white, date in edges, chief complaint, MinutesInED, 
 patients35 <- patients_cc %>% filter(Acuity != "Not Recorded", !is.na(Acuity), Race != "2") %>% 
@@ -284,8 +328,7 @@ nodes35 <- nodes %>% filter(Race != "2") %>%
          MinutesInED,  duration_observed, shift_ampm, ED_Disposition, BLACKyn, participationrate)
 ```
 
-
-```{r Participants}
+```{r chunk-participant attributes, eval=FALSE}
 # patient demographics
 # Race stats
 racedf <- data_frame("Race" = c("Black", "Hispanic", "Other", "White"), "Count" = summary(patients35$Race))
@@ -325,7 +368,7 @@ CC_graph <- ggplot(patients35, aes(x = Chief_Complaint, fct_reorder(CC_group, Mi
                                    color = Acuity)) + geom_count() + theme(legend.position = "right")
 ```
 
-```{r Unused Plots, eval=FALSE, include=FALSE}
+```{r chunk-unused plots, eval=FALSE}
 ccgrou_plot <- ggplot(patients35, aes(AGE, fct_reorder(CC_group, MinutesInED), color = Acuity)) +
          geom_count(position = "jitter", alpha = 0.6, shape = 1, size = 4) +
          scale_x_continuous("Patient Age (yrs)", limits = c(1, 100)) + 
@@ -334,17 +377,7 @@ disposition_plot <- ggplot(patients35, aes(ED_Disposition)) + geom_bar() +
   scale_x_discrete("ED Disposition")
 ```
 
-# RTLS Data
-
-This study applies a secondary data analysis design due to the exploritory nature of the research aims. Data was made available with permissions from the originating research team. The purpose of the original study was to describe contact characteristics between patients and staff in the ED of a busy urban hospital to inform cross-infection control measures. Data were collected using a radio-frequency identification system that triangulated patient and staff (nurses, providers, and ancillary staff) locations within the ED at Emory University Hospital Midtwon. Data for this secondary analysis were collected using a prospective, longitudinal, observational design with a random sampling of one day shift and one night shift per week for one year, July 1, 2009 to June 30, 2010. This strategy was chosen to minimize sampling bias related to seasonal or weekly fluctuations in census, acuity, and ED staffing changes. Although a total of 104 shifts were observed, the original research team retained only 81 shifts for reasons related to issues with the RFID system and study staff sick leave [@RN1X]. 
-
-Analysis Plan
-=============
-
-# Data Exploration & Cleaning
-Code for analyses were maintained in private repositories in the GitHub version control platform. Patient characteristic data was evaluated for missing or implausible data with discriptive analyses, and RFID generated networks will be included for statistical analysis if variables of network density, centrality, and a network diversity scale are distributed normally across networks. 
-The data were inconsitant in the way individual participants were tagged. There were `length(unique(nodes$sid))` unique nodes in the vertices data, `length(unique(edges$sidi))` unique nodes in the edges dataset, and `length(unique(patients$sid))` unique patients in the patient characteristics dataset. Furthermore, there were a number of extra dates of data collection in the nodes and patients data. After learning several new tricks, the data were finally subsetted into 35 data frames to be graphed with iGraph.[@IGRAPH] 
-```{r 35 igraphs}
+```{r chunk-shift 35, eval=FALSE}
 # Edges by shift... this could have been easier; but I spent too much time working my way through the data already; no time to learn how to write a function or loop... :(
 
 # Edges by shift... this could have been easier; but I spent too much time working my way through the data already; no time to learn how to write a function or loop... :(
@@ -420,17 +453,7 @@ Vshift34 <- nodes35 %>% filter(d8 == Edges_D8s[34])
 Vshift35 <- nodes35 %>% filter(d8 == Edges_D8s[35])
 ```
 
-##Analysis
-The open-source R statistical language and R-Studio user interface from the developers at CRAN were used for all data exploration, wrangling, cleaning, description, and analysis.[@CRAN] Pandoc's Markdown allows for seemless integration of code, results, visualizations, and author interpretation of the research into a single document.[@MARKDOWN] Running all code and calculating all results within the menuscript itself, Markdown eliminates risk for errors in transferring statistical software output into foreign documents. The data were explored, cleaned, and assessed for statistical assumptions using the Tidyverse group of R packages.[@TIDY, @GGPLOT2] Data were prepared for network visualization and plotted with the network object package iGraph. [@IGRAPH].
-
-
-Results
-=======
-`participants`  `acuity_table`
-The bulk of this project ended up focussing on data exploration and wrangling. Although the data came in tables that had been _cleaned_, there turned out to be a significant amount of wrangling and organizing to re-clean it for the purposes of this study. 
- 
-
-```{r relationships, message=FALSE}
+```{r chunk-relationships, eval=FALSE}
 # Plot acuity by different degree measures
 acuityEIGEN <- nodes %>% filter(participant_type == "_PAT", Acuity != "Not Recorded") %>%
   ggplot(aes(x = Acuity, y = Eigenvector_Centrality, color = Acuity)) + 
@@ -441,9 +464,7 @@ acuitybyWTDEG <- nodes %>% filter(participant_type == "_PAT", Acuity != "Not Rec
 
 ```
 
-We selected 3 representative shifts for visualization and exploration. Although I was not able to analyze these networks to the extent I had hoped, there are a number of visualizations shown below.
-The first shift represented below shows an interesting cluster of highly acute (gray) patients, indicating that there may be something to the hypothesis that acuity will correlate to network position.
-```{r shift 10, warning=FALSE, message=FALSE}
+```{r chunk-shift 10 a, eval=FALSE}
 # head(Eshift1)
 # head(Vshift1)
 # similar <- Eshift1$sidi %in% Vshift1$sid
@@ -471,21 +492,18 @@ legend(x=-1.5, y=-1.1, c("Immediate(1)", "Emergent(2)", "Urgent(3)", "Stable(4)"
        col="#777777", pt.bg=colrs, pt.cex=2, cex=.8, bty="n", ncol=1)
 ```
 
-The graph below is does not display the individual patient acuities, but it does give a slightly better overview of the various positions of patients, staff, RNs, & MDs thoughout the network. 
-
-```{r shift10 labels}
+```{r chunk-shift10 b, eval=FALSE}
 plot(shift10, vertex.shape="none", vertex.label=V(shift10)$label, 
      vertex.label.font=2, vertex.label.color="black", vertex.label.cex=.7, edge.color="gray85")
 ```
 
-The following network offers a unique perspective of the distribution of ties in the network by essentially _getting the nodes out of the way_. What is particularly interesting is teh way the ties appear to be more dense where patients are scored at an acuity of level 1, or "Immediate". A closer look at the distribution of edges may provide further insights in following analyses. 
-```{r shift10 circle}
+```{r chunk-shift10 c, eval=FALSE}
 l <- layout_in_circle(shift10)
 
 plot(shift10, layout=l, vertex.label.dist = 2)
 ```
 
-```{r Shift10 4x4, eval=FALSE}
+```{r chunk-Shift10 d, eval=FALSE}
 
 fr <- layout_with_fr(shift10)
 fr <- norm_coords(fr, ymin=-1, ymax=1, xmin=-1, xmax=1)
@@ -503,8 +521,7 @@ plot(shift10, rescale=F, layout=fr*1.0)
 # Eshift1$i=="_PAT"
 ```
 
-The remaining graphs are generated from two other shifts. Although much of the overall visual characteristics appear similar, there are a number of interesting differences that have given me ideas for further inquiry. 
-```{r shift 23}
+```{r chunk-shift 23 a, eval=FALSE}
 Vshift23 %>% mutate(Acuity = as.factor(Acuity)) ->Vshift23
 shift23 <- graph_from_data_frame(d = Eshift23, directed = FALSE, vertices = Vshift23)
 V(shift23)$label <- Vshift23$participant_type
@@ -533,8 +550,8 @@ legend(x=-1.5, y=-1.1, c("Immediate(1)", "Emergent(2)", "Urgent(3)", "Stable(4)"
 
 
 ```
-As I am able to code more complex data and create better network graphs, and analyze the structure of those graphs, this project will guide research questions.
-```{r shift23 }
+
+```{r chunk-shift23 b, eval=FALSE}
 layouts <- grep("^layout_", ls("package:igraph"), value=TRUE)[-1] 
 
 # Remove layouts that do not apply to our graph.
@@ -550,8 +567,7 @@ for (layout in layouts) {
   plot(shift23, edge.arrow.mode=0, layout=l, main=layout) }
 ```
 
-
-```{r shift13}
+```{r chunk-shift13, eval=FALSE}
 Vshift13 %>% mutate(Acuity = as.factor(Acuity)) -> Vshift13
 shift13 <- graph_from_data_frame(d = Eshift13, directed = FALSE, vertices = Vshift13)
 V(shift13)$label <- Vshift13$participant_type
@@ -574,7 +590,7 @@ num13 <- plot(shift13, vertex.label.dist=2)
        col="#777777", pt.bg=colrs, pt.cex=2, cex=.8, bty="n", ncol=1)
 ```
 
-```{r}
+```{r chunk-i, eval=FALSE}
 layouts <- grep("^layout_", ls("package:igraph"), value=TRUE)[-1] 
 
 # Remove layouts that do not apply to our graph.
