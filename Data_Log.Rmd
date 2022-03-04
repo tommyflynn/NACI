@@ -4,48 +4,61 @@ output: html_notebook
 editor_options: 
   chunk_output_type: console
 ---
-# Versioning & Setup  
+# Setup  
 
-```{r setup, include=FALSE}
+```{r Setup}
+# 1 ----
+# set options
 # This is an example setup chunk from the N741 project
 knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data",
                       echo = FALSE,
                       message = FALSE,
                       warning = FALSE)
 # options(na.action = na.warn)??
-
-
+# 2 ----
 # Load packages
-# library(igraph)
-library(haven)
-library(tidyverse)
-# library(lubridate)
+# library(igraph) # package for working with and visualizing network analysis objectve
+library(haven) # package for importing SAS data files (i.e., ".sas7bdat")
+library(tidyverse) # packages for data import, cleaning, transformation, and analysis
+library(gt) # package for creating and formating latex tables
+# library(lubridate) # package for working with date data
 # library(pander)
 # library(printr)
-# library(forcats)
-# library(modelr)
-
+# library(forcats) # package for making and working with factors
+# library(modelr) # package for statistical modeling in r
 ```
 
 
-Copied from "Data/IPIRC readme file for final code and location-by-second datasets.docx":
-Has sid, date, and columns representing every second of the day (a very wide file).
-Each row contains the locations (numeric values) for that sid-date.
-Recall that sids can repeat over shifts (tags re-used on other patients; staff have permanent tags).
 
-Cpat.zip = all shifts, patient locations per second
-Cstaff.zip==all shifts, staff locations per second
-
-*Room locations with square footage are in an Excel file, which links location numbers to location names
-
-
-```{r data import & transform}
-
-# setwd("~/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data")
-
+```{r data import}
+# Set working directory and identify data files
+data_path <- paste0(getwd(), "/Data/")
+# If you need to change the working directory, use `setwd(data_path)`
+files <- list.files(path = data_path)
+# ----
 # 1a. read "completepat.sas7bdat", 
 pt_complete <- 
-  read_sas("/Users/tommy-two/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data/completepat.sas7bdat")
+  read_sas(paste0(data_path, "completepat.sas7bdat"))
+# ----
+# 1b. read "completestaff.sas7bdat"
+staff_c <- 
+  read_sas("/Users/tommy-two/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data/completestaff.sas7bdat")
+# ----
+# 1c. read "chief_complaints_popn.sas7bdat"
+chiefcomplaint_popn <- read_sas("/Users/tommy-two/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data/Data_Files/chief_complaints_popn.sas7bdat")
+
+
+# OLD CODE ----
+# edges <- haven::read_sas("tommy_edges_2009.sas7bdat") 
+# read in the node traits: nodes
+# nodes <- haven::read_sas("tommy_nodes_2009.sas7bdat")
+# read in patient characteristics data: patients
+# patients <- haven::read_sas("tommyflynn_patient_info_2009.sas7bdat")
+
+```
+
+```{r Wrangling}
+
 # 2a. subset first 10 observations for data transformation code preparation
 pt_head <- head(pt_complete) %>% 
   # 3a. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "time_seconds," and placing respective observations for each "floc" variable into a "location" column
@@ -57,22 +70,33 @@ pt_head <- head(pt_complete) %>%
          am_pm = str_extract(shift_num_ampm, "am|pm")) # %>% 
   # 5. Filter out all rows for which no location was recorded
   # filter(!is.na(location))
+
 glimpse(pt_head)
-# ----
-# 1b. read "completestaff.sas7bdat"
-staff_c <- 
-  read_sas("/Users/tommy-two/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data/completestaff.sas7bdat")
+str(pt_head)
 
-
-cc_popn <- read_sas("/Users/tommy-two/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data/Data_Files/chief_complaints_popn.sas7bdat")
-
-# edges <- haven::read_sas("tommy_edges_2009.sas7bdat") 
-# read in the node traits: nodes
-# nodes <- haven::read_sas("tommy_nodes_2009.sas7bdat")
-# read in patient characteristics data: patients
-# patients <- haven::read_sas("tommyflynn_patient_info_2009.sas7bdat")
 
 ```
+
+### RFID Badge & Location Data  
+"Cpat.zip" and "Cstaff.zip" contain "completepat.sas7bdat" and "completestaff.sas7bdat," which store per-second location information for patients and staff from all observed shifts, respectively.
+* Both completeXXX.sas7bdat tables have columns for every second of the day, named with the prefix "floc" followed by the second
+* Each row contains the locations (numeric values) for the respective SID and date combination
+  +   Some patient SIDs repeat in the data because RFID tags were used by more than one patient per shift
+  +   Staff had permanent tags, so SID numbers were not duplicated
+
+: Columns (i.e., variables), variable classes, and variables definitions in 'completepat.sas7bdat'
+| Variable | Class | Definition |
+|----------|-------|------------|
+| SID | char | individual RFID badge number |
+| date | char | date observation started |
+
+* Room locations with square footage are in an Excel file, which links location numbers to location names
+: Columns (i.e., variables), variable classes, and variables definitions in 'completestaff.sas7bdat'
+| Variable | Class | Definition |
+|----------|-------|------------|
+| SID | char | individual RFID badge number |
+| date | char | date observation started |
+
 
 ```{r Date Fix, eval=FALSE}
 # There is an issue with dates; each dataset has a different set of dates; figure out what dates to use with:
