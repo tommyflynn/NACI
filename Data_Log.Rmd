@@ -59,10 +59,10 @@ kable(tibble(list.files(data_path)))
   
 # Data Import & Cleaning  
 
-## RFID badge location and space data  
+## Patients  
 
-### Patient Location: `pt_complete`  
-RFID badge location room number for every second of every shift, patients only.  
+### Patient Location Dataset: `pt_complete`  
+The SAS data file, "completepat.sas7bdat," contains RFID badge location (by _room number_) for all patients each second of every shift.  
 
 ```{r ReadData pt_complete}
 # 1a. read "completepat.sas7bdat",  
@@ -91,15 +91,9 @@ kable(head(pt_head))
 
 ```
 
-"Cpat.zip" and "Cstaff.zip" contain "completepat.sas7bdat" and "completestaff.sas7bdat," respectively, that contain location information for patients and staff from all observed shifts, respectively.  
-* Both completeXXX.sas7bdat tables have columns for every second of the day, named with the prefix "floc" followed by the second  
-* Each row contains the locations (numeric values) for the respective SID and date combination  
-  +   Some patient SIDs repeat in the data because RFID tags were used by more than one patient per shift  
-  +   Staff had permanent tags, so SID numbers were not duplicated  
-* Room locations with square footage are in an Excel file, which links location numbers to location names  
-* Need to figure out how to filter out redundancy without cutting data.  
 
 ### Staff location: `staff_complete`  
+The SAS data file, "completestaff.sas7bdat," contains RFID badge location (by _room number_) for all staff each second of every shift.  
 ```{r ReadData staff_complete}
 # ---- `staff_complete
 # 1b. read "completestaff.sas7bdat"
@@ -180,16 +174,12 @@ map(geographic_lst, c(head, kable))
 
 ### Patient ID to RFID badge SID key: `id_sid`  
 
-```{r }
-pt_list <- read_sas(paste(data_path, "patient_list_good_2_last.sas7bdat", sep = "/"))
-kable(head(pt_list))
-```
 
 Read & print data from "id_sid_matchup.sas7bdat" & "id_sid_matchup.sas7bdat."  
 ```{r ReadData id_sid}
 # 1d. read "id_sid_matchup.sas7bdat" into id_sid and "id_sid_matchup2.sas7bdat" into id_sid2
-id_sid <- read_sas(paste(data_path, "Data_Files/id_sid_matchup.sas7bdat"))
-id_sid2 <- read_sas(paste(data_path, "Data_Files/id_sid_matchup2.sas7bdat"))
+id_sid <- read_sas(paste(data_path, "id_sid_matchup.sas7bdat", sep = "/"))
+id_sid2 <- read_sas(paste(data_path, "id_sid_matchup2.sas7bdat", sep = "/"))
 ```
 
 ```{r CleanData id_sid}
@@ -215,11 +205,15 @@ Read & print patient acuity data in "ACUITY-patients.xlsx," which is an Excel wo
 
 ```{r ReadData pt_acuity}
 # 1e. read "ACUITY-patients.xlsx
-pt_acuity <- read_xlsx(paste(data_path, "Data_Files/ACUITY-patients.xlsx"))
+pt_acuity <- read_xlsx(paste(data_path, "Data_Files/ACUITY-patients.xlsx", sep = "/"))
 # str(pt_acuity)
-pt_acuity_s2 <- read_xlsx(paste(data_path, "Data_Files/ACUITY-patients.xlsx"), sheet = 2, range = "A2:H83")
+pt_acuity_s2 <- read_xlsx(paste(data_path, "Data_Files/ACUITY-patients.xlsx", sep = "/"), 
+                          sheet = 2, 
+                          range = "A2:H83")
 # str(pt_acuity_s2)
-pt_acuity_s3 <- read_xlsx(paste(data_path, "Data_Files/ACUITY-patients.xlsx"), sheet = 3, range = "A2:G83")
+pt_acuity_s3 <- read_xlsx(paste(data_path, "Data_Files/ACUITY-patients.xlsx"), 
+                          sheet = 3, 
+                          range = "A2:G83")
 # str(pt_acuity_s3)  
 ```
 The first sheet lists the number of patients in each ESI acuity level (columns) by shift (rows).  The other two sheets appear to be variations of the first.  
@@ -238,16 +232,7 @@ kable(head(pt_acuity_s3))
 ```
 
 
-### Patient demographics: `pt_attributes`  
-
-```{r ReadData pt_attributes, eval = FALSE}
-pt_attributes <- read_sas(paste(data_path, "attributes.sas7bdat", sep = "/"))
-```
-
-```{r CleanData pt_attributes}
-
-```
-
+  
 
   
 # SessionInfo  
@@ -259,4 +244,5 @@ sessioninfo::session_info()%>%
   )
 ```
 
+  
   
