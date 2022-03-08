@@ -46,13 +46,13 @@ library(details)
 library(kableExtra)
 ```
 
-## Data direcotry    
+## Dataset filenames & data path    
 Make a path object for the data directory and print a list of all data files
 
 ```{r Data paths}
 data_path <- paste(getwd(), "Data", sep = "/")
 
-kable(tibble(list.files(data_path)))
+kable(tibble(list.files(data_path)), caption = "List of Datasets (filenames)")
 ```
 
   
@@ -155,11 +155,11 @@ list.files(paste(data_path, "/Data_Reference/Geography"))
 #### Room categories/locations: `room_categories`  
 
 ```{r ReadData room_categories}  
-room_categories <- read_xlsx(paste(data_path, "Data_Reference/Geography/room categories.xlsx"))
-room_categories2 <- read_xlsx(paste(data_path, "Data_Reference/Geography/room categories2.xlsx"))
-room_categories20131204 <- read_xlsx(paste(data_path, "Data_Reference/Geography/room categories2 20131204.xlsx"))
-room_categories20131204_area <- read_xlsx(paste(data_path, "Data_Reference/Geography/room categories2 20131204 area.xlsx"))
-room_location <- read_xlsx(paste(data_path, "Data_Reference/Geography/Room Locations and Square Footage - with Correction.xlsx"))
+room_categories <- read_xlsx(paste(data_path, "room_locations", "room categories.xlsx", sep = "/"))
+room_categories2 <- read_xlsx(paste(data_path, "room_locations", "room categories2.xlsx", sep = "/"))
+room_categories20131204 <- read_xlsx(paste(data_path, "room_locations", "room categories2 20131204.xlsx", sep = "/"))
+room_categories20131204_area <- read_xlsx(paste(data_path, "room_locations", "room categories2 20131204 area.xlsx", sep = "/"))
+room_location <- read_xlsx(paste(data_path, "room_locations", "Room Locations and Square Footage - with Correction.xlsx", sep = "/"))
 ```
 
 
@@ -205,13 +205,13 @@ Read & print patient acuity data in "ACUITY-patients.xlsx," which is an Excel wo
 
 ```{r ReadData pt_acuity}
 # 1e. read "ACUITY-patients.xlsx
-pt_acuity <- read_xlsx(paste(data_path, "Data_Files/ACUITY-patients.xlsx", sep = "/"))
+pt_acuity <- read_xlsx(paste(data_path, "ACUITY-patients.xlsx", sep = "/"))
 # str(pt_acuity)
-pt_acuity_s2 <- read_xlsx(paste(data_path, "Data_Files/ACUITY-patients.xlsx", sep = "/"), 
+pt_acuity_s2 <- read_xlsx(paste(data_path, "ACUITY-patients.xlsx", sep = "/"), 
                           sheet = 2, 
                           range = "A2:H83")
 # str(pt_acuity_s2)
-pt_acuity_s3 <- read_xlsx(paste(data_path, "Data_Files/ACUITY-patients.xlsx"), 
+pt_acuity_s3 <- read_xlsx(paste(data_path, "ACUITY-patients.xlsx", sep = "/"), 
                           sheet = 3, 
                           range = "A2:G83")
 # str(pt_acuity_s3)  
