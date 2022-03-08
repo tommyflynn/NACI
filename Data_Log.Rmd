@@ -11,7 +11,7 @@ output:
 
 # Setup  
 
-## Chunk options  
+## Set chunk options & load package libraries  
 ```{r Setup}
 # set options
 # This is an example setup chunk from the N741 project
@@ -20,16 +20,15 @@ knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projec
                       echo = TRUE,
                       message = FALSE,
                       warning = FALSE,
-                      background = "#F7F7F7",
                       tidy = TRUE,
-                      tidy.opts = list(width.cutoff = 60))
+                      tidy.opts = list(width.cutoff = 55))
 # options(na.action = na.warn)??
 
 ```
-## Packages  
+
 ```{r Libraries}
 # Load packages
-# library(igraph) # package for working with and visualizing network analysis objectve
+library(igraph) # package for working with and visualizing network analysis objectve
 library(haven) # package for importing SAS data files (i.e., ".sas7bdat")
 library(tidyverse) # packages for data import, cleaning, transformation, and analysis
 library(gt) # package for creating and formating latex tables
@@ -44,20 +43,16 @@ library(readr)
 library(stringr)
 library(labelled)
 library(details)
+library(kableExtra)
 ```
-## SessionInfo  
-```{r SessionInfo}
-sessioninfo::session_info()%>%
-  details::details(
-    summary = 'Current session info',
-    open    = FALSE
-  )
-```
-## Data directories & files  
-```{r Data paths}
-data_path <- paste0(getwd(), "/Data")
 
-list.files(data_path)
+## Data direcotry    
+Make a path object for the data directory and print a list of all data files
+
+```{r Data paths}
+data_path <- paste(getwd(), "Data", sep = "/")
+
+kable(tibble(list.files(data_path)))
 ```
 
   
@@ -72,8 +67,7 @@ RFID badge location room number for every second of every shift, patients only.
 ```{r ReadData pt_complete}
 # 1a. read "completepat.sas7bdat",  
 pt_complete <- 
-  read_sas(paste0(data_path, "completepat.sas7bdat"))
-
+  read_sas(paste(data_path, "completepat.sas7bdat", sep = "/"))
 ```
 Large data.frame, using the first six observations to code for data cleaning. The table is extremely wide (>4300 columns), I used `pivot_longer()` to reshape it by collapsing all location-by-second columns into two columns, names to `seconds` and values to `location`. This process causes there to be __many repeated SIDs__.  
 
@@ -110,7 +104,7 @@ kable(head(pt_head))
 # ---- `staff_complete
 # 1b. read "completestaff.sas7bdat"
 staff_complete <- 
-  read_sas(paste0(data_path, "completestaff.sas7bdat"))
+  read_sas(paste(data_path, "completestaff.sas7bdat", sep = "/"))
 ```
 
 ```{r CleanData staff_complete}
@@ -137,8 +131,8 @@ Read & print data from "allshifts_edges.sas7bdat" and "edges2.sas7bdat."
 ```{r ReadData edge_list}
 # ---- 'edge_list` ----
 # 1c. read "allshifts_edges.sas7bdat"
-edge_list <- read_sas(paste0(data_path, "Data_Files/allshifts_edges.sas7bdat"))
-edge_list2 <- read_sas(paste0(data_path, "Data_Files/edges2.sas7bdat"))
+edge_list <- read_sas(paste(data_path, "allshifts_edges.sas7bdat", sep = "/"))
+edge_list2 <- read_sas(paste(data_path, "edges2.sas7bdat", sep = "/"))
 ```
 
 ```{r CleanData edge_list}
@@ -159,7 +153,7 @@ paste(names(varbles2), varbles2, sep = ": ")
 List of files in "Data/Data_Reference/Geography":  
 ```{r ListFiles Geography}
 # Create a list of all items in the current working directory
-list.files(paste0(data_path, "/Data_Reference/Geography"))
+list.files(paste(data_path, "/Data_Reference/Geography"))
 # Print directory file list
 ```
 
@@ -167,11 +161,11 @@ list.files(paste0(data_path, "/Data_Reference/Geography"))
 #### Room categories/locations: `room_categories`  
 
 ```{r ReadData room_categories}  
-room_categories <- read_xlsx(paste0(data_path, "Data_Reference/Geography/room categories.xlsx"))
-room_categories2 <- read_xlsx(paste0(data_path, "Data_Reference/Geography/room categories2.xlsx"))
-room_categories20131204 <- read_xlsx(paste0(data_path, "Data_Reference/Geography/room categories2 20131204.xlsx"))
-room_categories20131204_area <- read_xlsx(paste0(data_path, "Data_Reference/Geography/room categories2 20131204 area.xlsx"))
-room_location <- read_xlsx(paste0(data_path, "Data_Reference/Geography/Room Locations and Square Footage - with Correction.xlsx"))
+room_categories <- read_xlsx(paste(data_path, "Data_Reference/Geography/room categories.xlsx"))
+room_categories2 <- read_xlsx(paste(data_path, "Data_Reference/Geography/room categories2.xlsx"))
+room_categories20131204 <- read_xlsx(paste(data_path, "Data_Reference/Geography/room categories2 20131204.xlsx"))
+room_categories20131204_area <- read_xlsx(paste(data_path, "Data_Reference/Geography/room categories2 20131204 area.xlsx"))
+room_location <- read_xlsx(paste(data_path, "Data_Reference/Geography/Room Locations and Square Footage - with Correction.xlsx"))
 ```
 
 
@@ -187,15 +181,15 @@ map(geographic_lst, c(head, kable))
 ### Patient ID to RFID badge SID key: `id_sid`  
 
 ```{r }
-pt_list <- read_sas(paste0(data_path, "/USB from George/ZIPped files/sas7bdat/patient_list_good_2_last.sas7bdat"))
+pt_list <- read_sas(paste(data_path, "patient_list_good_2_last.sas7bdat", sep = "/"))
 kable(head(pt_list))
 ```
 
 Read & print data from "id_sid_matchup.sas7bdat" & "id_sid_matchup.sas7bdat."  
 ```{r ReadData id_sid}
 # 1d. read "id_sid_matchup.sas7bdat" into id_sid and "id_sid_matchup2.sas7bdat" into id_sid2
-id_sid <- read_sas(paste0(data_path, "Data_Files/id_sid_matchup.sas7bdat"))
-id_sid2 <- read_sas(paste0(data_path, "Data_Files/id_sid_matchup2.sas7bdat"))
+id_sid <- read_sas(paste(data_path, "Data_Files/id_sid_matchup.sas7bdat"))
+id_sid2 <- read_sas(paste(data_path, "Data_Files/id_sid_matchup2.sas7bdat"))
 ```
 
 ```{r CleanData id_sid}
@@ -221,11 +215,11 @@ Read & print patient acuity data in "ACUITY-patients.xlsx," which is an Excel wo
 
 ```{r ReadData pt_acuity}
 # 1e. read "ACUITY-patients.xlsx
-pt_acuity <- read_xlsx(paste0(data_path, "Data_Files/ACUITY-patients.xlsx"))
+pt_acuity <- read_xlsx(paste(data_path, "Data_Files/ACUITY-patients.xlsx"))
 # str(pt_acuity)
-pt_acuity_s2 <- read_xlsx(paste0(data_path, "Data_Files/ACUITY-patients.xlsx"), sheet = 2, range = "A2:H83")
+pt_acuity_s2 <- read_xlsx(paste(data_path, "Data_Files/ACUITY-patients.xlsx"), sheet = 2, range = "A2:H83")
 # str(pt_acuity_s2)
-pt_acuity_s3 <- read_xlsx(paste0(data_path, "Data_Files/ACUITY-patients.xlsx"), sheet = 3, range = "A2:G83")
+pt_acuity_s3 <- read_xlsx(paste(data_path, "Data_Files/ACUITY-patients.xlsx"), sheet = 3, range = "A2:G83")
 # str(pt_acuity_s3)  
 ```
 The first sheet lists the number of patients in each ESI acuity level (columns) by shift (rows).  The other two sheets appear to be variations of the first.  
@@ -247,21 +241,22 @@ kable(head(pt_acuity_s3))
 ### Patient demographics: `pt_attributes`  
 
 ```{r ReadData pt_attributes, eval = FALSE}
-pt_attributes <- read_sas(paste0(data_path, "path/to/attributes.sas7bdat"))
+pt_attributes <- read_sas(paste(data_path, "attributes.sas7bdat", sep = "/"))
 ```
 
 ```{r CleanData pt_attributes}
 
 ```
+
+
   
-### Patient clinical information: `pt_clinical`
-
-```{r ReadData pt_clinical}
-
-```
-
-```{r CleanData pt_clinical}
-
+# SessionInfo  
+```{r SessionInfo}
+sessioninfo::session_info()%>%
+  details::details(
+    summary = 'Current session info',
+    open    = FALSE
+  )
 ```
 
   
