@@ -1,2 +1,2 @@
-1_NACI
-Repository for dissertation research
+# Network Analysis of Clinical Interactions (NACI)  
+Repository for dissertation research. 
