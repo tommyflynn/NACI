@@ -1,12 +1,17 @@
 ---
 title: 'Network Analysis of Clinical Interactions (NACI): Data Cleaning Log'
-output:
-  pdf_document: default
-  html_notebook: default
+author: 'Tommy Flynn'
+output: 
+    prettydoc::html_pretty:
+      theme: leonids
+      toc: true
+      number_sections: true
+      df_print: paged
 ---  
 
 # Setup  
 
+## Chunk options  
 ```{r Setup}
 # set options
 # This is an example setup chunk from the N741 project
@@ -21,7 +26,7 @@ knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projec
 # options(na.action = na.warn)??
 
 ```
-
+## Packages  
 ```{r Libraries}
 # Load packages
 # library(igraph) # package for working with and visualizing network analysis objectve
@@ -38,20 +43,30 @@ library(readxl)
 library(readr)
 library(stringr)
 library(labelled)
+library(details)
+```
+## SessionInfo  
+```{r SessionInfo}
+sessioninfo::session_info()%>%
+  details::details(
+    summary = 'Current session info',
+    open    = FALSE
+  )
+```
+## Data directories & files  
+```{r Data paths}
+data_path <- paste0(getwd(), "/Data")
+
+list.files(data_path)
 ```
 
-```{r Data Path}
-data_path <- paste0(getwd(), "/Data/")
-# If you need to change the working directory, use `setwd(data_path)`
-# Create a list of all items in the current working directory
-files <- list.files(path = data_path)
-# Print directory file list
-writeLines(files)
-```
-
+  
+  
 # Data Import & Cleaning  
 
-## pt_complete  
+## RFID badge location and space data  
+
+### Patient Location: `pt_complete`  
 RFID badge location room number for every second of every shift, patients only.  
 
 ```{r ReadData pt_complete}
@@ -61,6 +76,7 @@ pt_complete <-
 
 ```
 Large data.frame, using the first six observations to code for data cleaning. The table is extremely wide (>4300 columns), I used `pivot_longer()` to reshape it by collapsing all location-by-second columns into two columns, names to `seconds` and values to `location`. This process causes there to be __many repeated SIDs__.  
+
 ```{r CleanData pt_complete}
 # 2a. subset first 10 observations for data transformation code preparation
 pt_head <- head(pt_complete) %>% 
@@ -81,11 +97,15 @@ kable(head(pt_head))
 
 ```
 
-Need to figure out how to filter out redundency without cutting data.  
+"Cpat.zip" and "Cstaff.zip" contain "completepat.sas7bdat" and "completestaff.sas7bdat," respectively, that contain location information for patients and staff from all observed shifts, respectively.  
+* Both completeXXX.sas7bdat tables have columns for every second of the day, named with the prefix "floc" followed by the second  
+* Each row contains the locations (numeric values) for the respective SID and date combination  
+  +   Some patient SIDs repeat in the data because RFID tags were used by more than one patient per shift  
+  +   Staff had permanent tags, so SID numbers were not duplicated  
+* Room locations with square footage are in an Excel file, which links location numbers to location names  
+* Need to figure out how to filter out redundancy without cutting data.  
 
-### staff_complete 
-RFID badge location room number for every second of every shift, patients only
-  
+### Staff location: `staff_complete`  
 ```{r ReadData staff_complete}
 # ---- `staff_complete
 # 1b. read "completestaff.sas7bdat"
@@ -112,9 +132,8 @@ staff_head <- head(staff_complete) %>%
 kable(head(staff_head))
 ```
 
-### edge_list
+### List of RFID badge encounters (i.e., clinical interactions) as vertices: `edge_list`  
 Read & print data from "allshifts_edges.sas7bdat" and "edges2.sas7bdat."  
-
 ```{r ReadData edge_list}
 # ---- 'edge_list` ----
 # 1c. read "allshifts_edges.sas7bdat"
@@ -134,10 +153,45 @@ kable(head(edge_list2))
 varbles2 <- var_label(edge_list2)
 paste(names(varbles2), varbles2, sep = ": ")
 ```
+  
+## ED Geography:  
 
-### id_sid  
+List of files in "Data/Data_Reference/Geography":  
+```{r ListFiles Geography}
+# Create a list of all items in the current working directory
+list.files(paste0(data_path, "/Data_Reference/Geography"))
+# Print directory file list
+```
+
+
+#### Room categories/locations: `room_categories`  
+
+```{r ReadData room_categories}  
+room_categories <- read_xlsx(paste0(data_path, "Data_Reference/Geography/room categories.xlsx"))
+room_categories2 <- read_xlsx(paste0(data_path, "Data_Reference/Geography/room categories2.xlsx"))
+room_categories20131204 <- read_xlsx(paste0(data_path, "Data_Reference/Geography/room categories2 20131204.xlsx"))
+room_categories20131204_area <- read_xlsx(paste0(data_path, "Data_Reference/Geography/room categories2 20131204 area.xlsx"))
+room_location <- read_xlsx(paste0(data_path, "Data_Reference/Geography/Room Locations and Square Footage - with Correction.xlsx"))
+```
+
+
+```{r CleanData room_categories}  
+geographic_lst <- list(room_categories, room_categories2, room_categories20131204, room_categories20131204_area, room_location)
+# Print the first 6 rows form each room category/location file iteratively with `purrr::map()`
+map(geographic_lst, c(head, kable))
+```
+     
+   
+## Patient attributes  
+
+### Patient ID to RFID badge SID key: `id_sid`  
+
+```{r }
+pt_list <- read_sas(paste0(data_path, "/USB from George/ZIPped files/sas7bdat/patient_list_good_2_last.sas7bdat"))
+kable(head(pt_list))
+```
+
 Read & print data from "id_sid_matchup.sas7bdat" & "id_sid_matchup.sas7bdat."  
-
 ```{r ReadData id_sid}
 # 1d. read "id_sid_matchup.sas7bdat" into id_sid and "id_sid_matchup2.sas7bdat" into id_sid2
 id_sid <- read_sas(paste0(data_path, "Data_Files/id_sid_matchup.sas7bdat"))
@@ -162,7 +216,7 @@ kable(tibble(idsid2_labeltable))
 
 ```
 
-### pt_acuity  
+### Patient Acuity: `pt_acuity`  
 Read & print patient acuity data in "ACUITY-patients.xlsx," which is an Excel workbook with 3 sheets.  
 
 ```{r ReadData pt_acuity}
@@ -190,26 +244,24 @@ kable(head(pt_acuity_s3))
 ```
 
 
+### Patient demographics: `pt_attributes`  
 
+```{r ReadData pt_attributes, eval = FALSE}
+pt_attributes <- read_sas(paste0(data_path, "path/to/attributes.sas7bdat"))
+```
 
-## RFID Badge & Location Data  
-"Cpat.zip" and "Cstaff.zip" contain "completepat.sas7bdat" and "completestaff.sas7bdat," respectively, that contain location information for patients and staff from all observed shifts, respectively.
-* Both completeXXX.sas7bdat tables have columns for every second of the day, named with the prefix "floc" followed by the second
-* Each row contains the locations (numeric values) for the respective SID and date combination
-  +   Some patient SIDs repeat in the data because RFID tags were used by more than one patient per shift
-  +   Staff had permanent tags, so SID numbers were not duplicated  
-* Room locations with square footage are in an Excel file, which links location numbers to location names  
+```{r CleanData pt_attributes}
 
-Columns (i.e., variables), variable classes, and variables definitions in 'completepat.sas7bdat'  
-| Variable | Class | Definition |  
-|----------|-------|------------|  
-| SID | char | individual RFID badge number |  
-| date | char | date observation started |  
-
-Columns (i.e., variables), variable classes, and variables definitions in 'completestaff.sas7bdat'  
-| Variable | Class | Definition |  
-|----------|-------|------------|  
-| SID | char | individual RFID badge number |  
-| date | char | date observation started |  
+```
   
+### Patient clinical information: `pt_clinical`
+
+```{r ReadData pt_clinical}
+
+```
+
+```{r CleanData pt_clinical}
+
+```
+
   
