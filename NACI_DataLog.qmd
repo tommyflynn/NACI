@@ -1,0 +1,262 @@
+---
+title: "Data Log"
+author: "Tommy Flynn"
+data: 
+format: 
+  html:
+    toc: true
+    code-fold: true
+    code-summary: "Show code"
+    code-tools: true
+    code-block-bg: true
+    code-block-border-left: "#31BAE9"
+    number-sections: true
+    comments:
+      hypothesis: true
+editor: visual
+---
+
+## Setup
+
+```{r}
+# set options
+# This is an example setup chunk from the N741 project
+knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data",
+                      echo = TRUE,
+                      error = TRUE,
+                      tidy = TRUE,
+                      tidy.opts = list(width.cutoff = 60),
+                      message = FALSE,
+                      warning = FALSE)
+# options(na.action = na.warn)??
+```
+
+```{r Library}
+# Load packages
+library(igraph) # package for working with and visualizing network analysis objectve
+library(haven) # package for importing SAS data files (i.e., ".sas7bdat")
+library(tidyverse) # packages for data import, cleaning, transformation, and analysis
+library(gt) # package for creating and formating latex tables
+library(lubridate) # package for working with date data
+library(knitr)
+# library(pander) # ????
+# library(printr) # ????
+# library(forcats) # package for making and working with factors
+# library(modelr) # package for statistical modeling in r
+library(readxl)
+library(readr)
+library(stringr)
+library(labelled)
+library(details)
+library(kableExtra)
+```
+
+## Data Directory & File Names
+
+Make a path object for the data directory and print a list of all data files
+
+```{r Directories}
+data_path <- paste(getwd(), "Data", sep = "/")
+
+# kable(tibble(list.files(data_path)), caption = "List of Datasets (filenames)")
+data_files <- list.files(path = data_path, pattern = "*.sas7bdat", full.names = TRUE)
+data_filenames <- as.list(list.files(path = data_path, pattern = "*.sas7bdat", full.names = FALSE))
+data_filenames
+# Iterate over SAS data files in `data_files` and read all data into a new list of dfs, `data_list`
+# data_list <- map(data_files, read_sas)
+# Iterate over all dfs in data_list, print a glimpse of each
+# map(data_list, glimpse)
+```
+
+# Data Import & Cleaning
+
+## Patients
+
+### Patient Location Dataset: `pt_complete`
+
+The SAS data file, "completepat.sas7bdat," contains RFID badge location (by *room number*) for all patients each second of every shift.
+
+```{r ReadData pt_complete, eval=FALSE}
+#| eval: false  
+# 1a. read "completepat.sas7bdat",  
+pt_complete <- 
+  read_sas(paste(data_path, "completepat.sas7bdat", sep = "/"))
+```
+
+Large data.frame, using the first six observations to code for data cleaning. The table is extremely wide (\>4300 columns), I used `pivot_longer()` to reshape it by collapsing all location-by-second columns into two columns, names to `seconds` and values to `location`. This process causes there to be **many repeated SIDs**.
+
+```{r CleanData pt_complete}
+#| eval: false  
+# 2a. subset first 10 observations for data transformation code preparation
+pt_head <- head(pt_complete) %>% 
+# 3a. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "seconds," and placing respective observations for each "floc" variable into a "location_num" column
+  pivot_longer(cols = starts_with("floc"), names_to = "seconds", values_to = "location_num") %>% 
+# 4a. Remove the prefix "floc" from `time_seconds` and keep the digits as `seconds`
+  mutate(seconds = as.integer(str_replace(seconds, "floc", "")), 
+         shift_num_ampm = str_trim(shift_num_ampm),
+         shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")),
+         am_pm = str_extract(shift_num_ampm, "am|pm"),
+         date = make_date(year = year, month = mon, day = day)) # %>% 
+# 5. Filter out all rows for which no location was recorded
+# filter(!is.na(location)) %>% 
+
+# View data frame structure
+# glimpse(pt_head)
+kable(head(pt_head)) 
+
+```
+
+### Staff location: `staff_complete`
+
+The SAS data file, "completestaff.sas7bdat," contains RFID badge location (by *room number*) for all staff each second of every shift.
+
+```{r ReadData staff_complete}
+#| eval: false  
+# ---- `staff_complete
+# 1b. read "completestaff.sas7bdat"
+staff_complete <- 
+  read_sas(paste(data_path, "completestaff.sas7bdat", sep = "/"))
+```
+
+```{r CleanData staff_complete}
+#| eval: false  
+# 2a. subset first 10 observations for data transformation code preparation
+staff_head <- head(staff_complete) %>% 
+  # 3a. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "seconds," and placing respective observations for each "floc" variable into a "location_num" column
+  pivot_longer(cols = starts_with("floc"), names_to = "seconds", values_to = "location_num") %>% 
+  # 4a. Remove the prefix "floc" from `time_seconds` and keep the digits as `seconds`
+  mutate(seconds = as.integer(str_replace(seconds, "floc", "")), 
+         shift_num_ampm = str_trim(shift_num_ampm),
+         shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")),
+         am_pm = str_extract(shift_num_ampm, "am|pm"),
+         date = make_date(year = year, month = mon, day = day)) # %>% 
+  # 5. Filter out all rows for which no location was recorded
+  # filter(!is.na(location)) %>% 
+# View data frame structure
+# str(staff_head)
+# glimpse(staff_head)
+kable(head(staff_head))
+```
+
+### List of RFID badge encounters (i.e., clinical interactions) as vertices: `edge_list`
+
+Read & print data from "allshifts_edges.sas7bdat" and "edges2.sas7bdat."
+
+```{r ReadData edge_list}
+#| eval: false    
+# 1c. read "allshifts_edges.sas7bdat"
+edge_list <- read_sas(paste(data_path, "allshifts_edges.sas7bdat", sep = "/"))
+edge_list2 <- read_sas(paste(data_path, "edges2.sas7bdat", sep = "/"))
+```
+
+```{r CleanData edge_list}
+#| eval: false  
+# Print the first 6 observations of edge_list
+kable(head(edge_list))
+# Print out the variable labels for all columns of edge_list (object varbles1)
+# varbles1 <- var_label(edge_list)
+# paste(names(varbles1), varbles1, sep = ": ")
+# Print the first 6 observations of edge_list2
+kable(head(edge_list2))
+# Print out the variable labels for all columns of edge_list2 (object varbles2)
+# varbles2 <- var_label(edge_list2)
+# paste(names(varbles2), varbles2, sep = ": ")
+```
+
+## ED Geography:
+
+#### Room categories/locations: `room_categories`
+
+```{r ReadData room_categories, eval=FALSE}
+#| eval: false  
+room_categories <- read_xlsx(paste(data_path, "room_locations", "room categories.xlsx", sep = "/"))
+room_categories2 <- read_xlsx(paste(data_path, "room_locations", "room categories2.xlsx", sep = "/"))
+room_categories20131204 <- read_xlsx(paste(data_path, "room_locations", "room categories2 20131204.xlsx", sep = "/"))
+room_categories20131204_area <- read_xlsx(paste(data_path, "room_locations", "room categories2 20131204 area.xlsx", sep = "/"))
+room_location <- read_xlsx(paste(data_path, "Room Locations and Square Footage - with Correction.xlsx", sep = "/"))
+```
+
+```{r CleanData room_categories, eval=FALSE}
+#| eval: false  
+geographic_lst <- list(room_categories, room_categories2, room_categories20131204, room_categories20131204_area, room_location)
+# Print the first 6 rows form each room category/location file iteratively with `purrr::map()`
+map(geographic_lst, c(head, kable))
+```
+
+## Patient attributes
+
+### Patient ID to RFID badge SID key: `id_sid`
+
+Read & print data from "id_sid_matchup.sas7bdat" & "id_sid_matchup.sas7bdat."
+
+```{r ReadData id_sid}
+#| eval: false  
+# 1d. read "id_sid_matchup.sas7bdat" into id_sid and "id_sid_matchup2.sas7bdat" into id_sid2
+id_sid <- read_sas(paste(data_path, "id_sid_matchup.sas7bdat", sep = "/"))
+id_sid2 <- read_sas(paste(data_path, "id_sid_matchup2.sas7bdat", sep = "/"))
+```
+
+```{r CleanData id_sid}
+#| eval: false   
+# Print the first 6 rows of id_sid
+kable(head(id_sid))
+# Print the first 6 rows of id_sid2
+kable(head(id_sid2))
+# Print variable labels
+idsid_varbles <- var_label(id_sid)
+idsid2_varbles <- var_label(id_sid2)
+
+idsid_labeltable <- paste(names(idsid_varbles), idsid_varbles, sep = ": ")
+kable(tibble(idsid_labeltable))
+
+idsid2_labeltable <- paste(names(idsid2_varbles), idsid2_varbles, sep = ": ")
+kable(tibble(idsid2_labeltable))
+
+
+```
+
+### Patient Acuity: `pt_acuity`
+
+Read & print patient acuity data in "ACUITY-patients.xlsx," which is an Excel workbook with 3 sheets.
+
+```{r ReadData pt_acuity}
+#| eval: false   
+# 1e. read "ACUITY-patients.xlsx
+pt_acuity <- read_xlsx(paste(data_path, "ACUITY-patients.xlsx", sep = "/"))
+# str(pt_acuity)
+pt_acuity_s2 <- read_xlsx(paste(data_path, "ACUITY-patients.xlsx", sep = "/"), 
+                          sheet = 2, 
+                          range = "A2:H83")
+# str(pt_acuity_s2)
+pt_acuity_s3 <- read_xlsx(paste(data_path, "ACUITY-patients.xlsx", sep = "/"), 
+                          sheet = 3, 
+                          range = "A2:G83")
+# str(pt_acuity_s3)  
+```
+
+The first sheet lists the number of patients in each ESI acuity level (columns) by shift (rows). The other two sheets appear to be variations of the first.
+
+```{r CleanData pt_acuity}
+#| eval: false  
+# Patient acuity (Emergency Severity Index; ESI) counts by shift
+kable(head(pt_acuity))
+# Pivot_wider to view number of patients in each ESI category by shift
+pt_acuity %>% 
+  group_by(Acuity) %>% 
+  count(Shift) %>% 
+  pivot_wider(names_from = Acuity, values_from = n) %>% 
+  head() %>% kable()
+# Print the first 6 rows of the other two sheets in the xlsx file
+kable(head(pt_acuity_s2))
+kable(head(pt_acuity_s3))
+```
+
+# SessionInfo
+
+```{r SessionInfo}
+sessioninfo::session_info()%>%
+  details::details(
+    summary = 'Current session info',
+    open    = FALSE
+  )
+```

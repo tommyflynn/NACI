@@ -6,7 +6,7 @@ output:
       theme: leonids
       toc: true
       number_sections: true
-      df_print: paged
+      code_folding: hide
 ---  
 
 # Setup  
@@ -16,12 +16,10 @@ output:
 # set options
 # This is an example setup chunk from the N741 project
 knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data",
-                      results = "asis",
                       echo = TRUE,
-                      message = FALSE,
-                      warning = FALSE,
+                      error = TRUE,
                       tidy = TRUE,
-                      tidy.opts = list(width.cutoff = 55))
+                      tidy.opts = list(width.cutoff = 60))
 # options(na.action = na.warn)??
 
 ```
@@ -49,10 +47,17 @@ library(kableExtra)
 ## Dataset filenames & data path    
 Make a path object for the data directory and print a list of all data files
 
-```{r Data paths}
+```{r Directories}
 data_path <- paste(getwd(), "Data", sep = "/")
 
-kable(tibble(list.files(data_path)), caption = "List of Datasets (filenames)")
+# kable(tibble(list.files(data_path)), caption = "List of Datasets (filenames)")
+data_files <- list.files(path = data_path, pattern = "*.sas7bdat", full.names = TRUE)
+data_filenames <- as.list(list.files(path = data_path, pattern = "*.sas7bdat", full.names = FALSE))
+
+# Iterate over SAS data files in `data_files` and read all data into a new list of dfs, `data_list`
+# data_list <- map(data_files, read_sas)
+# Iterate over all dfs in data_list, print a glimpse of each
+# map(data_list, glimpse)
 ```
 
   
@@ -133,37 +138,29 @@ edge_list2 <- read_sas(paste(data_path, "edges2.sas7bdat", sep = "/"))
 # Print the first 6 observations of edge_list
 kable(head(edge_list))
 # Print out the variable labels for all columns of edge_list (object varbles1)
-varbles1 <- var_label(edge_list)
-paste(names(varbles1), varbles1, sep = ": ")
+# varbles1 <- var_label(edge_list)
+# paste(names(varbles1), varbles1, sep = ": ")
 # Print the first 6 observations of edge_list2
 kable(head(edge_list2))
 # Print out the variable labels for all columns of edge_list2 (object varbles2)
-varbles2 <- var_label(edge_list2)
-paste(names(varbles2), varbles2, sep = ": ")
+# varbles2 <- var_label(edge_list2)
+# paste(names(varbles2), varbles2, sep = ": ")
 ```
   
 ## ED Geography:  
 
-List of files in "Data/Data_Reference/Geography":  
-```{r ListFiles Geography}
-# Create a list of all items in the current working directory
-list.files(paste(data_path, "/Data_Reference/Geography"))
-# Print directory file list
-```
-
-
 #### Room categories/locations: `room_categories`  
 
-```{r ReadData room_categories}  
+```{r ReadData room_categories, eval=FALSE}  
 room_categories <- read_xlsx(paste(data_path, "room_locations", "room categories.xlsx", sep = "/"))
 room_categories2 <- read_xlsx(paste(data_path, "room_locations", "room categories2.xlsx", sep = "/"))
 room_categories20131204 <- read_xlsx(paste(data_path, "room_locations", "room categories2 20131204.xlsx", sep = "/"))
 room_categories20131204_area <- read_xlsx(paste(data_path, "room_locations", "room categories2 20131204 area.xlsx", sep = "/"))
-room_location <- read_xlsx(paste(data_path, "room_locations", "Room Locations and Square Footage - with Correction.xlsx", sep = "/"))
+room_location <- read_xlsx(paste(data_path, "Room Locations and Square Footage - with Correction.xlsx", sep = "/"))
 ```
 
 
-```{r CleanData room_categories}  
+```{r CleanData room_categories, eval=FALSE}  
 geographic_lst <- list(room_categories, room_categories2, room_categories20131204, room_categories20131204_area, room_location)
 # Print the first 6 rows form each room category/location file iteratively with `purrr::map()`
 map(geographic_lst, c(head, kable))
