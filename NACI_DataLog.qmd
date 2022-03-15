@@ -76,7 +76,7 @@ data_filenames
 
 The SAS data file, "completepat.sas7bdat," contains RFID badge location (by *room number*) for all patients each second of every shift.
 
-```{r ReadData pt_complete, eval=FALSE}
+```{r ReadData pt_complete}
 #| eval: false  
 # 1a. read "completepat.sas7bdat",  
 pt_complete <- 
@@ -105,6 +105,12 @@ pt_head <- head(pt_complete) %>%
 kable(head(pt_head)) 
 
 ```
+
+```{r Patient info}
+patient_files <- as.list(data_files[(str_detect(data_files, "patient|person"))])
+map(patient_files, read_sas)
+```
+
 
 ### Staff location: `staff_complete`
 
