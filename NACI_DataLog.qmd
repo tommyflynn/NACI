@@ -288,3 +288,4 @@ sessioninfo::session_info()%>%
     open    = FALSE
   )
 ```
+  
