@@ -1,0 +1,73 @@
+---
+title: "NACI libraries"
+author: "Tommy J. Flynn"
+format: 
+  html:
+    theme: solar
+    toc: true
+    toc-location: left
+    code-fold: false
+    code-summary: "Source code"
+    code-tools: true
+    code-block-bg: true
+    code-block-border-left: "#31BAE9"
+    number-sections: true
+    comments:
+      hypothesis: true
+editor: visual
+---
+
+```{r Chunk options}
+#| error: true
+#| warning: true
+#| message: true
+# set options
+# This is an example setup chunk from the N741 project
+require(knitr)
+knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data",
+                      echo = TRUE,
+                      error = TRUE,
+                      tidy = TRUE,
+                      tidy.opts = list(width.cutoff = 60),
+                      message = FALSE,
+                      warning = FALSE,
+                      cache = TRUE)
+# options(na.action = na.warn)??
+```
+
+Note: For help with Quarto, see: <https://quarto.org>  
+---
+# Packages for *Network Analysis*
+
+
+
+## `library(networkDynamic)`  
+```{r igraph}
+library(igraph)
+```
+
+## `library(networkDynamic)`  
+"The `networkDynamic` package provides support for a simple family of dynamic extensions to the network (Butts, 2008) class; these are currently accomplished via the standard network attribute functionality (and hence the resulting objects are still compatible with all conventional routines), but greatly facilitate the practical storage and utilization of dynamic network data. The dynamic extensions are motivated in part by the need to have a consistent data format for exchanging data, storing the inputs and outputs to relational event models, statistical estimation and simulation tools such as ergm (Hunter et al., 2008b) and tergm (Krivitsky P and Handcock M , 2013), and dynamic visualizations" [(Butts et al., 2021, p. 2-3)](https://cran.r-project.org/web/packages/networkDynamic/vignettes/networkDynamic.pdf). [@RN15098]
+
+```{r networkDynamic}
+library(networkDynamic)
+```
+
+
+# Packages for Data *Cleaning & Transformation*
+```{r Other Packages}
+library(tidyverse) # set of packages for data import, cleaning, transformation, and analysis from the "Tidyverse"  
+# library(gt) # package for creating and formatting latex tables
+library(lubridate) # package for working with date data
+# library(pander) # ????
+library(printr) # Print R objects in 'knitr' documents nicely see the [vignette](https://cran.r-project.org/web/packages/printr/vignettes/printr.html#vignettedataset-lists)  
+# library(forcats) # package for making and working with factors
+# library(modelr) # package for statistical modeling in r
+library(readxl)
+library(readr)
+library(stringr)
+library(labelled)
+library(details)
+library(kableExtra)
+library(htmltools)
+```
