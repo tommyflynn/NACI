@@ -1,6 +1,6 @@
 ---
-title: "NACI libraries"
-author: "Tommy J. Flynn"
+title: "Package Directory"
+author: "Tommy Flynn"
 format: 
   html:
     theme: solar
@@ -17,7 +17,7 @@ format:
 editor: visual
 ---
 
-```{r Chunk options}
+```{r Options}
 #| error: true
 #| warning: true
 #| message: true
@@ -35,26 +35,102 @@ knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projec
 # options(na.action = na.warn)??
 ```
 
-Note: For help with Quarto, see: <https://quarto.org>  
----
-# Packages for *Network Analysis*
+# Packages for reading data from files
+`readr`
+`haven` for SAS and SPSS data files (e.g., ".sas7bdat")
 
+`readxl` for Microsoft Excel spreadsheets
 
+`labelled`
 
-## `library(networkDynamic)`  
+# Packages for data wrangling & cleaning
+
+`tidyverse` is a set of packages for data import, cleaning, transformation, and analysis from the "Tidyverse"
+
+`lubridate` is for working with date-times
+
+`anytime` date-times
+
+library(hms) \# times
+
+library(forcats) \# package for making and working with factors
+
+library(stringr)
+
+library(details)
+
+\# Packages for formatting output with rmarkdown/latex/quarto/knitr/etc. ----
+
+library(kableExtra)
+
+library(htmltools)
+
+library(gt) \# create and format latex tables
+
+library(pander) \# ????
+
+library(printr) \# Print R objects in 'knitr' documents nicely see the \[(vignette)\](https://cran.r-project.org/web/packages/printr/vignettes/printr.html#vignettedataset-lists)
+
+\# Packages for Analyzing Data ----
+
+\# Time series analyses
+
+library(tseries)
+
+library(xts)
+
+\# Network analyses
+
+library(igraph)
+
+\# Statistics & Models
+
+library(modelr) \# package for statistical modeling in r
+
+# Importing, Cleaning, & Transforming Data
+
+## Data import
+
+### `readr`
+
+The key problem that readr solves is parsing a flat file into a tibble. Parsing is the process of taking a text file and turning it into a rectangular tibble where each column is the appropriate part. Parsing takes place in three basic stages:\
+
+1.  The flat file is parsed into a rectangular matrix of strings.
+2.  The type of each column is determined.
+3.  Each column of strings is parsed into a vector of a more specific type.
+
+It's easiest to learn how this works in the opposite order Below, you'll learn how the:\
+
+1.  Vector parsers turn a character vector in to a more specific type.
+2.  Column specification describes the type of each column and the strategy readr uses to guess types so you don't need to supply them all.
+3.  Rectangular parsers turn a flat file into a matrix of rows and columns.
+
+Each `parse*()` is coupled with a `col_*()` function, which will be used in the process of parsing a complete tibble.
+
+# Data Analysis
+
+## Statistics
+
+## Network Analysis
+
+### `igraph`
+
 ```{r igraph}
 library(igraph)
 ```
 
-## `library(networkDynamic)`  
-"The `networkDynamic` package provides support for a simple family of dynamic extensions to the network (Butts, 2008) class; these are currently accomplished via the standard network attribute functionality (and hence the resulting objects are still compatible with all conventional routines), but greatly facilitate the practical storage and utilization of dynamic network data. The dynamic extensions are motivated in part by the need to have a consistent data format for exchanging data, storing the inputs and outputs to relational event models, statistical estimation and simulation tools such as ergm (Hunter et al., 2008b) and tergm (Krivitsky P and Handcock M , 2013), and dynamic visualizations" [(Butts et al., 2021, p. 2-3)](https://cran.r-project.org/web/packages/networkDynamic/vignettes/networkDynamic.pdf). [@RN15098]
+> "The main goals of the igraph library is to provide a set of data types and functions for 1) pain-free implementation of graph algorithms, 2) fast handling of large graphs, with millions of vertices and edges, 3) allowing rapid prototyping via high level languages like R" [(igraph.org, 2022)](https://igraph.org/r/html/latest/aaa-igraph-package.html).
+
+## `library(networkDynamic)`
+
+> "The `networkDynamic` package provides support for a simple family of dynamic extensions to the network (Butts, 2008) class; these are currently accomplished via the standard network attribute functionality (and hence the resulting objects are still compatible with all conventional routines), but greatly facilitate the practical storage and utilization of dynamic network data. The dynamic extensions are motivated in part by the need to have a consistent data format for exchanging data, storing the inputs and outputs to relational event models, statistical estimation and simulation tools such as ergm (Hunter et al., 2008b) and tergm (Krivitsky P and Handcock M , 2013), and dynamic visualizations" [(Butts et al., 2021, p. 2-3)](https://cran.r-project.org/web/packages/networkDynamic/vignettes/networkDynamic.pdf). [@RN15098]
 
 ```{r networkDynamic}
 library(networkDynamic)
 ```
 
+# Cleaning & Transformation
 
-# Packages for Data *Cleaning & Transformation*
 ```{r Other Packages}
 library(tidyverse) # set of packages for data import, cleaning, transformation, and analysis from the "Tidyverse"  
 # library(gt) # package for creating and formatting latex tables
@@ -70,4 +146,15 @@ library(labelled)
 library(details)
 library(kableExtra)
 library(htmltools)
+```
+
+# APIs & Cloud Computing
+
+## `bigrquery`: An Interface to Google's BigQuery API
+
+The bigrquery package makes it easy to work with data stored in Google BigQuery by allowing you to query BigQuery tables and retrieve metadata about your projects, datasets, tables, and jobs.
+
+```{r}
+library("bigrquery")
+
 ```

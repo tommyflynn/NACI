@@ -3,8 +3,8 @@
   <meta charset="utf-8">
   <meta name="generator" content="quarto-0.9.93">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <meta name="author" content="Tommy J. Flynn">
-  <title>NACI libraries</title>
+  <meta name="author" content="Tommy Flynn">
+  <title>Package Directory</title>
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -77,16 +77,16 @@
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
 
-  <script src="NCI_Libraries_files/libs/clipboard/clipboard.min.js"></script>
-  <script src="NCI_Libraries_files/libs/quarto-html/quarto.js"></script>
-  <script src="NCI_Libraries_files/libs/quarto-html/popper.min.js"></script>
-  <script src="NCI_Libraries_files/libs/quarto-html/tippy.umd.min.js"></script>
-  <script src="NCI_Libraries_files/libs/quarto-html/anchor.min.js"></script>
-  <link href="NCI_Libraries_files/libs/quarto-html/tippy.css" rel="stylesheet">
-  <link href="NCI_Libraries_files/libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet">
-  <script src="NCI_Libraries_files/libs/bootstrap/bootstrap.min.js"></script>
-  <link href="NCI_Libraries_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-  <link href="NCI_Libraries_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+  <script src="NACI_Libraries_files/libs/clipboard/clipboard.min.js"></script>
+  <script src="NACI_Libraries_files/libs/quarto-html/quarto.js"></script>
+  <script src="NACI_Libraries_files/libs/quarto-html/popper.min.js"></script>
+  <script src="NACI_Libraries_files/libs/quarto-html/tippy.umd.min.js"></script>
+  <script src="NACI_Libraries_files/libs/quarto-html/anchor.min.js"></script>
+  <link href="NACI_Libraries_files/libs/quarto-html/tippy.css" rel="stylesheet">
+  <link href="NACI_Libraries_files/libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet">
+  <script src="NACI_Libraries_files/libs/bootstrap/bootstrap.min.js"></script>
+  <link href="NACI_Libraries_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+  <link href="NACI_Libraries_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
   <script async="" src="https://hypothes.is/embed.js"></script>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
@@ -98,13 +98,27 @@
   <nav id="TOC" role="doc-toc">
 <h2 id="toc-title">Table of contents</h2>
 <ul>
-<li><a href="#note-for-help-with-quarto-see-httpsquarto.org" class="nav-link active" data-scroll-target="#note-for-help-with-quarto-see-httpsquarto.org"> <span class="header-section-number">0.1</span> Note: For help with Quarto, see: <span>https://quarto.org</span></a></li>
-<li><a href="#packages-for-network-analysis" class="nav-link" data-scroll-target="#packages-for-network-analysis"> <span class="header-section-number">1</span> Packages for <em>Network Analysis</em></a>
+<li><a href="#importing-cleaning-transforming-data" class="nav-link active" data-scroll-target="#importing-cleaning-transforming-data"> <span class="header-section-number">1</span> Importing, Cleaning, &amp; Transforming Data</a>
 <ul class="collapse">
-<li><a href="#librarynetworkdynamic" class="nav-link" data-scroll-target="#librarynetworkdynamic"> <span class="header-section-number">1.1</span> <code>library(networkDynamic)</code></a></li>
-<li><a href="#librarynetworkdynamic-1" class="nav-link" data-scroll-target="#librarynetworkdynamic-1"> <span class="header-section-number">1.2</span> <code>library(networkDynamic)</code></a></li>
+<li><a href="#data-import" class="nav-link" data-scroll-target="#data-import"> <span class="header-section-number">1.1</span> Data import</a>
+<ul class="collapse">
+<li><a href="#readr" class="nav-link" data-scroll-target="#readr"> <span class="header-section-number">1.1.1</span> <code>readr</code></a></li>
 </ul></li>
-<li><a href="#packages-for-data-cleaning-transformation" class="nav-link" data-scroll-target="#packages-for-data-cleaning-transformation"> <span class="header-section-number">2</span> Packages for Data <em>Cleaning &amp; Transformation</em></a></li>
+</ul></li>
+<li><a href="#data-analysis" class="nav-link" data-scroll-target="#data-analysis"> <span class="header-section-number">2</span> Data Analysis</a>
+<ul class="collapse">
+<li><a href="#statistics" class="nav-link" data-scroll-target="#statistics"> <span class="header-section-number">2.1</span> Statistics</a></li>
+<li><a href="#network-analysis" class="nav-link" data-scroll-target="#network-analysis"> <span class="header-section-number">2.2</span> Network Analysis</a>
+<ul class="collapse">
+<li><a href="#igraph" class="nav-link" data-scroll-target="#igraph"> <span class="header-section-number">2.2.1</span> <code>igraph</code></a></li>
+</ul></li>
+<li><a href="#librarynetworkdynamic" class="nav-link" data-scroll-target="#librarynetworkdynamic"> <span class="header-section-number">2.3</span> <code>library(networkDynamic)</code></a></li>
+</ul></li>
+<li><a href="#cleaning-transformation" class="nav-link" data-scroll-target="#cleaning-transformation"> <span class="header-section-number">3</span> Cleaning &amp; Transformation</a></li>
+<li><a href="#apis-cloud-computing" class="nav-link" data-scroll-target="#apis-cloud-computing"> <span class="header-section-number">4</span> APIs &amp; Cloud Computing</a>
+<ul class="collapse">
+<li><a href="#bigrquery-an-interface-to-googles-bigquery-api" class="nav-link" data-scroll-target="#bigrquery-an-interface-to-googles-bigquery-api"> <span class="header-section-number">4.1</span> <code>bigrquery</code>: An Interface to Google’s BigQuery API</a></li>
+</ul></li>
 </ul>
 </nav>
 </div>
@@ -112,7 +126,7 @@
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title-block"><div><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
 
-<div class="quarto-title"><h1 class="title">NACI libraries</h1></div><div class="quarto-title-meta"><div><div class="quarto-title-meta-heading">Author</div><div class="quarto-title-meta-contents"><div class="quarto-title-authors"><p>Tommy J. Flynn</p></div></div></div></div></header>
+<div class="quarto-title"><h1 class="title">Package Directory</h1></div><div class="quarto-title-meta"><div><div class="quarto-title-meta-heading">Author</div><div class="quarto-title-meta-contents"><div class="quarto-title-authors"><p>Tommy Flynn</p></div></div></div></div></header>
 
 <div class="cell">
 <div class="sourceCode" id="cb1"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set options</span></span>
@@ -131,28 +145,60 @@
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">cache =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># options(na.action = na.warn)??</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="note-for-help-with-quarto-see-httpsquarto.org" class="level2" data-number="0.1">
-<h2 data-number="0.1" class="anchored" data-anchor-id="note-for-help-with-quarto-see-httpsquarto.org"><span class="header-section-number">0.1</span> Note: For help with Quarto, see: <a href="https://quarto.org" class="uri">https://quarto.org</a></h2>
+<section id="importing-cleaning-transforming-data" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Importing, Cleaning, &amp; Transforming Data</h1>
+<section id="data-import" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="data-import"><span class="header-section-number">1.1</span> Data import</h2>
+<section id="readr" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="readr"><span class="header-section-number">1.1.1</span> <code>readr</code></h3>
+<p>The key problem that readr solves is parsing a flat file into a tibble. Parsing is the process of taking a text file and turning it into a rectangular tibble where each column is the appropriate part. Parsing takes place in three basic stages:<br>
+</p>
+<ol type="1">
+<li>The flat file is parsed into a rectangular matrix of strings.</li>
+<li>The type of each column is determined.</li>
+<li>Each column of strings is parsed into a vector of a more specific type.</li>
+</ol>
+<p>It’s easiest to learn how this works in the opposite order Below, you’ll learn how the:<br>
+</p>
+<ol type="1">
+<li>Vector parsers turn a character vector in to a more specific type.</li>
+<li>Column specification describes the type of each column and the strategy readr uses to guess types so you don’t need to supply them all.</li>
+<li>Rectangular parsers turn a flat file into a matrix of rows and columns.</li>
+</ol>
+<p>Each <code>parse*()</code> is coupled with a <code>col_*()</code> function, which will be used in the process of parsing a complete tibble.</p>
 </section>
-<section id="packages-for-network-analysis" class="level1" data-number="1">
-<h1 data-number="1"><span class="header-section-number">1</span> Packages for <em>Network Analysis</em></h1>
-<section id="librarynetworkdynamic" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="librarynetworkdynamic"><span class="header-section-number">1.1</span> <code>library(networkDynamic)</code></h2>
-<div class="cell" data-hash="NCI_Libraries_cache/html/igraph_90f89557aea444f1619d2fe70df85927">
+</section>
+</section>
+<section id="data-analysis" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Data Analysis</h1>
+<section id="statistics" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="statistics"><span class="header-section-number">2.1</span> Statistics</h2>
+</section>
+<section id="network-analysis" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="network-analysis"><span class="header-section-number">2.2</span> Network Analysis</h2>
+<section id="igraph" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="igraph"><span class="header-section-number">2.2.1</span> <code>igraph</code></h3>
+<div class="cell" data-hash="NACI_Libraries_cache/html/igraph_392b273836bcdb63fe60e5017e1fe03e">
 <div class="sourceCode" id="cb4"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(igraph)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<blockquote class="blockquote">
+<p>“The main goals of the igraph library is to provide a set of data types and functions for 1) pain-free implementation of graph algorithms, 2) fast handling of large graphs, with millions of vertices and edges, 3) allowing rapid prototyping via high level languages like R” <a href="https://igraph.org/r/html/latest/aaa-igraph-package.html">(igraph.org, 2022)</a>.</p>
+</blockquote>
 </section>
-<section id="librarynetworkdynamic-1" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="librarynetworkdynamic-1"><span class="header-section-number">1.2</span> <code>library(networkDynamic)</code></h2>
+</section>
+<section id="librarynetworkdynamic" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="librarynetworkdynamic"><span class="header-section-number">2.3</span> <code>library(networkDynamic)</code></h2>
+<blockquote class="blockquote">
 <p>“The <code>networkDynamic</code> package provides support for a simple family of dynamic extensions to the network (Butts, 2008) class; these are currently accomplished via the standard network attribute functionality (and hence the resulting objects are still compatible with all conventional routines), but greatly facilitate the practical storage and utilization of dynamic network data. The dynamic extensions are motivated in part by the need to have a consistent data format for exchanging data, storing the inputs and outputs to relational event models, statistical estimation and simulation tools such as ergm (Hunter et al., 2008b) and tergm (Krivitsky P and Handcock M , 2013), and dynamic visualizations” <a href="https://cran.r-project.org/web/packages/networkDynamic/vignettes/networkDynamic.pdf">(Butts et al., 2021, p.&nbsp;2-3)</a>. <span class="citation" data-cites="RN15098">[@RN15098]</span></p>
-<div class="cell" data-hash="NCI_Libraries_cache/html/networkDynamic_6f53406e19960b93589a021e4fb6d11b">
+</blockquote>
+<div class="cell" data-hash="NACI_Libraries_cache/html/networkDynamic_39671693049f4ce25fcde40133347a9e">
 <div class="sourceCode" id="cb5"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(networkDynamic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
-<section id="packages-for-data-cleaning-transformation" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> Packages for Data <em>Cleaning &amp; Transformation</em></h1>
-<div class="cell" data-hash="NCI_Libraries_cache/html/Other Packages_eb0c485829446475bd50af747bfecaf0">
+<section id="cleaning-transformation" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Cleaning &amp; Transformation</h1>
+<div class="cell" data-hash="NACI_Libraries_cache/html/Other Packages_2d0619cc29a49e984d35d18ff8befec7">
 <div class="sourceCode" id="cb6"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)  <span class="co"># set of packages for data import, cleaning, transformation, and analysis from the 'Tidyverse'  </span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># library(gt) # package for creating and formatting latex</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># tables</span></span>
@@ -170,82 +216,128 @@
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(htmltools)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="apis-cloud-computing" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> APIs &amp; Cloud Computing</h1>
+<section id="bigrquery-an-interface-to-googles-bigquery-api" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="bigrquery-an-interface-to-googles-bigquery-api"><span class="header-section-number">4.1</span> <code>bigrquery</code>: An Interface to Google’s BigQuery API</h2>
+<p>The bigrquery package makes it easy to work with data stored in Google BigQuery by allowing you to query BigQuery tables and retrieve metadata about your projects, datasets, tables, and jobs.</p>
+<div class="cell" data-hash="NACI_Libraries_cache/html/unnamed-chunk-2_8c45526093ae32efa2a8d4d82fcbca21">
+<div class="sourceCode" id="cb7"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"bigrquery"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <!-- -->
-<div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title anchored" id="quarto-embedded-source-code-modal-label" data-anchor-id="packages-for-data-cleaning-transformation">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb7" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "NACI libraries"</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Tommy J. Flynn"</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">    theme: solar</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-location: left</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: false</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-summary: "Source code"</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">    code-block-bg: true</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">    code-block-border-left: "#31BAE9"</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">    comments:</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">      hypothesis: true</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="an">editor:</span><span class="co"> visual</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="in">```{r Chunk options}</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="co"># set options</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="co"># This is an example setup chunk from the N741 project</span></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(knitr)</span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">root.dir =</span> <span class="st">"~/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data"</span>,</span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>                      <span class="at">echo =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>                      <span class="at">error =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>                      <span class="at">tidy =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>                      <span class="at">tidy.opts =</span> <span class="fu">list</span>(<span class="at">width.cutoff =</span> <span class="dv">60</span>),</span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>                      <span class="at">message =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>                      <span class="at">warning =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>                      <span class="at">cache =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="co"># options(na.action = na.warn)??</span></span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>Note: For help with Quarto, see: <span class="ot">&lt;https://quarto.org&gt;</span>  </span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>---</span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a><span class="fu"># Packages for *Network Analysis*</span></span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a><span class="fu">## `library(networkDynamic)`  </span></span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="in">```{r igraph}</span></span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(igraph)</span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="fu">## `library(networkDynamic)`  </span></span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>"The <span class="in">`networkDynamic`</span> package provides support for a simple family of dynamic extensions to the network (Butts, 2008) class; these are currently accomplished via the standard network attribute functionality (and hence the resulting objects are still compatible with all conventional routines), but greatly facilitate the practical storage and utilization of dynamic network data. The dynamic extensions are motivated in part by the need to have a consistent data format for exchanging data, storing the inputs and outputs to relational event models, statistical estimation and simulation tools such as ergm (Hunter et al., 2008b) and tergm (Krivitsky P and Handcock M , 2013), and dynamic visualizations" <span class="co">[</span><span class="ot">(Butts et al., 2021, p. 2-3)</span><span class="co">](https://cran.r-project.org/web/packages/networkDynamic/vignettes/networkDynamic.pdf)</span>. <span class="co">[</span><span class="ot">@RN15098</span><span class="co">]</span></span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a><span class="in">```{r networkDynamic}</span></span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(networkDynamic)</span>
-<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a><span class="fu"># Packages for Data *Cleaning &amp; Transformation*</span></span>
-<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a><span class="in">```{r Other Packages}</span></span>
-<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) <span class="co"># set of packages for data import, cleaning, transformation, and analysis from the "Tidyverse"  </span></span>
-<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a><span class="co"># library(gt) # package for creating and formatting latex tables</span></span>
-<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate) <span class="co"># package for working with date data</span></span>
-<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a><span class="co"># library(pander) # ????</span></span>
-<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(printr) <span class="co"># Print R objects in 'knitr' documents nicely see the [vignette](https://cran.r-project.org/web/packages/printr/vignettes/printr.html#vignettedataset-lists)  </span></span>
-<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a><span class="co"># library(forcats) # package for making and working with factors</span></span>
-<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a><span class="co"># library(modelr) # package for statistical modeling in r</span></span>
-<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
-<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
-<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)</span>
-<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(details)</span>
-<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
-<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(htmltools)</span>
-<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title anchored" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb8" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Package Directory"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Tommy Flynn"</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">    theme: solar</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-location: left</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: false</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-summary: "Source code"</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">    code-block-bg: true</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">    code-block-border-left: "#31BAE9"</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">    comments:</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">      hypothesis: true</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="an">editor:</span><span class="co"> visual</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="in">```{r Options}</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| error: true</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: true</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: true</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="co"># set options</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co"># This is an example setup chunk from the N741 project</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(knitr)</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">root.dir =</span> <span class="st">"~/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data"</span>,</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>                      <span class="at">echo =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>                      <span class="at">error =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>                      <span class="at">tidy =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>                      <span class="at">tidy.opts =</span> <span class="fu">list</span>(<span class="at">width.cutoff =</span> <span class="dv">60</span>),</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>                      <span class="at">message =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>                      <span class="at">warning =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>                      <span class="at">cache =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="co"># options(na.action = na.warn)??</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="fu"># Importing, Cleaning, &amp; Transforming Data</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data import</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a><span class="fu">### `readr`</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>The key problem that readr solves is parsing a flat file into a tibble. Parsing is the process of taking a text file and turning it into a rectangular tibble where each column is the appropriate part. Parsing takes place in three basic stages:\</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>The flat file is parsed into a rectangular matrix of strings.</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>The type of each column is determined.</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Each column of strings is parsed into a vector of a more specific type.</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>It's easiest to learn how this works in the opposite order Below, you'll learn how the:\</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Vector parsers turn a character vector in to a more specific type.</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Column specification describes the type of each column and the strategy readr uses to guess types so you don't need to supply them all.</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Rectangular parsers turn a flat file into a matrix of rows and columns.</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>Each <span class="in">`parse*()`</span> is coupled with a <span class="in">`col_*()`</span> function, which will be used in the process of parsing a complete tibble.</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data Analysis</span></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a><span class="fu">## Statistics</span></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a><span class="fu">## Network Analysis</span></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a><span class="fu">### `igraph`</span></span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a><span class="in">```{r igraph}</span></span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(igraph)</span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; "The main goals of the igraph library is to provide a set of data types and functions for 1) pain-free implementation of graph algorithms, 2) fast handling of large graphs, with millions of vertices and edges, 3) allowing rapid prototyping via high level languages like R" </span><span class="co">[</span><span class="ot">(igraph.org, 2022)</span><span class="co">](https://igraph.org/r/html/latest/aaa-igraph-package.html)</span><span class="at">.</span></span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a><span class="fu">## `library(networkDynamic)`</span></span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; "The </span><span class="in">`networkDynamic`</span><span class="at"> package provides support for a simple family of dynamic extensions to the network (Butts, 2008) class; these are currently accomplished via the standard network attribute functionality (and hence the resulting objects are still compatible with all conventional routines), but greatly facilitate the practical storage and utilization of dynamic network data. The dynamic extensions are motivated in part by the need to have a consistent data format for exchanging data, storing the inputs and outputs to relational event models, statistical estimation and simulation tools such as ergm (Hunter et al., 2008b) and tergm (Krivitsky P and Handcock M , 2013), and dynamic visualizations" </span><span class="co">[</span><span class="ot">(Butts et al., 2021, p. 2-3)</span><span class="co">](https://cran.r-project.org/web/packages/networkDynamic/vignettes/networkDynamic.pdf)</span><span class="at">. </span><span class="co">[</span><span class="ot">@RN15098</span><span class="co">]</span></span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a><span class="in">```{r networkDynamic}</span></span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(networkDynamic)</span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a><span class="fu"># Cleaning &amp; Transformation</span></span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a><span class="in">```{r Other Packages}</span></span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) <span class="co"># set of packages for data import, cleaning, transformation, and analysis from the "Tidyverse"  </span></span>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a><span class="co"># library(gt) # package for creating and formatting latex tables</span></span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate) <span class="co"># package for working with date data</span></span>
+<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a><span class="co"># library(pander) # ????</span></span>
+<span id="cb8-87"><a href="#cb8-87" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(printr) <span class="co"># Print R objects in 'knitr' documents nicely see the [vignette](https://cran.r-project.org/web/packages/printr/vignettes/printr.html#vignettedataset-lists)  </span></span>
+<span id="cb8-88"><a href="#cb8-88" aria-hidden="true" tabindex="-1"></a><span class="co"># library(forcats) # package for making and working with factors</span></span>
+<span id="cb8-89"><a href="#cb8-89" aria-hidden="true" tabindex="-1"></a><span class="co"># library(modelr) # package for statistical modeling in r</span></span>
+<span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb8-91"><a href="#cb8-91" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb8-92"><a href="#cb8-92" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb8-93"><a href="#cb8-93" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)</span>
+<span id="cb8-94"><a href="#cb8-94" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(details)</span>
+<span id="cb8-95"><a href="#cb8-95" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb8-96"><a href="#cb8-96" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(htmltools)</span>
+<span id="cb8-97"><a href="#cb8-97" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-99"><a href="#cb8-99" aria-hidden="true" tabindex="-1"></a><span class="fu"># APIs &amp; Cloud Computing</span></span>
+<span id="cb8-100"><a href="#cb8-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-101"><a href="#cb8-101" aria-hidden="true" tabindex="-1"></a><span class="fu">## `bigrquery`: An Interface to Google's BigQuery API</span></span>
+<span id="cb8-102"><a href="#cb8-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-103"><a href="#cb8-103" aria-hidden="true" tabindex="-1"></a>The bigrquery package makes it easy to work with data stored in Google BigQuery by allowing you to query BigQuery tables and retrieve metadata about your projects, datasets, tables, and jobs.</span>
+<span id="cb8-104"><a href="#cb8-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-107"><a href="#cb8-107" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"bigrquery"</span>)</span>
+<span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-110"><a href="#cb8-110" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
+</section>
 </section>
 </main>
 <!-- /main column -->
