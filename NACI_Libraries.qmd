@@ -1,160 +1,446 @@
 ---
 title: "Package Directory"
 author: "Tommy Flynn"
+bibliography: package_citations.bib
 format: 
   html:
-    theme: solar
     toc: true
-    toc-location: left
-    code-fold: false
-    code-summary: "Source code"
+    code-summary: "show code"
     code-tools: true
     code-block-bg: true
     code-block-border-left: "#31BAE9"
     number-sections: true
-    comments:
-      hypothesis: true
 editor: visual
 ---
 
-```{r Options}
-#| error: true
-#| warning: true
-#| message: true
-# set options
-# This is an example setup chunk from the N741 project
-require(knitr)
-knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data",
-                      echo = TRUE,
-                      error = TRUE,
-                      tidy = TRUE,
-                      tidy.opts = list(width.cutoff = 60),
-                      message = FALSE,
-                      warning = FALSE,
-                      cache = TRUE)
-# options(na.action = na.warn)??
+```{r}
+#| message: false
+#| warning: false
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, error = TRUE)
+# Importing ----
+library(readr)
+library(haven)
+library(readxl)
+library(httr)
+library(googlesheets4)
+library(googledrive)
+library(rvest)
+library(jsonlite)
+library(xml2)
+library(bigrquery)
+library(DBI)
+library(rgdal)
+library(maptools)
+# Wrangling ----
+library(dplyr)
+library(tibble)
+library(labelled)
+library(forcats)
+library(stringr)
+library(lubridate)
+library(anytime)
+library(hms)
+# Analyzing ----
+library(gtsummary)
+library(xtable)
+library(ztable)
+library(sjmisc)
+library(psych)
+library(memisc)
+library(quantreg)
+## Networks
+library(igraph)
+library(networkDynamic)
+## Models
+library(modelr)
+library(corrr)
+## Time-Series
+library(tseries)
+library(xts)
+## Spatio-temporal
+library(spacetime)
+library(leaflet)
+library(rgdal)
+library(maptools)
+# Programming ----
+library(purrr)
+library(magrittr)
+library(glue)
+# Formatting ----
+library(quarto)
+library(printr)
+library(knitr)
+library(kableExtra)
+library(htmltools)
+library(gt)
+library(pander)
+library(bibtex)
+library(RefManageR)
 ```
 
-# Packages for reading data from files
-`readr`
-`haven` for SAS and SPSS data files (e.g., ".sas7bdat")
+**This is a list of all loaded packages:**
 
-`readxl` for Microsoft Excel spreadsheets
+```{r}
+# Print a list of all loaded packages:
+pkgs <- search()[str_which(search(), "package")]
+pkgs <- str_replace(pkgs, "package:", "")
+pkgs
+```
 
-`labelled`
+`lsp` is a function that prints all package verbs for a given package:
 
-# Packages for data wrangling & cleaning
+```{r lsp}
+#| echo: true
+# Function to print a list of all functions for a given package. Copied from stack overflow user ["Maiasaura"] (https://stackoverflow.com/questions/12575098/to-see-all-the-content-not-just-objects-in-a-package-in-r)
 
-`tidyverse` is a set of packages for data import, cleaning, transformation, and analysis from the "Tidyverse"
+lsp <- function (package, all.names = FALSE, pattern = ".") {
+    package <- deparse(substitute(package))
+    lst(Functions = ls(pos = paste("package", package, sep = ":"), all.names = all.names, 
+        pattern = pattern))
+}
+```
 
-`lubridate` is for working with date-times
+# Importing
 
-`anytime` date-times
+## `readr`
 
-library(hms) \# times
+```{r}
+lsp(readr)
+```
 
-library(forcats) \# package for making and working with factors
+## `haven`
 
-library(stringr)
+```{r}
+lsp(haven)
+```
 
-library(details)
+## `readxl`
 
-\# Packages for formatting output with rmarkdown/latex/quarto/knitr/etc. ----
+```{r}
+lsp(readxl)
+```
 
-library(kableExtra)
+## `httr` for web APIs
 
-library(htmltools)
+```{r}
+lsp(httr)
+```
 
-library(gt) \# create and format latex tables
+## `googlesheets4` for Google Sheets via the Sheets API v4.
 
-library(pander) \# ????
+```{r}
+lsp(googlesheets4)
+```
 
-library(printr) \# Print R objects in 'knitr' documents nicely see the \[(vignette)\](https://cran.r-project.org/web/packages/printr/vignettes/printr.html#vignettedataset-lists)
+## `googledrive` for Google Drive files.
 
-\# Packages for Analyzing Data ----
+```{r}
+lsp(googledrive)
+```
 
-\# Time series analyses
+## `rvest` for web scraping.
 
-library(tseries)
+```{r}
+lsp(rvest)
+```
 
-library(xts)
+## `jsonlite` for JSON
 
-\# Network analyses
+```{r}
+lsp(jsonlite)
+```
 
-library(igraph)
+-   Maintained by Jeroen Ooms
 
-\# Statistics & Models
+## `xml2` for XML
 
-library(modelr) \# package for statistical modeling in r
+```{r}
+lsp(xml2)
+```
 
-# Importing, Cleaning, & Transforming Data
+## `bigrquery` for Google Cloud
 
-## Data import
+```{r}
+lsp(bigrquery)
+```
 
-### `readr`
+## `DBI`
 
-The key problem that readr solves is parsing a flat file into a tibble. Parsing is the process of taking a text file and turning it into a rectangular tibble where each column is the appropriate part. Parsing takes place in three basic stages:\
+`DBI` is for relational databases (Maintained by Kirill Müller). You'll need to pair `DBI` with a database specific backends like `RSQLite`, `RMariaDB`, `RPostgres`, or `odbc`. Learn more at <https://db.rstudio.com>.
 
-1.  The flat file is parsed into a rectangular matrix of strings.
-2.  The type of each column is determined.
-3.  Each column of strings is parsed into a vector of a more specific type.
+```{r}
+lsp(DBI)
+```
 
-It's easiest to learn how this works in the opposite order Below, you'll learn how the:\
+# Wrangling
 
-1.  Vector parsers turn a character vector in to a more specific type.
-2.  Column specification describes the type of each column and the strategy readr uses to guess types so you don't need to supply them all.
-3.  Rectangular parsers turn a flat file into a matrix of rows and columns.
+## `dplyr`
 
-Each `parse*()` is coupled with a `col_*()` function, which will be used in the process of parsing a complete tibble.
+```{r}
+lsp(dplyr)
+```
 
-# Data Analysis
+-   Two packages that allow you to interface with different backends (e.g., databases) using the same `dplyr` syntax:
 
-## Statistics
+    -   `dbplyr` allows you to use remote database tables by converting dplyr code into SQL.
 
-## Network Analysis
+    -   `dtplyr` provides a `data.table` backend by automatically translating to the equivalent, but usually much faster, `data.table` code.
+
+## `tibble`
+
+```{r}
+lsp(tibble)
+```
+
+## `labelled`
+
+```{r}
+lsp(labelled)
+```
+
+## `forcats`
+
+```{r}
+lsp(forcats)
+```
+
+## `stringr`
+
+```{r}
+lsp(stringr)
+```
+
+## `lubridate`
+
+```{r}
+lsp(lubridate)
+```
+
+## `anytime`
+
+```{r}
+lsp(anytime)
+```
+
+## `hms`
+
+```{r}
+lsp(hms)
+```
+
+# Analyzing
+
+## Descriptive Statistics & Summary Tables
+
+### `gtsummary`
+
+```{r}
+lsp(gtsummary)
+```
+
+### `xtable`
+
+```{r}
+lsp(xtable)
+```
+
+### `ztable`
+
+```{r}
+lsp(ztable)
+```
+
+### `sjmisc`
+
+```{r}
+lsp(sjmisc)
+```
+
+### `psych`
+
+A general purpose toolbox for personality, psychometric theory and experimental psychology. Functions are primarily for multivariate analysis and scale construction using factor analysis, principal component analysis, cluster analysis and reliability analysis, although others provide basic descriptive statistics. Item Response Theory is done using factor analysis of tetrachoric and polychoric correlations. Functions for analyzing data at multiple levels include within and between group statistics, including correlations and factor analysis. Functions for simulating and testing particular item and test structures are included. Several functions serve as a useful front end for structural equation modeling. Graphical displays of path diagrams, factor analysis and structural equation models are created using basic graphics. Some of the functions are written to support a book on psychometric theory as well as publications in personality research. For more information, see the <https://personality-project.org/r/> web page.
+
+```{r}
+lsp(psych)
+```
+
+## Models & Statistical Methods
+
+### `gtsummary`
+
+***see above*** \### `memisc`
+
+```{r}
+lsp(memisc)
+```
+
+### `quantreg`
+
+### `tidymodels`
+
+-   `modelr`
+
+-   `rsample`
+
+    -   `rsample` provides infrastructure for efficient data splitting and resampling.
+
+-   `parsnip`
+
+    -   `parsnip` is a tidy, unified interface to models that can be used to try a range of models without getting bogged down in the syntactical minutiae of the underlying packages.
+
+-   `tune`
+
+    -   tune helps you optimize the hyperparameters of your model and pre-processing steps.
+
+-   `workflows`
+
+    -   workflows bundle your pre-processing, modeling, and post-processing together.
+
+-   `yardstick`
+
+    -   yardstick measures the effectiveness of models using performance metrics.
+
+-   `broom`
+
+    -   broom converts the information in common statistical R objects into user-friendly, predictable formats.
+
+-   `dials`
+
+    -   dials creates and manages tuning parameters and parameter grids.
+
+-   `infer`
+
+    -   `infer` is a high-level API for tidyverse-friendly statistical inference.
+
+-   `corrr`
+
+    -   The `corrr` package has tidy interfaces for working with correlation matrices.
+
+### `modelr`
+
+```{r}
+lsp(modelr)
+```
+
+### `corrr`
+
+```{r}
+lsp(corrr)
+```
+
+## Network Analyses
 
 ### `igraph`
 
-```{r igraph}
-library(igraph)
-```
-
 > "The main goals of the igraph library is to provide a set of data types and functions for 1) pain-free implementation of graph algorithms, 2) fast handling of large graphs, with millions of vertices and edges, 3) allowing rapid prototyping via high level languages like R" [(igraph.org, 2022)](https://igraph.org/r/html/latest/aaa-igraph-package.html).
 
-## `library(networkDynamic)`
+```{r}
+lsp(igraph)
+```
+
+### `networkDynamic`
 
 > "The `networkDynamic` package provides support for a simple family of dynamic extensions to the network (Butts, 2008) class; these are currently accomplished via the standard network attribute functionality (and hence the resulting objects are still compatible with all conventional routines), but greatly facilitate the practical storage and utilization of dynamic network data. The dynamic extensions are motivated in part by the need to have a consistent data format for exchanging data, storing the inputs and outputs to relational event models, statistical estimation and simulation tools such as ergm (Hunter et al., 2008b) and tergm (Krivitsky P and Handcock M , 2013), and dynamic visualizations" [(Butts et al., 2021, p. 2-3)](https://cran.r-project.org/web/packages/networkDynamic/vignettes/networkDynamic.pdf). [@RN15098]
 
-```{r networkDynamic}
-library(networkDynamic)
+```{r}
+lsp(networkDynamic)
 ```
 
-# Cleaning & Transformation
+## Time Series Analyses
 
-```{r Other Packages}
-library(tidyverse) # set of packages for data import, cleaning, transformation, and analysis from the "Tidyverse"  
-# library(gt) # package for creating and formatting latex tables
-library(lubridate) # package for working with date data
-# library(pander) # ????
-library(printr) # Print R objects in 'knitr' documents nicely see the [vignette](https://cran.r-project.org/web/packages/printr/vignettes/printr.html#vignettedataset-lists)  
-# library(forcats) # package for making and working with factors
-# library(modelr) # package for statistical modeling in r
-library(readxl)
-library(readr)
-library(stringr)
-library(labelled)
-library(details)
-library(kableExtra)
-library(htmltools)
-```
-
-# APIs & Cloud Computing
-
-## `bigrquery`: An Interface to Google's BigQuery API
-
-The bigrquery package makes it easy to work with data stored in Google BigQuery by allowing you to query BigQuery tables and retrieve metadata about your projects, datasets, tables, and jobs.
+### `tseries`
 
 ```{r}
-library("bigrquery")
+lsp(tseries)
+```
 
+### `xts`
+
+```{r}
+lsp(xts)
+```
+
+# Programming
+
+## `purrr`
+
+```{r}
+lsp(purrr)
+```
+
+## `magrittr`
+
+`magrittr` provides the pipe, `%>%` used throughout the tidyverse. It also provide a number of more specialized piping operators (like `%$%` and `%<>%`) that can be useful in other places.
+
+```{r}
+lsp(magrittr)
+```
+
+## `glue`
+
+`glue` provides an alternative to `paste()` that makes it easier to combine data and strings.
+
+```{r}
+lsp(glue)
+```
+
+# Formatting
+
+## `quarto`
+
+```{r}
+lsp(quarto)
+```
+
+## `knitr`
+
+```{r}
+lsp(knitr)
+```
+
+## `kableExtra`
+
+```{r}
+lsp(kableExtra)
+```
+
+## `htmltools`
+
+```{r}
+lsp(htmltools)
+```
+
+## `gt`
+
+```{r}
+lsp(gt)
+```
+
+## `pander`
+
+```{r}
+lsp(pander)
+```
+
+## `printr`
+
+```{r}
+lsp(printr)
+
+```
+
+Print R objects in 'knitr' documents nicely see the [(vignette)](https://cran.r-project.org/web/packages/printr/vignettes/printr.html#vignettedataset-lists)
+
+## Citations & Bibliographies
+
+## `bibtex`
+
+```{r}
+lsp(bibtex)
+```
+
+## `RefManageR`
+
+```{r}
+lsp(RefManageR)
 ```

@@ -1,13 +1,13 @@
 ---
 title: "Data Log"
 author: "Tommy Flynn"
+bibliography: package_citations.bib
 format: 
   html:
     theme: solar
     toc: true
-    toc-location: left
-    code-fold: false
-    code-summary: "Show source code"
+    code-fold: true
+    code-summary: "show code"
     code-tools: true
     code-block-bg: true
     code-block-border-left: "#31BAE9"
@@ -17,16 +17,13 @@ format:
 editor: visual
 ---
 
-# Setup
-
-```{r Knitr Options}
+```{r Options}
 #| error: false
 #| warning: false
 #| message: false
 # set options
 library(knitr)
 knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data",
-                      echo = TRUE,
                       error = TRUE,
                       tidy = TRUE,
                       tidy.opts = list(width.cutoff = 60),
@@ -37,119 +34,181 @@ knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projec
 ```
 
 ```{r Packages}
-# Chunk options:----
 #| message: false
 #| warning: false
-# Packages for reading data from files: ----
-library(readr)
-library(haven) # for SAS and SPSS data files (e.g., ".sas7bdat")
-library(readxl) # for Microsoft Excel spreadsheets
+# Importing ----
+# library(readr)
+# library(haven)
+# library(readxl)
+# library(httr)
+# library(googlesheets4)
+# library(googledrive)
+# library(rvest)
+# library(jsonlite)
+# library(xml2)
+# library(bigrquery)
+# library(DBI)
+# library(rgdal)
+# library(maptools)
+# Wrangling ----
+library(dplyr)
+library(tibble)
 library(labelled)
-# Packages for data wrangling & cleaning: ----
-library(tidyverse) # set of packages for data import, cleaning, transformation, and analysis from the "Tidyverse"  
-library(lubridate) # working with date-times
-library(anytime) # data-times
-library(hms) # times
-library(forcats) # package for making and working with factors
+library(forcats)
 library(stringr)
-
-
-library(details)
-
-# Packages for formatting output with rmarkdown/latex/quarto/knitr/etc. ----
-library(kableExtra)
-library(htmltools)
-library(gt) # create and format latex tables
-library(pander) # ????
-library(printr) # Print R objects in 'knitr' documents nicely see the [(vignette)](https://cran.r-project.org/web/packages/printr/vignettes/printr.html#vignettedataset-lists)  
-
-# Packages for Analyzing Data ----
-# Time series analyses
+# library(lubridate)
+# library(anytime)
+# library(hms)
+# Analyzing ----
+library(gtsummary)
+library(xtable)
+library(ztable)
+library(sjmisc)
+library(psych)
+# library(memisc)
+# library(quantreg)
+## Networks
+# library(igraph)
+# library(networkDynamic)
+## Models
+# library(modelr)
+# library(corrr)
+## Time-Series
 library(tseries)
 library(xts)
-# Network analyses
-library(igraph)
-# Statistics & Models
-library(modelr) # package for statistical modeling in r
+## Spatio-temporal
+library(spacetime)
+# library(leaflet)
+# library(rgdal)
+# library(maptools)
+# Programming ----
+library(purrr)
+library(magrittr)
+library(glue)
+# Formatting ----
+library(quarto)
+library(printr)
+library(knitr)
+library(kableExtra)
+library(htmltools)
+library(gt)
+library(pander)
+library(bibtex)
+library(RefManageR)
 ```
 
-## Data Files
+# Import
 
-Create an object that points to the directory (i.e., "\~/project_folder/Data") that contains data. Use that object to print a list of all the data files from the parent study.
+Create an object that points to the directory where data are stored  (i.e., "/[project directory]/Data"). Then, that object is printed as a list of data file names.
 
-```{r Data Directory}
+```{r Data_Directory}
 data_path <- paste(getwd(), "Data", sep = "/")
 ```
 
-```{r Data_File_Lists}
-# 1. For each file type storing data (i.e., .sas7bdat, .xls/.xlsx, and .txt), create two lists containing; 1) complete pathnames for all .sas7bdat files, and  2) file names without complete path names for all data files
-# 2. Print the names of all data files by mapping over the list of file names (not file path names)
+```{r All_Files}
+#| echo = false
+# 1.  This code creates two lists for each file type storing data (i.e., .sas7bdat, .xls/.xlsx, and .txt), each list containing; 1) the complete pathnames for all files, and  2) the file names (i.e., without complete path names) for all data files
 all_data_fullpaths <- list.files(path = data_path,
                              pattern = ".sas7bdat|.xls|.csv|.txt",
                              full.names = TRUE)
+
 all_data_filenames <- lst(list.files(path = data_path,
                                      pattern = ".sas7bdat|.xls|.csv|.txt",
                                      full.names = FALSE))
 
-
-map(all_data_filenames, paste, sep = "/n")
-
 ```
 
-```{r SAS_Data}
-# Create list of all .sas7bdat (SAS)  file paths and  files names
+After removing duplicates and files containing data from other studies, there were `r length(all_data_filenames[[1]])` " files with data. Each file contained unique variables (columns), observations (rows), and structures (wide vs. long). The combined size of these files was `r sum(file.size(all_data_fullpaths))/1000000000` gigabytes.
+
+## Data Files by Type
+
+```{r SAS_Files}
+# Create lists for all .sas7bdat (SAS)  file paths and  files names
 sas_data_fullpaths <- list.files(path = data_path,
                              pattern = "*.sas7bdat",
                              full.names = TRUE)
-sas_data_filenames <- lst(list.files(path = data_path,
+sas_data_filenames <- lst(SAS_Files = list.files(path = data_path,
                                      pattern = "*.sas7bdat",
                                      full.names = FALSE))
 
-# Print the names of all .sas7bdat (SAS) files
-map(sas_data_filenames, paste, sep = "/n")
+# Print the names of all .sas7bdat (SAS) database files
+sas_tbl <- as_tibble(sas_data_filenames)
+sas_tbl
 ```
 
-After removing duplicate data files and files containing data from other studies, there were `r length(sas_data_filenames)` ".sas7bdat" (SAS data) files. The combined size of these files was `r sum(file.size(paste(data_path, sas_data_filenames, sep = "/")))/1000000000` gigabytes.
-
-```{r Excel_files}
+```{r Excel_Files}
 # Create list of all .xlsx and .xls (Excel)  file paths and  files names
 xlsx_data_fullpaths <- list.files(path = data_path,
                              pattern = "*.xls",
                              full.names = TRUE)
-xlsx_data_filenames <- lst(list.files(path = data_path,
+xlsx_data_filenames <- lst(XL_Files = list.files(path = data_path,
                                      pattern = "*.xls",
                                      full.names = FALSE))
 
 # Print list of all .xlsx (Excel) files
-xlsx_data_filenames
+xl_tbl <- as_tibble(xlsx_data_filenames)
+xl_tbl
 ```
 
 ```{r TXT_files}
+#| message: false
 # Create list of all .txt file paths and  files names
 txt_data_fullpaths <- list.files(path = data_path,
                              pattern = "*.txt",
                              full.names = TRUE)
-txt_data_filenames <- lst(list.files(path = data_path,
+txt_data_filenames <- lst(TXT_Files = list.files(path = data_path,
                                      pattern = "*.txt",
                                      full.names = FALSE))
 
-# Print list of all .txt filenames
-txt_data_filenames
+# Store tibble of all .txt filenames
+txt_tbl <- as_tibble(txt_data_filenames)
+
+txt_tbl
 ```
 
-# Importing & Cleaning
+```{r CSV_files}
+#| message: false
+# Create list of all .csv file paths and  files names
+csv_data_fullpaths <- list.files(path = data_path,
+                             pattern = "*.csv",
+                             full.names = TRUE)
+csv_data_filenames <- lst(CSV_Files = list.files(path = data_path,
+                                     pattern = "*.csv",
+                                     full.names = FALSE))
+
+# Store tibble of all .csv filenames
+csv_tbl <- as_tibble(csv_data_filenames)
+
+csv_tbl
+```
+
+```{r Import}
+sas_data <- map(sas_data_fullpaths[1:5], read_sas)
+sas_data_fullpaths[str_detect(sas_data_fullpaths, "patient|pat(?!2)")]
+```
+
+
+# Wrangle
+
+## Dates & Times
+
+```{r Shifts}
+
+
+```
+
 
 ## Patient Data
 
-### Patient ID to RFID badge SID key: `id_sid`
+### Patient IDs/SIDs: `id_sid`
 
 Read & print data from "id_sid_matchup.sas7bdat" & "id_sid_matchup.sas7bdat."
 
 ```{r ReadData id_sid_matchup}
 #| eval: false  
 # 1d. read "id_sid_matchup.sas7bdat" into id_sid and "id_sid_matchup2.sas7bdat" into id_sid2
-# id_sid_matchup <- read_sas(paste(data_path, "id_sid_matchup.sas7bdat", sep = "/"))
-# id_sid_matchup2 <- read_sas(paste(data_path, "id_sid_matchup2.sas7bdat", sep = "/"))
+id_sid_matchup <- read_sas(paste(data_path, "id_sid_matchup.sas7bdat", sep = "/"))
+id_sid_matchup2 <- read_sas(paste(data_path, "id_sid_matchup2.sas7bdat", sep = "/"))
 
 ```
 
@@ -161,7 +220,7 @@ patient_files <- as.list(sas_data_fullpaths[(str_detect(sas_data_fullpaths, "pat
 
 # Use package purrr to import patient_data by iterating over every element of `patient_files` 
 patient_data <- map(patient_files, read_sas)
-names(patient_data)
+
 # generate a data dictionary with package labelled
 map(patient_data, generate_dictionary)
 ```
@@ -202,11 +261,11 @@ kable(head(pt_acuity_s2))
 kable(head(pt_acuity_s3))
 ```
 
-### Patient Location Datasets: `pt_complete`
+### Patient Location: `pt_complete`
 
-The SAS data file, "completepat.sas7bdat," contains RFID badge location (by *room number*) for all patients each second of every shift. The data were stored in a table that is extremely *wide* (i.e., `r length(sas_data_list["completepat.sas7bdat"])`columns), I used `pivot_longer()` to reshape it by collapsing all location-by-second columns (variables `flocX`, where `X` is the shift time in seconds that the respective SID was identified in room number `flocX`) into two columns, names to `seconds` and values to `location`. Note that this creates **many duplicated rows** (i.e., needs filtering).
+The SAS data file, "completepat.sas7bdat," contains RFID badge location (by *room number*) for all patients each second of every shift. The data were stored in a table that is extremely **wide** (i.e., `r length(patient_files["completepat.sas7bdat"])`columns), I used `pivot_longer()` to reshape it by collapsing all location-by-second columns (variables `flocX`, where `X` is the shift time in seconds that the respective SID was identified in room number `flocX`) into two columns, names to `seconds` and values to `location`. Note that this creates **many duplicated rows** (i.e., needs filtering).
 
-```{r ReadData pt_complete}
+```{r pt_complete}
 #| eval: false  
 # 1. pull "completepat.sas7bdat" from `sas_data_list` as `tibble()`
 pt_complete <- tibble(sas_data_list["completepat.sas7bdat"])
@@ -228,15 +287,18 @@ generate_dictionary(pt_cmplt)
 
 ```
 
+
+## Staff Data
+
 ### Staff location: `staff_complete`
 
 The SAS data file, "completestaff.sas7bdat," contains RFID badge location (by *room number*) for all staff each second of every shift.
 
 ```{r staff_complete}
 #| eval: false  
-# 1. pull "completestaff.sas7bdat" from `sas_data_list` as `tibble()` ----
+# 1. pull "completestaff.sas7bdat" from `sas_data_list` as `tibble()` 
 staff_complete <- tibble(sas_data_list["completestaff.sas7bdat"])
-# 2. Use staff_complete to make staff_cmplt for data cleaning & transformation ----
+# 2. Use staff_complete to make staff_cmplt for data cleaning & transformation 
 staff_cmplt <- staff_complete %>% 
   # 2a. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "seconds," and placing respective observations for each "floc" variable into a "location_num" column
   pivot_longer(cols = starts_with("floc"), names_to = "seconds", values_to = "location_num") %>% 
@@ -249,7 +311,7 @@ staff_cmplt <- staff_complete %>%
   # 2c. Filter out all rows for which no location was recorded
   filter(!is.na(location))
 
-# 3. View data frame structure ----
+# 3. View data frame structure
 generate_dictionary(staff_cmplt)
 ```
 

@@ -18,3 +18,10 @@ details
 kableExtra
 htmltools
 printr
+anytime
+hms
+pander
+tseries
+zoo
+xts
+modelr
