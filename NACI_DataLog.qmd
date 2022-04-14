@@ -64,15 +64,11 @@ library(RefManageR)
 
 # Data importing  
 
-Create an object that points to the directory where data are stored  (i.e., "/[project directory]/Data"). Then print a list of files with `list.files` using that object as the `path` argument.  
+Get the path pointing to the directory where data are stored  (i.e., "/[project directory]/Data"). Then print a list of files with `list.files` using that object as the `path` argument.  
 
 ```{r Data_Directory}
 data_path <- paste(getwd(), "Data", sep = "/")
-```
 
-What __data files__ are in "/Data"?
-
-```{r All_Files}
 # 1.  create (but don't print) a list of files stored in the "Data" directory
 all_data_fullpaths <- list.files(path = data_path,
                                      full.names = TRUE)
@@ -88,8 +84,6 @@ sas_data_fullpaths <- list.files(path = data_path,
 sas_data_filenames <- lst(SAS_Files = list.files(path = data_path,
                                      pattern = "*.sas7bdat",
                                      full.names = FALSE))
-
-sas_data_filenames
 
 
 # Create and print list of only .xlsx and .xls (Excel)  files [NONE]
@@ -110,13 +104,26 @@ sas_data_filenames
 # txt_data_filenames
 
 # Create and print list of all .csv file paths and  files names
-csv_data_fullpaths <- list.files(path = data_path,
-                             pattern = "*.csv",
-                             full.names = TRUE)
-csv_data_filenames <- lst(CSV_Files = list.files(path = data_path,
-                                     pattern = "*.csv",
-                                     full.names = FALSE))
-csv_data_filenames
+# csv_data_fullpaths <- list.files(path = data_path,
+                             # pattern = "*.csv",
+                             # full.names = TRUE)
+# csv_data_filenames <- lst(CSV_Files = list.files(path = data_path,
+                                     # pattern = "*.csv",
+                                     # full.names = FALSE))
+# csv_data_filenames
+```
+
+What __data files__ are in "/Data"?
+
+```{r}
+all_data_filenames
+```
+
+
+Print a list of only SAS files in "/Data"?  
+
+```{r}
+sas_data_filenames
 ```
 
 # IDs & SIDs
@@ -137,6 +144,8 @@ ids_final <- read_sas(paste(data_path, "finalsids6944.sas7bdat", sep = "/"))
 
 generate_dictionary(id_sid_matchup2)
 generate_dictionary(ids_final)
+# save(ids_final, file = "Data/ids_final.Rdata")
+# save(id_sid_matchup2, file = "Data/id_sid_matchup2.Rdata")
 ```
 
 
@@ -168,7 +177,7 @@ demographic_df <- demographic_df %>%
 
 # Print dictionary of patient demographic data
 generate_dictionary(demographic_df)
-
+# save(demographic_df, file = "Data/demographic_df.Rdata")
 ```
 
 ## Patient Location
@@ -179,9 +188,10 @@ I used `pivot_longer()` to reshape it by collapsing all location-by-second colum
 
 ```{r pt_complete}
 pt_complete <- read_sas(paste(data_path, "completepat.sas7bdat", sep = "/"))
-
-# 1. subset first 10 observations for data transformation code preparation
-pt_complete <- pt_complete %>% 
+# 1. subset a random sample of 30 observations for data transformation code preparation
+set.seed(711)
+pt_complete_sample <- pt_complete %>% slice_sample(n = 30)
+pt_complete_sample <- pt_complete_sample %>% 
 # 2. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "seconds," and placing respective observations for each "floc" variable into a "location_num" column
   pivot_longer(cols = starts_with("floc"), 
                names_to = "seconds", 
@@ -196,7 +206,7 @@ pt_complete <- pt_complete %>%
 # 4. Filter out all rows for which no location was recorded
   # filter() (STILL NEED TO DO THIS)
 # 3. View data frame dictionary  
-generate_dictionary(head(pt_complete))
+generate_dictionary(pt_complete_sample)
 
 ```
 
@@ -211,8 +221,10 @@ The SAS data file, "completestaff.sas7bdat," contains RFID badge location (by *r
 #| eval: false  
 # 1. pull "completestaff.sas7bdat" from `sas_data_list` as `tibble()` 
 staff_complete <- read_sas(paste(data_path, "completestaff.sas7bdat", sep = "/"))
-# 2. Use staff_complete to make staff_cmplt for data cleaning & transformation 
-staff_complete <- staff_complete %>% 
+set.seed(321)
+staff_complete_sample <- staff_complete %>% slice_sample(30)
+# 2. Use a random sample of staff_complete for data cleaning & transformation 
+staff_complete_sample <- staff_complete_sample %>% 
   # 2a. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "seconds," and placing respective observations for each "floc" variable into a "location_num" column
   pivot_longer(cols = starts_with("floc"), 
                names_to = "seconds", 
@@ -228,7 +240,7 @@ staff_complete <- staff_complete %>%
   # filter(!is.na(location))
 
 # 3. View data frame structure
-generate_dictionary(head(staff_complete))
+generate_dictionary(staff_complete_sample)
 ```
 
 # SessionInfo
