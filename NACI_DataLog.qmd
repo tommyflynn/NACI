@@ -6,11 +6,15 @@ format:
     theme: solar
     toc: true
     code-tools: true
+    code-fold: true
+    code-copy: true
+    code-summary: "View Code"
     code-block-bg: true
     code-block-border-left: "#31BAE9"
     number-sections: true
-editor: visual
+    page-layout: full
 ---
+__Options__
 
 ```{r Options}
 #| error: false
@@ -30,6 +34,8 @@ knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projec
                       cache.lazy = FALSE)
 # options(na.action = na.warn)??
 ```
+
+__Packages__
 
 ```{r Packages}
 #| message: false
@@ -113,22 +119,29 @@ sas_data_filenames <- lst(SAS_Files = list.files(path = data_path,
 # csv_data_filenames
 ```
 
-What __data files__ are in "/Data"?
+__What _data files_ are in "/Data"?__
 
 ```{r}
-all_data_filenames
+tibble(`All Files in "/Data"` = all_data_filenames[[1]])
 ```
 
 
-Print a list of only SAS files in "/Data"?  
+
+__Print a list of only SAS files in "/Data"?__  
 
 ```{r}
-sas_data_filenames
+tibble(`SAS Files in "/Data"` = sas_data_filenames[[1]])
 ```
 
 # IDs & SIDs
 
-Read & print data from "finalsids6944.sas7bdat" "id_sid_matchup.sas7bdat" & "id_sid_matchup.sas7bdat."
+Read & print data from the following files: 
+
+* "finalsids6944.sas7bdat"
+
+* "id_sid_matchup.sas7bdat"
+
+* "id_sid_matchup.sas7bdat"
 
 ```{r id_sid_matchup}
 # 1d. "id_sid_matchup2.sas7bdat" has the same variables as "id_sid_matchup.sas7bdat", so only need id_sid_mathcup2
@@ -138,7 +151,7 @@ id_sid_matchup2 <- read_sas(paste(data_path, "id_sid_matchup2.sas7bdat", sep = "
 # id_sid_matchup %in% id_sid_matchup2
 # id_sid_matchup2 %in% id_sid_matchup
 # What variables (columns) does id_sid_matchup2 have that the other does not?
-names(id_sid_matchup2[-(id_sid_matchup %in% id_sid_matchup2)])
+# names(id_sid_matchup2[-(id_sid_matchup %in% id_sid_matchup2)])
 # Import ID 
 ids_final <- read_sas(paste(data_path, "finalsids6944.sas7bdat", sep = "/"))
 
@@ -150,6 +163,16 @@ generate_dictionary(ids_final)
 
 
 # Patient Data  
+
+List other "patient" data files:
+
+```{r}
+patient_filepaths <- paste(data_path, 
+                         "SAS_data_files/patient_data_files", 
+                         sep = "/")
+patient_filenames <- lst(Patient_Files = list.files(patient_filepaths))
+tibble(`Patient Files` = patient_filenames[[1]])
+```
 
 ## Patient Demographics
 
@@ -211,16 +234,27 @@ generate_dictionary(pt_complete_sample)
 ```
 
 
-## Staff Data
+# Staff Data
 
-### Staff location: `staff_complete`
+List of other staff data files (`.sas7bdat`):
+
+```{r}
+staff_filepaths <- paste(data_path, 
+                         "SAS_data_files/staff_data_files", 
+                         sep = "/")
+staff_filenames <- lst(Staff_Files = list.files(staff_filepaths))
+tibble(`Staff Files` = staff_filenames[[1]])
+```
+
+## Staff location data
 
 The SAS data file, "completestaff.sas7bdat," contains RFID badge location (by *room number*) for all staff each second of every shift.
 
-```{r Staff_IDs}
+```{r}
 #| eval: false  
 # 1. pull "completestaff.sas7bdat" from `sas_data_list` as `tibble()` 
 staff_complete <- read_sas(paste(data_path, "completestaff.sas7bdat", sep = "/"))
+# Subset a random sample of 30 observations
 set.seed(321)
 staff_complete_sample <- staff_complete %>% slice_sample(30)
 # 2. Use a random sample of staff_complete for data cleaning & transformation 
@@ -243,9 +277,39 @@ staff_complete_sample <- staff_complete_sample %>%
 generate_dictionary(staff_complete_sample)
 ```
 
+# Network Data
+
+## Event Files
+
+__List all event files__
+
+```{r}
+event_filepaths <- paste(data_path, 
+                         "SAS_data_files/event_data_files", 
+                         sep = "/")
+event_filenames <- lst(Event_Files = list.files(event_filepaths))
+tibble(`Event Files` = event_filenames[[1]])
+```
+
+## Network Files
+
+__List all network data files:__
+
+
+```{r}
+net_filepaths <- paste(data_path, 
+                         "SAS_data_files/network_data_files", 
+                         sep = "/")
+net_filenames <- lst(Net_Files = list.files(net_filepaths))
+tibble(`Network Files` = net_filenames[[1]])
+```
+
+
+
 # SessionInfo
 
 ```{r SessionInfo}
+#| echo: false
 sessioninfo::session_info()%>%
   details::details(
     summary = 'Current session info',
