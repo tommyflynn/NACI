@@ -1,19 +1,14 @@
 ---
 title: "Data Log"
 author: "Tommy Flynn"
-bibliography: package_citations.bib
 format: 
   html:
     theme: solar
     toc: true
-    code-fold: true
-    code-summary: "show code"
     code-tools: true
     code-block-bg: true
     code-block-border-left: "#31BAE9"
     number-sections: true
-    comments:
-      hypothesis: true
 editor: visual
 ---
 
@@ -25,67 +20,37 @@ editor: visual
 library(knitr)
 knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data",
                       error = TRUE,
+                      collapse = TRUE,
+                      comment = "#>",
                       tidy = TRUE,
                       tidy.opts = list(width.cutoff = 60),
                       message = FALSE,
                       warning = FALSE,
-                      cache = TRUE)
+                      cache = TRUE,
+                      cache.lazy = FALSE)
 # options(na.action = na.warn)??
 ```
 
 ```{r Packages}
 #| message: false
 #| warning: false
-# Importing ----
-# library(readr)
-# library(haven)
-# library(readxl)
-# library(httr)
-# library(googlesheets4)
-# library(googledrive)
-# library(rvest)
-# library(jsonlite)
-# library(xml2)
-# library(bigrquery)
-# library(DBI)
-# library(rgdal)
-# library(maptools)
-# Wrangling ----
-library(dplyr)
+# ImportingImportingImportingImportingImportingImportingImportingImporting
+library(readr)
+library(haven)
+library(readxl) # UNUSED: library(httr) # library(googlesheets4) # library(googledrive) # library(rvest) # library(jsonlite) # library(xml2) # library(bigrquery) # library(DBI) # library(rgdal) # library(maptools)
+# WranglingWranglingWranglingWranglingWranglingWranglingWranglingWranglingWrangling 
+library(tidyverse)
 library(tibble)
 library(labelled)
 library(forcats)
 library(stringr)
-# library(lubridate)
-# library(anytime)
-# library(hms)
-# Analyzing ----
+library(lubridate) # UNUSED: library(anytime) # library(hms)
+# AnalyzingAnalyzingAnalyzingAnalyzingAnalyzingAnalyzingAnalyzingAnalyzingAnalyzing 
 library(gtsummary)
-library(xtable)
-library(ztable)
-library(sjmisc)
-library(psych)
-# library(memisc)
-# library(quantreg)
-## Networks
-# library(igraph)
-# library(networkDynamic)
-## Models
-# library(modelr)
-# library(corrr)
-## Time-Series
-library(tseries)
-library(xts)
-## Spatio-temporal
-library(spacetime)
-# library(leaflet)
-# library(rgdal)
-# library(maptools)
-# Programming ----
-library(purrr)
-library(magrittr)
-library(glue)
-# Formatting ----
+library(xtable) # UNUSED: # library(ztable) # library(sjmisc) # library(psych) # library(memisc) # library(quantreg) # UNUSED: Networks: # library(igraph), # library(networkDynamic) # UNUSED: Models: # library(modelr) # library(corrr) # UNUSED:Time-Series # library(tseries) # library(xts) # UNUSED: Spatio-temporal: # UNUSED: library(spacetime) # library(leaflet) # library(rgdal) # library(maptools)
+# ProgrammingProgrammingProgrammingProgrammingProgrammingProgrammingProgrammingProgramming
+library(purrr) # UNUSED: # library(magrittr) # library(glue)
+# FormattingFormattingFormattingFormattingFormattingFormattingFormattingFormattingFormatting 
 library(quarto)
 library(printr)
 library(knitr)
@@ -97,33 +62,26 @@ library(bibtex)
 library(RefManageR)
 ```
 
-# Import
+# Data importing  
 
-Create an object that points to the directory where data are stored  (i.e., "/[project directory]/Data"). Then, that object is printed as a list of data file names.
+Create an object that points to the directory where data are stored  (i.e., "/[project directory]/Data"). Then print a list of files with `list.files` using that object as the `path` argument.  
 
 ```{r Data_Directory}
 data_path <- paste(getwd(), "Data", sep = "/")
 ```
 
+What __data files__ are in "/Data"?
+
 ```{r All_Files}
-#| echo = false
-# 1.  This code creates two lists for each file type storing data (i.e., .sas7bdat, .xls/.xlsx, and .txt), each list containing; 1) the complete pathnames for all files, and  2) the file names (i.e., without complete path names) for all data files
+# 1.  create (but don't print) a list of files stored in the "Data" directory
 all_data_fullpaths <- list.files(path = data_path,
-                             pattern = ".sas7bdat|.xls|.csv|.txt",
-                             full.names = TRUE)
+                                     full.names = TRUE)
 
-all_data_filenames <- lst(list.files(path = data_path,
-                                     pattern = ".sas7bdat|.xls|.csv|.txt",
+all_data_filenames <- lst(All_Files = list.files(path = data_path,
                                      full.names = FALSE))
+# all_data_filenames
 
-```
-
-After removing duplicates and files containing data from other studies, there were `r length(all_data_filenames[[1]])` " files with data. Each file contained unique variables (columns), observations (rows), and structures (wide vs. long). The combined size of these files was `r sum(file.size(all_data_fullpaths))/1000000000` gigabytes.
-
-## Data Files by Type
-
-```{r SAS_Files}
-# Create lists for all .sas7bdat (SAS)  file paths and  files names
+# Create and print lists of only .sas7bdat (SAS) data  files
 sas_data_fullpaths <- list.files(path = data_path,
                              pattern = "*.sas7bdat",
                              full.names = TRUE)
@@ -131,159 +89,114 @@ sas_data_filenames <- lst(SAS_Files = list.files(path = data_path,
                                      pattern = "*.sas7bdat",
                                      full.names = FALSE))
 
-# Print the names of all .sas7bdat (SAS) database files
-sas_tbl <- as_tibble(sas_data_filenames)
-sas_tbl
-```
+sas_data_filenames
 
-```{r Excel_Files}
-# Create list of all .xlsx and .xls (Excel)  file paths and  files names
-xlsx_data_fullpaths <- list.files(path = data_path,
-                             pattern = "*.xls",
-                             full.names = TRUE)
-xlsx_data_filenames <- lst(XL_Files = list.files(path = data_path,
-                                     pattern = "*.xls",
-                                     full.names = FALSE))
 
-# Print list of all .xlsx (Excel) files
-xl_tbl <- as_tibble(xlsx_data_filenames)
-xl_tbl
-```
+# Create and print list of only .xlsx and .xls (Excel)  files [NONE]
+# xlsx_data_fullpaths <- list.files(path = data_path,
+#                              pattern = "*.xls",
+#                              full.names = TRUE)
+# xlsx_data_filenames <- lst(XL_Files = list.files(path = data_path,
+#                                      pattern = "*.xls",
+#                                      full.names = FALSE))
+# xlsx_data_filenames
+# Create and print list of only .txt file names [NONE]
+# txt_data_fullpaths <- list.files(path = data_path,
+#                              pattern = "*.txt",
+#                              full.names = TRUE)
+# txt_data_filenames <- lst(TXT_Files = list.files(path = data_path,
+#                                      pattern = "*.txt",
+#                                      full.names = FALSE))
+# txt_data_filenames
 
-```{r TXT_files}
-#| message: false
-# Create list of all .txt file paths and  files names
-txt_data_fullpaths <- list.files(path = data_path,
-                             pattern = "*.txt",
-                             full.names = TRUE)
-txt_data_filenames <- lst(TXT_Files = list.files(path = data_path,
-                                     pattern = "*.txt",
-                                     full.names = FALSE))
-
-# Store tibble of all .txt filenames
-txt_tbl <- as_tibble(txt_data_filenames)
-
-txt_tbl
-```
-
-```{r CSV_files}
-#| message: false
-# Create list of all .csv file paths and  files names
+# Create and print list of all .csv file paths and  files names
 csv_data_fullpaths <- list.files(path = data_path,
                              pattern = "*.csv",
                              full.names = TRUE)
 csv_data_filenames <- lst(CSV_Files = list.files(path = data_path,
                                      pattern = "*.csv",
                                      full.names = FALSE))
-
-# Store tibble of all .csv filenames
-csv_tbl <- as_tibble(csv_data_filenames)
-
-csv_tbl
+csv_data_filenames
 ```
 
-```{r Import}
-sas_data <- map(sas_data_fullpaths[1:5], read_sas)
-sas_data_fullpaths[str_detect(sas_data_fullpaths, "patient|pat(?!2)")]
-```
+# IDs & SIDs
 
+Read & print data from "finalsids6944.sas7bdat" "id_sid_matchup.sas7bdat" & "id_sid_matchup.sas7bdat."
 
-# Wrangle
-
-## Dates & Times
-
-```{r Shifts}
-
-
-```
-
-
-## Patient Data
-
-### Patient IDs/SIDs: `id_sid`
-
-Read & print data from "id_sid_matchup.sas7bdat" & "id_sid_matchup.sas7bdat."
-
-```{r ReadData id_sid_matchup}
-#| eval: false  
-# 1d. read "id_sid_matchup.sas7bdat" into id_sid and "id_sid_matchup2.sas7bdat" into id_sid2
+```{r id_sid_matchup}
+# 1d. "id_sid_matchup2.sas7bdat" has the same variables as "id_sid_matchup.sas7bdat", so only need id_sid_mathcup2
 id_sid_matchup <- read_sas(paste(data_path, "id_sid_matchup.sas7bdat", sep = "/"))
 id_sid_matchup2 <- read_sas(paste(data_path, "id_sid_matchup2.sas7bdat", sep = "/"))
+# Check these to see if they share columns
+# id_sid_matchup %in% id_sid_matchup2
+# id_sid_matchup2 %in% id_sid_matchup
+# What variables (columns) does id_sid_matchup2 have that the other does not?
+names(id_sid_matchup2[-(id_sid_matchup %in% id_sid_matchup2)])
+# Import ID 
+ids_final <- read_sas(paste(data_path, "finalsids6944.sas7bdat", sep = "/"))
+
+generate_dictionary(id_sid_matchup2)
+generate_dictionary(ids_final)
+```
+
+
+# Patient Data  
+
+## Patient Demographics
+
+Demographic information with EHR numbers and encounter numbers. Note that **EHR numbers may repeat!**
+
+```{r Demographics}
+demographic_df <- read_csv(paste0(data_path, "/Population_Patient_Demographics.csv"))
+# glimpse(demographic_df)
+demographic_df <- demographic_df %>% 
+  mutate(ED_arr = mdy(`ED Arrival Timestamp`), 
+         ED_dep = mdy(`ED Departure Timestamp`),
+         med_rec_no = as.character(`Medical Record Number`),
+         encounter_no = as.character(`Enc .`),
+         # .before = 1,
+         across(!where(is.Date)
+                & !where(is.double)
+                & !where(is.integer)
+                & !med_rec_no
+                & !encounter_no
+                & !`ED Arrival Timestamp`
+                & !`ED Departure Timestamp`
+                & !`Chief Complaint`
+                & !`% ED Patients Admitted as Inpt or Obs`, 
+                .fns = as_factor))
+
+# Print dictionary of patient demographic data
+generate_dictionary(demographic_df)
 
 ```
 
-Import every SAS data file with "patient" or "person" in its name (`haven` library) and print a data dictionary for each file (`labelled` library).
+## Patient Location
 
-```{r Patient_Data}
-# Make a list of filenames with "patient" or "person" in the name
-patient_files <- as.list(sas_data_fullpaths[(str_detect(sas_data_fullpaths, "patient|person"))])
+The SAS data file, "completepat.sas7bdat," contains RFID badge location (by *room number*) for all patients each second of every shift. The data were stored in a table that is extremely **wide**. 
 
-# Use package purrr to import patient_data by iterating over every element of `patient_files` 
-patient_data <- map(patient_files, read_sas)
-
-# generate a data dictionary with package labelled
-map(patient_data, generate_dictionary)
-```
-
-### Patient Acuity: `pt_acuity`
-
-Read & print patient acuity data in "ACUITY-patients.xlsx," which is an Excel workbook with 3 sheets.
-
-```{r ReadData pt_acuity}
-#| eval: false   
-# 1e. read "ACUITY-patients.xlsx
-pt_acuity <- read_xlsx(paste(data_path, "ACUITY-patients.xlsx", sep = "/"))
-# str(pt_acuity)
-pt_acuity_s2 <- read_xlsx(paste(data_path, "ACUITY-patients.xlsx", sep = "/"), 
-                          sheet = 2, 
-                          range = "A2:H83")
-# str(pt_acuity_s2)
-pt_acuity_s3 <- read_xlsx(paste(data_path, "ACUITY-patients.xlsx", sep = "/"), 
-                          sheet = 3, 
-                          range = "A2:G83")
-# str(pt_acuity_s3)  
-```
-
-The first sheet lists the number of patients in each ESI acuity level (columns) by shift (rows). The other two sheets appear to be variations of the first.
-
-```{r PrintData pt_acuity}
-#| eval: false  
-# Patient acuity (Emergency Severity Index; ESI) counts by shift
-kable(head(pt_acuity))
-# Pivot_wider to view number of patients in each ESI category by shift
-pt_acuity %>% 
-  group_by(Acuity) %>% 
-  count(Shift) %>% 
-  pivot_wider(names_from = Acuity, values_from = n) %>% 
-  head() %>% kable()
-# Print the first 6 rows of the other two sheets in the xlsx file
-kable(head(pt_acuity_s2))
-kable(head(pt_acuity_s3))
-```
-
-### Patient Location: `pt_complete`
-
-The SAS data file, "completepat.sas7bdat," contains RFID badge location (by *room number*) for all patients each second of every shift. The data were stored in a table that is extremely **wide** (i.e., `r length(patient_files["completepat.sas7bdat"])`columns), I used `pivot_longer()` to reshape it by collapsing all location-by-second columns (variables `flocX`, where `X` is the shift time in seconds that the respective SID was identified in room number `flocX`) into two columns, names to `seconds` and values to `location`. Note that this creates **many duplicated rows** (i.e., needs filtering).
+I used `pivot_longer()` to reshape it by collapsing all location-by-second columns (variables `flocX`, where `X` is the shift time in seconds that the respective SID was identified in room number `flocX`) into two columns, names set to `seconds` and values to `location`. Note that this creates **many duplicated rows** (i.e., needs filtering).
 
 ```{r pt_complete}
-#| eval: false  
-# 1. pull "completepat.sas7bdat" from `sas_data_list` as `tibble()`
-pt_complete <- tibble(sas_data_list["completepat.sas7bdat"])
-# 2a. subset first 10 observations for data transformation code preparation
-pt_cmplt <- pt_complete %>% 
-# 2a. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "seconds," and placing respective observations for each "floc" variable into a "location_num" column
-  pivot_longer(cols = starts_with("floc"), names_to = "seconds", values_to = "location_num") %>% 
-# 2b. Remove the prefix "floc" from `time_seconds` and keep the digits as `seconds`
-  mutate(seconds = as.integer(str_replace(seconds, "floc", "")), 
-         shift_num_ampm = str_trim(shift_num_ampm),
-         shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")),
-         am_pm = str_extract(shift_num_ampm, "am|pm"),
-         date = make_date(year = year, month = mon, day = day)) %>% 
-# 2c. Filter out all rows for which no location was recorded
-  filter(!is.na(location))
+pt_complete <- read_sas(paste(data_path, "completepat.sas7bdat", sep = "/"))
 
+# 1. subset first 10 observations for data transformation code preparation
+pt_complete <- pt_complete %>% 
+# 2. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "seconds," and placing respective observations for each "floc" variable into a "location_num" column
+  pivot_longer(cols = starts_with("floc"), 
+               names_to = "seconds", 
+               values_to = "location_num")
+               # values_drop_na = TRUE) # %>% 
+# 3b. Delete the prefix "floc" from `seconds` and change class to numeric
+  # mutate(seconds = as.integer(str_replace(seconds, "floc", "")), 
+  #        shift_num_ampm = str_trim(shift_num_ampm),
+  #        shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")),
+  #        am_pm = str_extract(shift_num_ampm, "am|pm"),
+  #        date = make_date(year = year, month = mon, day = day))
+# 4. Filter out all rows for which no location was recorded
+  # filter() (STILL NEED TO DO THIS)
 # 3. View data frame dictionary  
-generate_dictionary(pt_cmplt)
+generate_dictionary(head(pt_complete))
 
 ```
 
@@ -294,25 +207,28 @@ generate_dictionary(pt_cmplt)
 
 The SAS data file, "completestaff.sas7bdat," contains RFID badge location (by *room number*) for all staff each second of every shift.
 
-```{r staff_complete}
+```{r Staff_IDs}
 #| eval: false  
 # 1. pull "completestaff.sas7bdat" from `sas_data_list` as `tibble()` 
-staff_complete <- tibble(sas_data_list["completestaff.sas7bdat"])
+staff_complete <- read_sas(paste(data_path, "completestaff.sas7bdat", sep = "/"))
 # 2. Use staff_complete to make staff_cmplt for data cleaning & transformation 
-staff_cmplt <- staff_complete %>% 
+staff_complete <- staff_complete %>% 
   # 2a. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "seconds," and placing respective observations for each "floc" variable into a "location_num" column
-  pivot_longer(cols = starts_with("floc"), names_to = "seconds", values_to = "location_num") %>% 
+  pivot_longer(cols = starts_with("floc"), 
+               names_to = "seconds", 
+               values_to = "location_num",
+               values_drop_na = TRUE) # %>% 
   # 2b. Remove the prefix "floc" from `time_seconds` and keep the digits as `seconds`
-  mutate(seconds = as.integer(str_replace(seconds, "floc", "")), 
-         shift_num_ampm = str_trim(shift_num_ampm),
-         shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")),
-         am_pm = str_extract(shift_num_ampm, "am|pm"),
-         date = make_date(year = year, month = mon, day = day)) # %>% 
+  # mutate(seconds = as.integer(str_replace(seconds, "floc", "")), 
+         # shift_num_ampm = str_trim(shift_num_ampm),
+         # shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")),
+         # am_pm = str_extract(shift_num_ampm, "am|pm"),
+         # date = make_date(year = year, month = mon, day = day)) # %>% 
   # 2c. Filter out all rows for which no location was recorded
-  filter(!is.na(location))
+  # filter(!is.na(location))
 
 # 3. View data frame structure
-generate_dictionary(staff_cmplt)
+generate_dictionary(head(staff_complete))
 ```
 
 # SessionInfo

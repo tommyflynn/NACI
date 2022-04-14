@@ -25,3 +25,14 @@ tseries
 zoo
 xts
 modelr
+gtsummary
+xtable
+ztable
+sjmisc
+psych
+spacetime
+magrittr
+glue
+quarto
+bibtex
+RefManageR
