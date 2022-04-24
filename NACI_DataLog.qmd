@@ -1,315 +1,562 @@
 ---
 title: "Data Log"
 author: "Tommy Flynn"
+toc: true
+number-sections: true
 format: 
   html:
-    theme: solar
-    toc: true
     code-tools: true
     code-fold: true
     code-copy: true
-    code-summary: "View Code"
+    code-summary: "code"
     code-block-bg: true
     code-block-border-left: "#31BAE9"
-    number-sections: true
-    page-layout: full
+    fig_caption: true
 ---
-__Options__
+# Setup
 
-```{r Options}
-#| error: false
-#| warning: false
-#| message: false
-# set options
-library(knitr)
-knitr::opts_chunk$set(root.dir = "~/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data",
-                      error = TRUE,
-                      collapse = TRUE,
-                      comment = "#>",
+
+```{r setup, message=FALSE}
+knitr::opts_chunk$set(error = FALSE,
                       tidy = TRUE,
-                      tidy.opts = list(width.cutoff = 60),
+                      # tidy.opts = list(width.cutoff = 60),
                       message = FALSE,
-                      warning = FALSE,
-                      cache = TRUE,
-                      cache.lazy = FALSE)
-# options(na.action = na.warn)??
-```
-
-__Packages__
-
-```{r Packages}
-#| message: false
-#| warning: false
-# ImportingImportingImportingImportingImportingImportingImportingImporting
+                      warning = FALSE)
+library(tidyverse)
+library(readxl)
 library(readr)
 library(haven)
-library(readxl) # UNUSED: library(httr) # library(googlesheets4) # library(googledrive) # library(rvest) # library(jsonlite) # library(xml2) # library(bigrquery) # library(DBI) # library(rgdal) # library(maptools)
-# WranglingWranglingWranglingWranglingWranglingWranglingWranglingWranglingWrangling 
-library(tidyverse)
-library(tibble)
-library(labelled)
-library(forcats)
-library(stringr)
-library(lubridate) # UNUSED: library(anytime) # library(hms)
-# AnalyzingAnalyzingAnalyzingAnalyzingAnalyzingAnalyzingAnalyzingAnalyzingAnalyzing 
-library(gtsummary)
-library(xtable) # UNUSED: # library(ztable) # library(sjmisc) # library(psych) # library(memisc) # library(quantreg) # UNUSED: Networks: # library(igraph), # library(networkDynamic) # UNUSED: Models: # library(modelr) # library(corrr) # UNUSED:Time-Series # library(tseries) # library(xts) # UNUSED: Spatio-temporal: # UNUSED: library(spacetime) # library(leaflet) # library(rgdal) # library(maptools)
-# ProgrammingProgrammingProgrammingProgrammingProgrammingProgrammingProgrammingProgramming
-library(purrr) # UNUSED: # library(magrittr) # library(glue)
-# FormattingFormattingFormattingFormattingFormattingFormattingFormattingFormattingFormatting 
-library(quarto)
-library(printr)
 library(knitr)
 library(kableExtra)
-library(htmltools)
-library(gt)
-library(pander)
-library(bibtex)
-library(RefManageR)
+library(lubridate)
+library(labelled)
+library(gtsummary)
 ```
 
-# Data importing  
-
-Get the path pointing to the directory where data are stored  (i.e., "/[project directory]/Data"). Then print a list of files with `list.files` using that object as the `path` argument.  
-
-```{r Data_Directory}
-data_path <- paste(getwd(), "Data", sep = "/")
-
-# 1.  create (but don't print) a list of files stored in the "Data" directory
-all_data_fullpaths <- list.files(path = data_path,
-                                     full.names = TRUE)
-
-all_data_filenames <- lst(All_Files = list.files(path = data_path,
-                                     full.names = FALSE))
-# all_data_filenames
-
-# Create and print lists of only .sas7bdat (SAS) data  files
-sas_data_fullpaths <- list.files(path = data_path,
-                             pattern = "*.sas7bdat",
-                             full.names = TRUE)
-sas_data_filenames <- lst(SAS_Files = list.files(path = data_path,
-                                     pattern = "*.sas7bdat",
-                                     full.names = FALSE))
-
-
-# Create and print list of only .xlsx and .xls (Excel)  files [NONE]
-# xlsx_data_fullpaths <- list.files(path = data_path,
-#                              pattern = "*.xls",
-#                              full.names = TRUE)
-# xlsx_data_filenames <- lst(XL_Files = list.files(path = data_path,
-#                                      pattern = "*.xls",
-#                                      full.names = FALSE))
-# xlsx_data_filenames
-# Create and print list of only .txt file names [NONE]
-# txt_data_fullpaths <- list.files(path = data_path,
-#                              pattern = "*.txt",
-#                              full.names = TRUE)
-# txt_data_filenames <- lst(TXT_Files = list.files(path = data_path,
-#                                      pattern = "*.txt",
-#                                      full.names = FALSE))
-# txt_data_filenames
-
-# Create and print list of all .csv file paths and  files names
-# csv_data_fullpaths <- list.files(path = data_path,
-                             # pattern = "*.csv",
-                             # full.names = TRUE)
-# csv_data_filenames <- lst(CSV_Files = list.files(path = data_path,
-                                     # pattern = "*.csv",
-                                     # full.names = FALSE))
-# csv_data_filenames
+```{r directories}
+# Working directory saved as `wd` and data path as `data_path`  
+wd <- getwd()
+data_path <- paste(wd, "Data", sep = "/")
 ```
 
-__What _data files_ are in "/Data"?__
+# Identification numbers 
 
-```{r}
-tibble(`All Files in "/Data"` = all_data_filenames[[1]])
-```
-
-
-
-__Print a list of only SAS files in "/Data"?__  
-
-```{r}
-tibble(`SAS Files in "/Data"` = sas_data_filenames[[1]])
-```
-
-# IDs & SIDs
-
-Read & print data from the following files: 
-
-* "finalsids6944.sas7bdat"
-
-* "id_sid_matchup.sas7bdat"
-
-* "id_sid_matchup.sas7bdat"
+## `id_sid_matchup`
 
 ```{r id_sid_matchup}
-# 1d. "id_sid_matchup2.sas7bdat" has the same variables as "id_sid_matchup.sas7bdat", so only need id_sid_mathcup2
-id_sid_matchup <- read_sas(paste(data_path, "id_sid_matchup.sas7bdat", sep = "/"))
-id_sid_matchup2 <- read_sas(paste(data_path, "id_sid_matchup2.sas7bdat", sep = "/"))
-# Check these to see if they share columns
-# id_sid_matchup %in% id_sid_matchup2
-# id_sid_matchup2 %in% id_sid_matchup
-# What variables (columns) does id_sid_matchup2 have that the other does not?
-# names(id_sid_matchup2[-(id_sid_matchup %in% id_sid_matchup2)])
-# Import ID 
-ids_final <- read_sas(paste(data_path, "finalsids6944.sas7bdat", sep = "/"))
+# Import & clean id_sid_matchup2.sas7bdat
+id_sid_matchup2 <- read_sas(paste(data_path, "ids", "id_sid_matchup2.sas7bdat", sep = "/"))
+id_sid_clean <- id_sid_matchup2 %>% 
+  transmute(sid,
+            newsid = as.character(newsid),
+            shift_num = str_extract(shift_num_ampm, "[:digit:]+"),
+            date = d8,
+            am_pm = str_extract(shift_num_ampm, "am|pm"),
+            shift_start_dttm = startd8time,
+            shift_start_tm = ShiftStart,
+            shift_end_dttm = ymd_hms(paste(date, ShiftEnd)),
+            shift_end_tm = ShiftEnd,
+            staff = as_factor(staff))
 
-generate_dictionary(id_sid_matchup2)
-generate_dictionary(ids_final)
-# save(ids_final, file = "Data/ids_final.Rdata")
-# save(id_sid_matchup2, file = "Data/id_sid_matchup2.Rdata")
+# preview id_sid_match_cleaned
+rmarkdown::paged_table(head(id_sid_clean))
+# Save id_sid_clean to files in csv and Rdata format
+# write_csv(id_sid_clean, path = paste(data_path, "Rdata", "id_sid_clean.Rdata", sep = "/"))
+# write_csv(id_sid_clean, path = paste(data_path, "csv_files", "id_sid_clean.csv", sep = "/"))
+```
+
+## `id_final`
+
+```{r ids_final}
+ids_final <- read_sas(paste(data_path, "ids", "finalsids6944.sas7bdat", sep = "/"))
+# preview ids_final (no cleaning needed)
+rmarkdown::paged_table(head(ids_final))
+# Check if sids repeate within shifts:
+ids_final %>% 
+  group_by(shift_num) %>% 
+  count(sid) %>% 
+  filter(n > 1) %>% 
+  kable(caption = "Are any sids repeated within the same shift?")
+
+```
+
+## `pt_sids`
+
+```{r pt_sids}
+pt_sids <- read_sas(paste(data_path, "ids", "patientSIDs_in_completepat.sas7bdat", sep = "/"))
+# preview unclean pt_sids
+# glimpse(pt_sids)
+pt_sid_clean <- pt_sids %>% 
+  transmute(sid,
+         shift_num = str_extract(shift_num_ampm, "[:digit:]+"),
+         shift_ampm = as_factor(str_extract(shift_num_ampm, "am|pm")))
+# preview pt_sid_clean
+rmarkdown::paged_table(head(pt_sid_clean))
+pt_sid_clean %>% 
+  group_by(shift_num) %>% 
+  count(shift_ampm) %>% 
+  arrange(shift_num) %>% 
+  kable(caption = "Patient participants by shift number and day vs. night")
+
+pt_sid_clean %>% 
+  count(shift_ampm) %>% 
+  kable(caption = "Total patients sampled from day shifts vs. night shifts")
+# Save to file
+# write_rds(pt_sid_clean, path = paste(data_path, "Rdata", "pt_sid_clean.Rdata", sep = "/"))
+# write_csv(pt_sid_clean, path = paste(data_path, "csv_files", "pt_sid_clean.csv", sep = "/"))
+generate_dictionary(pt_sid_clean)
+```
+
+##`staff_sids`
+
+```{r staff_sids}
+staff_sids <- read_sas(paste(data_path, "ids", "staffsids_in_eventfile.sas7bdat", sep = "/"))
+str(staff_sids)
+staff_sids_clean <- staff_sids %>% 
+  mutate(across(.cols = !sid, .fns = as.factor)) %>% 
+  select(-job)
+rmarkdown::paged_table(head(staff_sids_clean))
+staff_sids_clean %>%
+  count(ParticipantCat4) %>% 
+  kable(caption = "Staff participants by category")
+# Save to file
+write_csv(staff_sids_clean, file = paste(data_path, "Rdata", "staff_sids_clean.Rdata", sep = "/"))
+write_csv(staff_sids_clean, file = paste(data_path, "csv_files", "staff_sids_clean.csv", sep = "/"))
+generate_dictionary(staff_sids_clean)
+```
+
+## `allstaff`
+
+```{r allstaff_clean}
+allstaff <- read_sas(paste(data_path, "staff", "allstaff_numbyshift.sas7bdat", sep = "/"))
+# str(allstaff)
+allstaff_clean <- allstaff %>% 
+  mutate(job_title = as_factor(JOBTITLE),
+         .keep = "unused")
+# write_rds(allstaff_clean, paste(data_path, "Rdata", "allstaff_clean.Rdata", sep = "/"))
+# write_csv(allstaff_clean, paste(data_path, "csv_files", "allstaff_clean.csv", sep = "/"))
+rmarkdown::paged_table(head(allstaff_clean))
+
+generate_dictionary(allstaff_clean)
 ```
 
 
-# Patient Data  
+## `ntab2`  
 
-List other "patient" data files:
+```{r ntab}
+ntab2 <- read_csv(file = paste(data_path, "ids", "nTab2.csv", sep = "/"))
+# glimpse(ntab2)
+ntab2_clean <- ntab2 %>% 
+  transmute(observation = obs,
+            sid = sids,
+            id = as.character(ID),
+            date = dmy(D8),
+            shift_num = shiftnum,
+            shift_person = person,
+            staff = as_factor(staff),
+            degree,
+            wdegree,
+            WtAlpha)
 
-```{r}
-patient_filepaths <- paste(data_path, 
-                         "SAS_data_files/patient_data_files", 
-                         sep = "/")
-patient_filenames <- lst(Patient_Files = list.files(patient_filepaths))
-tibble(`Patient Files` = patient_filenames[[1]])
+rmarkdown::paged_table(head(ntab2_clean))
+# save to file
+# write_rds(ntab2_clean, file = paste(data_path, "Rdata", "ntab2_clean.Rdata", sep = "/"))
+# write_csv(ntab2_clean, file = paste(data_path, "csv_files", "ntab2_clean.csv", sep = "/"))
+generate_dictionary(ntab2_clean)
 ```
+
+ntab2 lists `r max(ntab2_clean$observation)` observations inclusive of all shifts. These observations list up to `r max(ntab2_clean$person)` individuals per shift, all 81 shifts.
+
+# Shift Info
+
+## `shift_times`
+
+```{r shift_times}
+shift_times <- read_xls(paste(data_path, "shifts", "Shift Start End times v3.xls", sep = "/"), 
+                        col_names = c("date", 
+                                      "shift_start_tm", 
+                                      "shift_end_tm",
+                                      "shift_ampm",
+                                      "comments"), 
+                        col_types = c("date",
+                                      "guess",
+                                      "guess",
+                                      "text",
+                                      "text",
+                                      "skip",
+                                      "skip",
+                                      "skip",
+                                      "skip",
+                                      "skip",
+                                      "skip"), 
+                        skip = 1)
+# shift_times %>% 
+#   str()
+rmarkdown::paged_table(head(shift_times))
+generate_dictionary(shift_times)
+# write_csv(shift_times, file = paste(data_path, "csv_files", "shift_times.csv", sep = "/"))
+# write_rds(shift_times, file = paste(data_path, "Rdata", "shift_times.Rdata", sep = "/"))
+```
+
+## `counts_per_shift`
+
+```{r counts_per_shift}
+counts_per_shift <- read_sas(paste(data_path, "shifts", "countspershift.sas7bdat", sep = "/"))
+# str(counts_per_shift)
+countspershift_clean <- counts_per_shift %>% 
+  transmute(shift_num,
+         date = d8,
+         am_pm = str_extract(shift_num_ampm, "am|pm"),
+         staffcount = as.integer(staffcount),
+         patcount = as.integer(patcount),
+         total = as.integer(total))
+rmarkdown::paged_table(head(countspershift_clean))
+# write_rds(countspershift_clean, file = paste(data_path, "Rdata", "countspershift_clean.Rdata", sep = "/"))
+# write_csv(countspershift_clean, file = paste(data_path, "csv_files", "countspershift_clean.csv", sep = "/"))
+```
+
+## `person_dataset`
+
+```{r person_dataset}
+person_dataset <- read_sas(paste(data_path, "patients", "person_dataset.sas7bdat", sep = "/"))
+
+person_dataset <- person_dataset %>% 
+  transmute(shift_num = as.integer(shiftnum),
+            person = as.character(person),
+            staff = as_factor(staff),
+            degree,
+            minutes)
+rmarkdown::paged_table(head(person_dataset))
+generate_dictionary(person_dataset)
+# write_rds(person_dataset, paste(data_path, "Rdata", "person_dataset.Rdata", sep = "/"))
+# write_csv(person_dataset, paste(data_path, "csv_files", "person_dataset.csv", sep = "/"))
+
+```
+
+# Room Info
+
+### `location_categories`
+
+```{r location_cats}
+location_cats <- read_sas(paste(data_path, "rooms", "location_categories_list.sas7bdat", sep = "/"))
+rmarkdown::paged_table(head(location_cats))
+```
+### `location_defs`
+
+```{r location_defs}
+location_defs <- read_sas(paste(data_path, "rooms", "location_definitions.sas7bdat", sep = "/"))
+rmarkdown::paged_table(head(location_defs))
+generate_dictionary(location_defs)
+
+```
+
+### `room_locs`
+
+```{r room_locs}
+room_locs <- read_xlsx(paste(data_path, "rooms", "Room Locations and Square Footage - with Correction.xlsx", sep = "/"), col_names = c("id", "name", "type", "sqft_area"), col_types = c("text", "text", "text", "numeric", "skip"), skip = 1)
+rmarkdown::paged_table(head(room_locs))
+```
+### `locations_list`
+
+```{r locations_list}
+locations_list <- read_sas(paste(data_path, "rooms", "locationslist.sas7bdat", sep = "/"))
+rmarkdown::paged_table(head(locations_list))
+```
+
+
+# Patient Data
 
 ## Patient Demographics
 
-Demographic information with EHR numbers and encounter numbers. Note that **EHR numbers may repeat!**
+Demographic information with med_rec numbers and encounter numbers. Note that **med_rec numbers may repeat!**
 
-```{r Demographics}
-demographic_df <- read_csv(paste0(data_path, "/Population_Patient_Demographics.csv"))
+### `demographics_df` 
+
+```{r demographics_df}
+demographic_df <- read_csv(paste(data_path, "patients", "Population_Patient_Demographics.csv", sep = "/"))
 # glimpse(demographic_df)
-demographic_df <- demographic_df %>% 
-  mutate(ED_arr = mdy(`ED Arrival Timestamp`), 
-         ED_dep = mdy(`ED Departure Timestamp`),
-         med_rec_no = as.character(`Medical Record Number`),
+demographics_clean <- demographic_df %>%
+  transmute(med_rec_no = as.character(`Medical Record Number`),
          encounter_no = as.character(`Enc .`),
-         # .before = 1,
-         across(!where(is.Date)
-                & !where(is.double)
-                & !where(is.integer)
-                & !med_rec_no
-                & !encounter_no
-                & !`ED Arrival Timestamp`
-                & !`ED Departure Timestamp`
-                & !`Chief Complaint`
-                & !`% ED Patients Admitted as Inpt or Obs`, 
-                .fns = as_factor))
+         arrival_date = mdy(`ED Arrival Timestamp`), 
+         departure_date = mdy(`ED Departure Timestamp`),
+         # across(!where(is.Date)
+         #        & !where(is.double)
+         #        & !where(is.integer)
+         #        & !med_rec_no
+         #        & !encounter_no
+         #        & !`ED Arrival Timestamp`
+         #        & !`ED Departure Timestamp`
+         #        & !`Chief Complaint`
+         #        & !`% ED Patients Admitted as Inpt or Obs`, 
+         #        .fns = as_factor),
+         sex = as_factor(Sex, ),
+         age = `Patient Age at Visit`,
+         race = as_factor(Race),
+         chief_complaint = `Chief Complaint`,
+         acuity = as_factor(Acuity),
+         arrival_mode = as_factor(`Arr Mode`),
+         disposition = as_factor(`ED Disposition`)) %>% 
+  # str()
+# demographics_clean_test %>% 
+  mutate(across(where(is.factor), ~recode(.x, `Not Recorded` = NA_character_, `Unknown` = NA_character_))) %>% 
+  mutate(acuity = fct_relevel(acuity,
+                              "1 Immediate",
+                              "2 Emergent",
+                              "3 Urgent",
+                              "4 Stable",
+                              "5 Non Urgent"),
+         arrival_cat = fct_recode(arrival_mode,
+                                  "EMS" = "EMS Ground",
+                                  "EMS" = "EMS Air",
+                                  "Custody" = "Police/Jail",
+                                  "Ambulatory" = "Private Vehicle",
+                                  "Ambulatory" = "Public Trans", 
+                                  "Ambulatory" = "Walk"),
+         race = fct_relevel(race,
+                            "Black",
+                            "White",
+                            "Hispanic",
+                            "Asian",
+                            "Other",
+                            "1",
+                            "2",
+                            "3"), .after = 10)
+# generate_dictionary(demographics_clean_test)
 
-# Print dictionary of patient demographic data
-generate_dictionary(demographic_df)
-# save(demographic_df, file = "Data/demographic_df.Rdata")
+generate_dictionary(demographics_clean)
+
+rmarkdown::paged_table(head(demographics_clean))
+demographics_clean %>% 
+  count(race) %>% 
+  kable(caption = "Patient race")
+demographics_clean %>% 
+  group_by(acuity) %>% 
+  summarise(`Total (n)` = n(), 
+            `Black (n)` = sum(race == "Black", na.rm = TRUE),
+            `Black (%)` = round((`Black (n)`/`Total (n)`)*100, 2),
+            `White (n)` = sum(race == "White", na.rm = TRUE),
+            `White (%)` = round((`White (n)`/`Total (n)`)*100, 2),
+            `Hispanic (n)` = sum(race == "Hispanic", na.rm = TRUE),
+            `Hispanic (%)` = round((`Hispanic (n)`/`Total (n)`) * 100, 2),
+            `Other (n)` = sum(race == "Other", na.rm = TRUE),
+            `Other (%)` = round((`Other (n)`/`Total (n)`) * 100, 2),
+            `Missing (n)` = sum(is.na(race)),
+            `Missing (%)` = round((`Missing (n)`/`Total (n)`) * 100, 2)) %>% 
+  rename(Acuity = acuity) %>% 
+  kable(caption = "Patient race by ESI acuity")
+# write_rds(demographics_clean, paste(data_path, "Rdata", "demographics_clean.Rdata", sep = "/"))
+# write_csv(demographics_clean, paste(data_path, "csv_files", "demographics_clean.csv", sep = "/"))
 ```
 
-## Patient Location
+### `pop_pt_demographics`  
 
-The SAS data file, "completepat.sas7bdat," contains RFID badge location (by *room number*) for all patients each second of every shift. The data were stored in a table that is extremely **wide**. 
+```{r pop_pt_demographics}
+pop_pt_demographics <- read_csv(paste(data_path, "patients", "Population_Patient_Demographics.csv", sep = "/"))
+nms <- c("arrival_date", 
+         "med_rec_no", 
+         "encounter_no", 
+         "sex",
+         "age",
+         "race",
+         "chief_complaint",
+         "acuity",
+         "arrival_mode", 
+         "departure_date",
+         "disposition",
+         "prop_admitted")
+names(pop_pt_demographics) <- nms
+# str(pop_pt_demographics)
+# generate_dictionary(pop_pt_demographics)
+pop_pt_demo_clean <- pop_pt_demographics %>% 
+  mutate(med_rec_no = as.character(med_rec_no),
+         encounter_no = as.character(encounter_no),
+         arrival_date = mdy(arrival_date), .after = 3,
+         departure_date = mdy(departure_date),
+         sex = as_factor(sex),
+         race = as_factor(race),
+         acuity = as_factor(acuity),
+         arrival_mode = as_factor(arrival_mode)) %>% 
+  mutate(across(where(is.factor), ~recode(.x, "Not Recorded" = NA_character_, "Unknown" = NA_character_))) %>% 
+  mutate(acuity = fct_relevel(acuity,
+                              "1 Immediate",
+                              "2 Emergent",
+                              "3 Urgent",
+                              "4 Stable",
+                              "5 Non Urgent"),
+         arrival_cat = fct_recode(arrival_mode,
+                                  "EMS" = "EMS Ground",
+                                  "EMS" = "EMS Air",
+                                  "Custody" = "Police/Jail",
+                                  "Ambulatory" = "Private Vehicle",
+                                  "Ambulatory" = "Public Trans",
+                                  "Ambulatory" = "Walk"),
+         .after = 9,
+         race = fct_relevel(race,
+                            "Black",
+                            "White",
+                            "Hispanic",
+                            "Asian",
+                            "Other",
+                            "1",
+                            "2",
+                            "3"))
 
-I used `pivot_longer()` to reshape it by collapsing all location-by-second columns (variables `flocX`, where `X` is the shift time in seconds that the respective SID was identified in room number `flocX`) into two columns, names set to `seconds` and values to `location`. Note that this creates **many duplicated rows** (i.e., needs filtering).
+rmarkdown::paged_table(head(pop_pt_demo_clean))
+generate_dictionary(pop_pt_demo_clean)
+# write_csv(pop_pt_demo_clean, file = paste(data_path, "csv_files", "pop_pt_demo_clean.csv", sep = "/"))
+# write_rds(pop_pt_demo_clean, file = paste(data_path, "Rdata", "pop_pt_demo_clean.Rdata", sep = "/"))
+```
+
+### `pts_population`  
+
+```{r pts_population}
+pts_population <- read_sas(paste(data_path, "patients", "Patients_population.sas7bdat", sep = "/"))
+rmarkdown::paged_table(head(pts_population))
+generate_dictionary(pts_population)
+# write_csv(pts_population, file = paste(data_path, "csv_files", "pts_population.csv", sep = "/"))
+# write_rds(pts_population, file = paste(data_path, "Rdata", "pts_population.Rdata", sep = "/"))
+```
+
+### `pts_pop2`
+
+```{r pts_pop2}
+pts_pop2 <- read_sas(paste(data_path, "patients", "patients_population2.sas7bdat", sep = "/"))
+rmarkdown::paged_table(head(pts_pop2))
+generate_dictionary(pts_pop2)
+
+# write_csv(pts_pop2, file = paste(data_path, "csv_files", "pts_pop2.csv", sep = "/"))
+# write_rds(pts_pop2, file = paste(data_path, "Rdata", "pts_pop2.Rdata", sep = "/"))
+
+```
+
+
+
+"completepat.sas7bdat" contains RFID badge locations (by *room number*) for each sampled patient for every second they were monitored in the ED.
+
+The file is large, so subset a random sample of observations with `slice_sample()` to test code for wrangling.
+
+Use `pivot_longer()` to reshape from wide format to long format by collapsing all location-by-second columns (variables `flocX$`, where `X` is the shift time in seconds that the respective SID was identified in room number `flocX`) into two columns, names set to `seconds` and values to `location`. 
+
+> Note that `pivot_longer()` will create *many duplicate SIDs and many* `NA`s which will require filtering.
+
+## Patient RFID Data  
+
+### `pt_complete`
 
 ```{r pt_complete}
-pt_complete <- read_sas(paste(data_path, "completepat.sas7bdat", sep = "/"))
+#| code-fold: true
+pt_complete <- read_sas(paste(data_path, "patients", "completepat.sas7bdat", sep = "/"))
+# glimpse(pt_complete)
 # 1. subset a random sample of 30 observations for data transformation code preparation
-set.seed(711)
-pt_complete_sample <- pt_complete %>% slice_sample(n = 30)
-pt_complete_sample <- pt_complete_sample %>% 
+# set.seed(711)
+# pt_complete_sample <- pt_complete %>% slice_sample(n = 30)
+# pt_complete_sample %>%
+pt_complete_long <- pt_complete %>%
+
 # 2. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "seconds," and placing respective observations for each "floc" variable into a "location_num" column
   pivot_longer(cols = starts_with("floc"), 
-               names_to = "seconds", 
-               values_to = "location_num")
-               # values_drop_na = TRUE) # %>% 
-# 3b. Delete the prefix "floc" from `seconds` and change class to numeric
-  # mutate(seconds = as.integer(str_replace(seconds, "floc", "")), 
-  #        shift_num_ampm = str_trim(shift_num_ampm),
-  #        shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")),
-  #        am_pm = str_extract(shift_num_ampm, "am|pm"),
-  #        date = make_date(year = year, month = mon, day = day))
-# 4. Filter out all rows for which no location was recorded
-  # filter() (STILL NEED TO DO THIS)
-# 3. View data frame dictionary  
-generate_dictionary(pt_complete_sample)
-
+               names_to = "shift_second", # moves column names to new column "seconds"
+               values_to = "location_num", # moves location numbers to new column "location_num"
+               values_drop_na = TRUE) %>% # removes all rows (observations) without location data
+# 3. Delete the prefix "floc" from `seconds` and change class to numeric
+  mutate(shift_second = as.double(str_replace(shift_second, "floc", "")),
+         location_num = as_factor(location_num),
+         shift_num_ampm = str_trim(shift_num_ampm),
+         am_pm = as_factor(str_extract(shift_num_ampm, "am|pm")),
+         shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")),
+         date = make_date(year = year, month = mon, day = day)) %>% 
+  select(sid, date, shift_num, am_pm, location_num, shift_second) %>% 
+  # count(am_pm)
+  mutate(day_night = as_factor(if_else(am_pm == "am", "day", "night")),
+         .after = 4) # %>% 
+  # glimpse()
+# Save as .Rdata file
+rmarkdown::paged_table(head(pt_complete_long))
+# write_rds(pt_complete_long, file = paste(data_path, "Rdata", "pt_complete_long.Rdata", sep = "/"))
+# write_csv(pt_complete_long, file = paste(data_path, "csv_files", "pt_complete_long.csv", sep = "/"))
+generate_dictionary(pt_complete_long)
 ```
+
+> After transforming & cleaning "completepat.sas7bdat", `pt_complete_long` is __`r ncol(pt_complete_long)`__ variables wide and __`r nrow(pt_complete_long)`__ rows long.  
 
 
 # Staff Data
 
-List of other staff data files (`.sas7bdat`):
+## Staff RFID data
 
-```{r}
-staff_filepaths <- paste(data_path, 
-                         "SAS_data_files/staff_data_files", 
-                         sep = "/")
-staff_filenames <- lst(Staff_Files = list.files(staff_filepaths))
-tibble(`Staff Files` = staff_filenames[[1]])
-```
-
-## Staff location data
 
 The SAS data file, "completestaff.sas7bdat," contains RFID badge location (by *room number*) for all staff each second of every shift.
 
-```{r}
-#| eval: false  
+### `staff_complete`
+
+```{r staff_complete}
 # 1. pull "completestaff.sas7bdat" from `sas_data_list` as `tibble()` 
-staff_complete <- read_sas(paste(data_path, "completestaff.sas7bdat", sep = "/"))
+staff_complete <- read_sas(paste(data_path, "staff", "completestaff.sas7bdat", sep = "/"))
 # Subset a random sample of 30 observations
-set.seed(321)
-staff_complete_sample <- staff_complete %>% slice_sample(30)
+# set.seed(321)
+# staff_complete_sample <- staff_complete %>% slice_sample(n = 30)
 # 2. Use a random sample of staff_complete for data cleaning & transformation 
-staff_complete_sample <- staff_complete_sample %>% 
+staff_complete_long <- staff_complete %>% 
   # 2a. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "seconds," and placing respective observations for each "floc" variable into a "location_num" column
   pivot_longer(cols = starts_with("floc"), 
                names_to = "seconds", 
                values_to = "location_num",
-               values_drop_na = TRUE) # %>% 
+               values_drop_na = TRUE) %>% 
   # 2b. Remove the prefix "floc" from `time_seconds` and keep the digits as `seconds`
-  # mutate(seconds = as.integer(str_replace(seconds, "floc", "")), 
-         # shift_num_ampm = str_trim(shift_num_ampm),
-         # shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")),
-         # am_pm = str_extract(shift_num_ampm, "am|pm"),
-         # date = make_date(year = year, month = mon, day = day)) # %>% 
-  # 2c. Filter out all rows for which no location was recorded
-  # filter(!is.na(location))
+  mutate(seconds = as.double(str_replace(seconds, "floc", "")),
+         location_num = as_factor(location_num),
+         shift_num_ampm = str_trim(shift_num_ampm),
+         shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")),
+         am_pm = as_factor(str_extract(shift_num_ampm, "am|pm")),
+         date = make_date(year = year, month = mon, day = day)) %>%
+  select(-d8:-mon)
 
+# staff_complete_sample2
+# write_rds(staff_complete_long, file = paste(data_path, "Rdata", "staff_complete_long.Rdata", sep = "/"))
+# write_csv(staff_complete_long, file = paste(data_path, "csv_files", "staff_complete_long.csv", sep = "/"))
 # 3. View data frame structure
-generate_dictionary(staff_complete_sample)
+generate_dictionary(staff_complete_long)
+rmarkdown::paged_table(head(staff_complete_long))
 ```
 
-# Network Data
 
-## Event Files
 
-__List all event files__
+
+# Network Data  
+
+## `network_allshifts`
 
 ```{r}
-event_filepaths <- paste(data_path, 
-                         "SAS_data_files/event_data_files", 
-                         sep = "/")
-event_filenames <- lst(Event_Files = list.files(event_filepaths))
-tibble(`Event Files` = event_filenames[[1]])
+#| label: "network_allshifts"
+
 ```
 
-## Network Files
+# Data Dictionary
 
-__List all network data files:__
-
-
-```{r}
-net_filepaths <- paste(data_path, 
-                         "SAS_data_files/network_data_files", 
-                         sep = "/")
-net_filenames <- lst(Net_Files = list.files(net_filepaths))
-tibble(`Network Files` = net_filenames[[1]])
+```{r dictionary}
+dictionary <- lst(id_sid_clean = names(id_sid_clean),
+                  ids_final = names(ids_final),
+                  pt_sid_clean = names(pt_sid_clean),
+                  person_dataset = names(person_dataset),
+                  allstaff_clean = names(allstaff_clean),
+                  staff_sids_clean = names(staff_sids_clean),
+                  shift_times = names(shift_times),
+                  ntab2_clean = names(ntab2_clean),
+                  demographics_clean = names(demographics_clean),
+                  pop_pt_demo_clean = names(pop_pt_demo_clean),
+                  pts_pop2 = names(pts_pop2),
+                  pt_complete_long = names(pt_complete_long),
+                  staff_complete_long = names(staff_complete_long),
+                  location_defs = names(location_defs))
+dictionary_tbl <- unnest((tibble(names = names(dictionary), var_list = dictionary)))
+write_csv(dictionary_tbl, file = paste(data_path, "dictionaries", "dictionary_tbl.csv", sep = "/"))  
+rmarkdown::paged_table(head(dictionary_tbl))
 ```
-
-
 
 # SessionInfo
 
 ```{r SessionInfo}
-#| echo: false
 sessioninfo::session_info()%>%
   details::details(
     summary = 'Current session info',
