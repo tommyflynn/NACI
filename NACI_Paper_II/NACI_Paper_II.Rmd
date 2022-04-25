@@ -1,0 +1,77 @@
+---
+title: "Network Analysis of Clinical Interactions: Descriptive Statistics"
+author: "Tommy J. Flynn"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: "paged"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(naniar)
+library(vtable)
+```
+
+
+```{r import}
+# create path to data directory
+wd <- getwd()
+rdata_dir <- paste0(wd, "/Data/Rdata")
+# rdata_dir
+# load Rdata objects
+# patient population & sample data
+demographics_clean <- read_rds(paste0(rdata_dir, "/demographics_clean.Rdata"))
+pts_pop <- read_rds(paste0(rdata_dir, "/pts_population.Rdata"))
+pts_pop2 <- read_rds(paste0(rdata_dir, "/pts_pop2.Rdata"))
+pop_pt_dems <- read_rds(paste0(rdata_dir, "/pop_pt_demo_clean.Rdata"))
+pt_sid_clean <- read_rds(paste0(rdata_dir, "/pt_sid_clean.Rdata"))
+ntab2_clean <- read_rds(paste0(rdata_dir, "/ntab2_clean.Rdata"))
+id_sid <- read_rds(paste0(rdata_dir, "/id_sid_clean.Rdata"))
+person_df <- read_rds(paste0(rdata_dir, "/person_dataset.Rdata"))
+
+```
+
+
+```{r wrangle}
+# -naniar:miss_var_summary(pts_pop)
+# remove variables with missing data for more than 70% of cases
+# identify data frame keys
+ntab2_clean <- ntab2_clean %>% 
+  mutate(shift_num = as.character(shift_num),
+         shift_person = as.character(shift_person))
+id_ntab_joined <- id_sid %>%
+  left_join(., ntab2_clean, by = c("sid" = "sid", 
+                                "shift_num" = "shift_num", 
+                                "newsid" = "shift_person", 
+                                "date" = "date"))
+
+person_df <- person_df %>% 
+  mutate(shift_num = as.character(shift_num))
+
+id_ntab_person <- id_ntab_joined %>% 
+  left_join(person_df, by = c("shift_num" = "shift_num",
+                              "newsid" = "person")) %>% 
+  select(-staff.y, -degree.y)
+glimpse(id_ntab_person)
+
+
+# left_join(pop_pt_dems, by = c("date" = "arrival_date"))
+```
+
+```{r}
+pts_pop %>% 
+  select(patient, encnum, ID, d8, numshift) %>% 
+  mutate(across(c(encnum, ID, numshift), as.character)) %>%
+  rename(shift_num = numshift) %>% 
+  glimpse()
+pts_pop %>% 
+  glimpse()
+```
+
+

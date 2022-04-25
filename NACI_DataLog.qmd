@@ -6,17 +6,17 @@ number-sections: true
 format: 
   html:
     code-tools: true
-    code-fold: true
+    code-fold: false
     code-copy: true
     code-summary: "code"
     code-block-bg: true
     code-block-border-left: "#31BAE9"
-    fig_caption: true
 ---
 # Setup
 
 
 ```{r setup, message=FALSE}
+#| code-fold: true 
 knitr::opts_chunk$set(error = FALSE,
                       tidy = TRUE,
                       # tidy.opts = list(width.cutoff = 60),
@@ -34,6 +34,7 @@ library(gtsummary)
 ```
 
 ```{r directories}
+#| code-fold: true 
 # Working directory saved as `wd` and data path as `data_path`  
 wd <- getwd()
 data_path <- paste(wd, "Data", sep = "/")
@@ -59,7 +60,7 @@ id_sid_clean <- id_sid_matchup2 %>%
             staff = as_factor(staff))
 
 # preview id_sid_match_cleaned
-rmarkdown::paged_table(head(id_sid_clean))
+rmarkdown::paged_table(id_sid_clean)
 # Save id_sid_clean to files in csv and Rdata format
 # write_csv(id_sid_clean, path = paste(data_path, "Rdata", "id_sid_clean.Rdata", sep = "/"))
 # write_csv(id_sid_clean, path = paste(data_path, "csv_files", "id_sid_clean.csv", sep = "/"))
@@ -70,13 +71,13 @@ rmarkdown::paged_table(head(id_sid_clean))
 ```{r ids_final}
 ids_final <- read_sas(paste(data_path, "ids", "finalsids6944.sas7bdat", sep = "/"))
 # preview ids_final (no cleaning needed)
-rmarkdown::paged_table(head(ids_final))
+rmarkdown::paged_table(ids_final)
 # Check if sids repeate within shifts:
 ids_final %>% 
   group_by(shift_num) %>% 
   count(sid) %>% 
   filter(n > 1) %>% 
-  kable(caption = "Are any sids repeated within the same shift?")
+  rmarkdown::paged_table()
 
 ```
 
@@ -91,20 +92,20 @@ pt_sid_clean <- pt_sids %>%
          shift_num = str_extract(shift_num_ampm, "[:digit:]+"),
          shift_ampm = as_factor(str_extract(shift_num_ampm, "am|pm")))
 # preview pt_sid_clean
-rmarkdown::paged_table(head(pt_sid_clean))
+rmarkdown::paged_table(pt_sid_clean)
 pt_sid_clean %>% 
   group_by(shift_num) %>% 
   count(shift_ampm) %>% 
   arrange(shift_num) %>% 
-  kable(caption = "Patient participants by shift number and day vs. night")
+  rmarkdown::paged_table()
 
 pt_sid_clean %>% 
   count(shift_ampm) %>% 
-  kable(caption = "Total patients sampled from day shifts vs. night shifts")
+  rmarkdown::paged_table()
 # Save to file
 # write_rds(pt_sid_clean, path = paste(data_path, "Rdata", "pt_sid_clean.Rdata", sep = "/"))
 # write_csv(pt_sid_clean, path = paste(data_path, "csv_files", "pt_sid_clean.csv", sep = "/"))
-generate_dictionary(pt_sid_clean)
+# generate_dictionary(pt_sid_clean)
 ```
 
 ##`staff_sids`
@@ -115,14 +116,14 @@ str(staff_sids)
 staff_sids_clean <- staff_sids %>% 
   mutate(across(.cols = !sid, .fns = as.factor)) %>% 
   select(-job)
-rmarkdown::paged_table(head(staff_sids_clean))
+rmarkdown::paged_table(staff_sids_clean)
 staff_sids_clean %>%
   count(ParticipantCat4) %>% 
-  kable(caption = "Staff participants by category")
+  rmarkdown::paged_table()
 # Save to file
 write_csv(staff_sids_clean, file = paste(data_path, "Rdata", "staff_sids_clean.Rdata", sep = "/"))
 write_csv(staff_sids_clean, file = paste(data_path, "csv_files", "staff_sids_clean.csv", sep = "/"))
-generate_dictionary(staff_sids_clean)
+# generate_dictionary(staff_sids_clean)
 ```
 
 ## `allstaff`
@@ -135,9 +136,9 @@ allstaff_clean <- allstaff %>%
          .keep = "unused")
 # write_rds(allstaff_clean, paste(data_path, "Rdata", "allstaff_clean.Rdata", sep = "/"))
 # write_csv(allstaff_clean, paste(data_path, "csv_files", "allstaff_clean.csv", sep = "/"))
-rmarkdown::paged_table(head(allstaff_clean))
+rmarkdown::paged_table(allstaff_clean)
 
-generate_dictionary(allstaff_clean)
+# generate_dictionary(allstaff_clean)
 ```
 
 
@@ -158,11 +159,11 @@ ntab2_clean <- ntab2 %>%
             wdegree,
             WtAlpha)
 
-rmarkdown::paged_table(head(ntab2_clean))
+rmarkdown::paged_table(ntab2_clean)
 # save to file
 # write_rds(ntab2_clean, file = paste(data_path, "Rdata", "ntab2_clean.Rdata", sep = "/"))
 # write_csv(ntab2_clean, file = paste(data_path, "csv_files", "ntab2_clean.csv", sep = "/"))
-generate_dictionary(ntab2_clean)
+# generate_dictionary(ntab2_clean)
 ```
 
 ntab2 lists `r max(ntab2_clean$observation)` observations inclusive of all shifts. These observations list up to `r max(ntab2_clean$person)` individuals per shift, all 81 shifts.
@@ -192,8 +193,8 @@ shift_times <- read_xls(paste(data_path, "shifts", "Shift Start End times v3.xls
                         skip = 1)
 # shift_times %>% 
 #   str()
-rmarkdown::paged_table(head(shift_times))
-generate_dictionary(shift_times)
+rmarkdown::paged_table(shift_times)
+# generate_dictionary(shift_times)
 # write_csv(shift_times, file = paste(data_path, "csv_files", "shift_times.csv", sep = "/"))
 # write_rds(shift_times, file = paste(data_path, "Rdata", "shift_times.Rdata", sep = "/"))
 ```
@@ -210,7 +211,7 @@ countspershift_clean <- counts_per_shift %>%
          staffcount = as.integer(staffcount),
          patcount = as.integer(patcount),
          total = as.integer(total))
-rmarkdown::paged_table(head(countspershift_clean))
+rmarkdown::paged_table(countspershift_clean)
 # write_rds(countspershift_clean, file = paste(data_path, "Rdata", "countspershift_clean.Rdata", sep = "/"))
 # write_csv(countspershift_clean, file = paste(data_path, "csv_files", "countspershift_clean.csv", sep = "/"))
 ```
@@ -226,8 +227,8 @@ person_dataset <- person_dataset %>%
             staff = as_factor(staff),
             degree,
             minutes)
-rmarkdown::paged_table(head(person_dataset))
-generate_dictionary(person_dataset)
+rmarkdown::paged_table(person_dataset)
+# generate_dictionary(person_dataset)
 # write_rds(person_dataset, paste(data_path, "Rdata", "person_dataset.Rdata", sep = "/"))
 # write_csv(person_dataset, paste(data_path, "csv_files", "person_dataset.csv", sep = "/"))
 
@@ -239,14 +240,14 @@ generate_dictionary(person_dataset)
 
 ```{r location_cats}
 location_cats <- read_sas(paste(data_path, "rooms", "location_categories_list.sas7bdat", sep = "/"))
-rmarkdown::paged_table(head(location_cats))
+rmarkdown::paged_table(location_cats)
 ```
 ### `location_defs`
 
 ```{r location_defs}
 location_defs <- read_sas(paste(data_path, "rooms", "location_definitions.sas7bdat", sep = "/"))
-rmarkdown::paged_table(head(location_defs))
-generate_dictionary(location_defs)
+rmarkdown::paged_table(location_defs)
+# generate_dictionary(location_defs)
 
 ```
 
@@ -254,13 +255,13 @@ generate_dictionary(location_defs)
 
 ```{r room_locs}
 room_locs <- read_xlsx(paste(data_path, "rooms", "Room Locations and Square Footage - with Correction.xlsx", sep = "/"), col_names = c("id", "name", "type", "sqft_area"), col_types = c("text", "text", "text", "numeric", "skip"), skip = 1)
-rmarkdown::paged_table(head(room_locs))
+rmarkdown::paged_table(room_locs)
 ```
 ### `locations_list`
 
 ```{r locations_list}
 locations_list <- read_sas(paste(data_path, "rooms", "locationslist.sas7bdat", sep = "/"))
-rmarkdown::paged_table(head(locations_list))
+rmarkdown::paged_table(locations_list)
 ```
 
 
@@ -324,12 +325,12 @@ demographics_clean <- demographic_df %>%
                             "3"), .after = 10)
 # generate_dictionary(demographics_clean_test)
 
-generate_dictionary(demographics_clean)
+# generate_dictionary(demographics_clean)
 
-rmarkdown::paged_table(head(demographics_clean))
+rmarkdown::paged_table(demographics_clean)
 demographics_clean %>% 
   count(race) %>% 
-  kable(caption = "Patient race")
+  rmarkdown::paged_table()
 demographics_clean %>% 
   group_by(acuity) %>% 
   summarise(`Total (n)` = n(), 
@@ -344,7 +345,7 @@ demographics_clean %>%
             `Missing (n)` = sum(is.na(race)),
             `Missing (%)` = round((`Missing (n)`/`Total (n)`) * 100, 2)) %>% 
   rename(Acuity = acuity) %>% 
-  kable(caption = "Patient race by ESI acuity")
+  rmarkdown::paged_table()
 # write_rds(demographics_clean, paste(data_path, "Rdata", "demographics_clean.Rdata", sep = "/"))
 # write_csv(demographics_clean, paste(data_path, "csv_files", "demographics_clean.csv", sep = "/"))
 ```
@@ -402,8 +403,8 @@ pop_pt_demo_clean <- pop_pt_demographics %>%
                             "2",
                             "3"))
 
-rmarkdown::paged_table(head(pop_pt_demo_clean))
-generate_dictionary(pop_pt_demo_clean)
+rmarkdown::paged_table(pop_pt_demo_clean)
+# generate_dictionary(pop_pt_demo_clean)
 # write_csv(pop_pt_demo_clean, file = paste(data_path, "csv_files", "pop_pt_demo_clean.csv", sep = "/"))
 # write_rds(pop_pt_demo_clean, file = paste(data_path, "Rdata", "pop_pt_demo_clean.Rdata", sep = "/"))
 ```
@@ -412,8 +413,8 @@ generate_dictionary(pop_pt_demo_clean)
 
 ```{r pts_population}
 pts_population <- read_sas(paste(data_path, "patients", "Patients_population.sas7bdat", sep = "/"))
-rmarkdown::paged_table(head(pts_population))
-generate_dictionary(pts_population)
+rmarkdown::paged_table(pts_population)
+# generate_dictionary(pts_population)
 # write_csv(pts_population, file = paste(data_path, "csv_files", "pts_population.csv", sep = "/"))
 # write_rds(pts_population, file = paste(data_path, "Rdata", "pts_population.Rdata", sep = "/"))
 ```
@@ -422,8 +423,8 @@ generate_dictionary(pts_population)
 
 ```{r pts_pop2}
 pts_pop2 <- read_sas(paste(data_path, "patients", "patients_population2.sas7bdat", sep = "/"))
-rmarkdown::paged_table(head(pts_pop2))
-generate_dictionary(pts_pop2)
+rmarkdown::paged_table(pts_pop2)
+# generate_dictionary(pts_pop2)
 
 # write_csv(pts_pop2, file = paste(data_path, "csv_files", "pts_pop2.csv", sep = "/"))
 # write_rds(pts_pop2, file = paste(data_path, "Rdata", "pts_pop2.Rdata", sep = "/"))
@@ -472,10 +473,10 @@ pt_complete_long <- pt_complete %>%
          .after = 4) # %>% 
   # glimpse()
 # Save as .Rdata file
-rmarkdown::paged_table(head(pt_complete_long))
+rmarkdown::paged_table(pt_complete_long)
 # write_rds(pt_complete_long, file = paste(data_path, "Rdata", "pt_complete_long.Rdata", sep = "/"))
 # write_csv(pt_complete_long, file = paste(data_path, "csv_files", "pt_complete_long.csv", sep = "/"))
-generate_dictionary(pt_complete_long)
+# generate_dictionary(pt_complete_long)
 ```
 
 > After transforming & cleaning "completepat.sas7bdat", `pt_complete_long` is __`r ncol(pt_complete_long)`__ variables wide and __`r nrow(pt_complete_long)`__ rows long.  
@@ -516,8 +517,8 @@ staff_complete_long <- staff_complete %>%
 # write_rds(staff_complete_long, file = paste(data_path, "Rdata", "staff_complete_long.Rdata", sep = "/"))
 # write_csv(staff_complete_long, file = paste(data_path, "csv_files", "staff_complete_long.csv", sep = "/"))
 # 3. View data frame structure
-generate_dictionary(staff_complete_long)
-rmarkdown::paged_table(head(staff_complete_long))
+# generate_dictionary(staff_complete_long)
+rmarkdown::paged_table(staff_complete_long)
 ```
 
 
@@ -525,12 +526,75 @@ rmarkdown::paged_table(head(staff_complete_long))
 
 # Network Data  
 
-## `network_allshifts`
+## Whole Networks
 
-```{r}
-#| label: "network_allshifts"
+### `net_all_xl`
 
+
+```{r net_all_xl}
+#| label: "net_all"
+net_all_xl <- read_xlsx(paste(data_path, "networks", "network_allshifts.xlsx", sep = "/"))
+str(net_all_xl)
+net_all_xl %>% 
+  rmarkdown::paged_table()
 ```
+### `net_all_sas`
+
+```{r net_all_sas}
+net_all_sas <- read_sas(paste(data_path, "networks", "network_allshifts.sas7bdat", sep = "/"))
+# str(net_all_sas)
+net_all_sas %>% 
+  rmarkdown::paged_table()
+generate_dictionary(net_all_sas)
+```
+
+
+## Edges 
+
+### `edges_all`
+
+```{r edges_all}
+#| label: "edges_all"
+edges_all <- read_sas(paste(data_path, "networks", "allshifts_edges.sas7bdat", sep = "/"))
+# str(edges_all)
+edges_all %>% 
+  rmarkdown::paged_table()
+```
+
+```{r edges2}
+#| label: "edges2"
+edges2 <- read_sas(paste(data_path, "networks", "edges2.sas7bdat", sep = "/"))
+rmarkdown::paged_table(edges2)
+```
+## Events
+
+### `events_long`
+
+```{r events_long}
+events_long <- read_sas(paste(data_path, "events", "eventfile_long2.sas7bdat", sep = "/"))
+rmarkdown::paged_table(events_long)
+# write_csv(events_long, file = paste(data_path, "csv_files", "events_long.csv", sep = "/"))
+```
+
+`events_long` has duplicates, use `eventfile_nodup` if needed.
+
+### `events_unique`
+
+```{r events_unique}
+events_unique <- read_sas(paste(data_path, "events", "events_uniquepersid2.sas7bdat", sep = "/"))
+rmarkdown::paged_table(events_unique)
+```
+
+### `eventfile_nodup`
+
+```{r eventfile_nodup}
+eventfile_nodup <- read_sas(paste(data_path, "events", "eventfile_long6944_noduploc.sas7bdat", sep = "/"))
+eventfile_nodup %>% 
+  rmarkdown::paged_table()
+# write_csv(eventfile_nodup, file = paste(data_path, "csv_files", "eventfile_nodup.csv", sep = "/"))
+# write_rds(eventfile_nodup, file = paste(data_path, "Rdata", "eventfile_nodup.Rdata", sep = "/"))
+```
+
 
 # Data Dictionary
 
@@ -548,10 +612,18 @@ dictionary <- lst(id_sid_clean = names(id_sid_clean),
                   pts_pop2 = names(pts_pop2),
                   pt_complete_long = names(pt_complete_long),
                   staff_complete_long = names(staff_complete_long),
-                  location_defs = names(location_defs))
+                  location_defs = names(location_defs),
+                  net_all_xl = names(net_all_xl),
+                  net_all_sas = names(net_all_sas),
+                  edges_all = names(edges_all),
+                  edges2 = names(edges2),
+                  events_long = names(events_long),
+                  events_unique = names(events_unique),
+                  eventfile_nodup = names(eventfile_nodup))
 dictionary_tbl <- unnest((tibble(names = names(dictionary), var_list = dictionary)))
-write_csv(dictionary_tbl, file = paste(data_path, "dictionaries", "dictionary_tbl.csv", sep = "/"))  
-rmarkdown::paged_table(head(dictionary_tbl))
+# if you make changes, rewrite to csv file:
+# write_csv(dictionary_tbl, file = paste(data_path, "dictionaries", "dictionary_tbl.csv", sep = "/"))
+rmarkdown::paged_table(dictionary_tbl)
 ```
 
 # SessionInfo
