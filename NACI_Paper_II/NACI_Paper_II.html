@@ -9,11 +9,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Tommy J. Flynn" />
 
-<meta name="date" content="2022-04-24" />
+<meta name="date" content="2022-05-09" />
 
-<title>Network Analysis of Clinical Interactions: Descriptive Statistics</title>
+<title>Network Analysis of Clinical Interactions: ED Network Structures and Patient Race</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -2573,6 +2572,230 @@ window.onload = function() {
   PagedTableDoc.initAll();
 };
 </script>
+<script>$(document).ready(function(){
+    if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+    if ($('[data-toggle="popover"]').popover === 'function') {
+        $('[data-toggle="popover"]').popover();
+    }
+});
+</script>
+<style type="text/css">
+.lightable-minimal {
+border-collapse: separate;
+border-spacing: 16px 1px;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-minimal td {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal th {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal thead tr:last-child th {
+border-bottom: 2px solid #00000050;
+empty-cells: hide;
+}
+.lightable-minimal tbody tr:first-child td {
+padding-top: 0.5em;
+}
+.lightable-minimal.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-minimal.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic {
+border-top: 0.16em solid #111111;
+border-bottom: 0.16em solid #111111;
+width: 100%;
+margin-bottom: 10px;
+margin: 10px 5px;
+}
+.lightable-classic tfoot tr td {
+border: 0;
+}
+.lightable-classic tfoot tr:first-child td {
+border-top: 0.14em solid #111111;
+}
+.lightable-classic caption {
+color: #222222;
+}
+.lightable-classic td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic thead tr:last-child th {
+border-bottom: 0.10em solid #111111;
+}
+.lightable-classic.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic-2 {
+border-top: 3px double #111111;
+border-bottom: 3px double #111111;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-classic-2 tfoot tr td {
+border: 0;
+}
+.lightable-classic-2 tfoot tr:first-child td {
+border-top: 3px double #111111;
+}
+.lightable-classic-2 caption {
+color: #222222;
+}
+.lightable-classic-2 td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic-2 th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic-2 tbody tr:last-child td {
+border-bottom: 3px double #111111;
+}
+.lightable-classic-2 thead tr:last-child th {
+border-bottom: 1px solid #111111;
+}
+.lightable-classic-2.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic-2.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #EEE;
+border-collapse: collapse;
+margin-bottom: 10px;
+}
+.lightable-material tfoot tr td {
+border: 0;
+}
+.lightable-material tfoot tr:first-child td {
+border-top: 1px solid #EEE;
+}
+.lightable-material th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+}
+.lightable-material td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+border-top: 1px solid #eeeeee;
+}
+.lightable-material.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #ddd;
+}
+.lightable-material-dark {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #FFFFFF12;
+border-collapse: collapse;
+margin-bottom: 10px;
+background-color: #363640;
+}
+.lightable-material-dark tfoot tr td {
+border: 0;
+}
+.lightable-material-dark tfoot tr:first-child td {
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF60;
+}
+.lightable-material-dark td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF;
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark.lightable-hover tbody tr:hover {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody tr:nth-child(even) {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material-dark.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #FFFFFF12;
+}
+.lightable-paper {
+width: 100%;
+margin-bottom: 10px;
+color: #444;
+}
+.lightable-paper tfoot tr td {
+border: 0;
+}
+.lightable-paper tfoot tr:first-child td {
+border-top: 1px solid #00000020;
+}
+.lightable-paper thead tr:last-child th {
+color: #666;
+vertical-align: bottom;
+border-bottom: 1px solid #00000020;
+line-height: 1.15em;
+padding: 10px 5px;
+}
+.lightable-paper td {
+vertical-align: middle;
+border-bottom: 1px solid #00000010;
+line-height: 1.15em;
+padding: 7px 5px;
+}
+.lightable-paper.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-paper.lightable-striped tbody tr:nth-child(even) {
+background-color: #00000008;
+}
+.lightable-paper.lightable-striped tbody td {
+border: 0;
+}
+</style>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -2597,6 +2820,28 @@ if (window.hljs) {
 
 
 
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
 
 
 
@@ -2778,158 +3023,924 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Network Analysis of Clinical Interactions:
-Descriptive Statistics</h1>
+ED Network Structures and Patient Race</h1>
 <h4 class="author">Tommy J. Flynn</h4>
-<h4 class="date">2022-04-24</h4>
+<address class="author_afil">
+Emory University School of
+Nursing<br><a class="author_email" href="mailto:#"><a href="mailto:tommy.flynn@gmail.com" class="email">tommy.flynn@gmail.com</a></a>
+</address>
+<h4 class="author">Kate A. Yeager</h4>
+<address class="author_afil">
+Emory University School of Nursing<br><h4 class="author">Ymir
+Vigfusson</h4>
+<address class="author_afil">
+Emory University Department of Computer
+Science<br><h4 class="author">David Wright</h4>
+<address class="author_afil">
+Emory University School of Medicine<br><h4 class="author">Dian D.
+Evans</h4>
+<address class="author_afil">
+Emory University School of Nursing<br><h4 class="author">Bonnie Mowinski
+Jennings</h4>
+<address class="author_afil">
+Emory University School of Nursing<br><h4 class="author">Vicki
+Hertzberg</h4>
+<address class="author_afil">
+Emory University School of Nursing<br><h4 class="date">2022-05-09</h4>
 
 </div>
 
 
-<pre class="r"><code># create path to data directory
-wd &lt;- getwd()
-rdata_dir &lt;- paste0(wd, &quot;/Data/Rdata&quot;)
-# rdata_dir
-# load Rdata objects
-# patient population &amp; sample data
-demographics_clean &lt;- read_rds(paste0(rdata_dir, &quot;/demographics_clean.Rdata&quot;))
-pts_pop &lt;- read_rds(paste0(rdata_dir, &quot;/pts_population.Rdata&quot;))
-pts_pop2 &lt;- read_rds(paste0(rdata_dir, &quot;/pts_pop2.Rdata&quot;))
-pop_pt_dems &lt;- read_rds(paste0(rdata_dir, &quot;/pop_pt_demo_clean.Rdata&quot;))
-pt_sid_clean &lt;- read_rds(paste0(rdata_dir, &quot;/pt_sid_clean.Rdata&quot;))
-ntab2_clean &lt;- read_rds(paste0(rdata_dir, &quot;/ntab2_clean.Rdata&quot;))
-id_sid &lt;- read_rds(paste0(rdata_dir, &quot;/id_sid_clean.Rdata&quot;))
-person_df &lt;- read_rds(paste0(rdata_dir, &quot;/person_dataset.Rdata&quot;))</code></pre>
-<pre class="r"><code># -naniar:miss_var_summary(pts_pop)
-# remove variables with missing data for more than 70% of cases
-# identify data frame keys
-ntab2_clean &lt;- ntab2_clean %&gt;% 
-  mutate(shift_num = as.character(shift_num),
-         shift_person = as.character(shift_person))
-id_ntab_joined &lt;- id_sid %&gt;%
-  left_join(., ntab2_clean, by = c(&quot;sid&quot; = &quot;sid&quot;, 
-                                &quot;shift_num&quot; = &quot;shift_num&quot;, 
-                                &quot;newsid&quot; = &quot;shift_person&quot;, 
-                                &quot;date&quot; = &quot;date&quot;))
+<pre class="r"><code>author_names &lt;- tibble(name = c(&quot;Tommy J. Flynn&quot;,
+                                &quot;Kate A. Yeager&quot;, 
+                                &quot;Ymir Vigfusson&quot;,
+                                &quot;David Wright&quot;,
+                                &quot;Dian D. Evans&quot;,
+                                &quot;Bonnie Mowinski Jennings&quot;,
+                                &quot;Vicki Hertzberg&quot;),
+                       affiliation = c(&quot;Emory University School of Nursing&quot;,
+                                       &quot;Emory University School of Nursing&quot;,
+                                       &quot;Emory University Department of Computer Science&quot;,
+                                       &quot;Emory University School of Medicine&quot;,
+                                       &quot;Emory University School of Nursing&quot;,
+                                       &quot;Emory University School of Nursing&quot;,
+                                       &quot;Emory University School of Nursing&quot;),
+                       email = c(&quot;tommy.flynn@gmail.com&quot;,
+                                 NA_character_,
+                                 NA_character_,
+                                 NA_character_,
+                                 NA_character_,
+                                 NA_character_,
+                                 NA_character_))
+# yml() %&gt;% 
+#   yml_title(&quot;Network Analysis of Clinical Interactions: ED Network Structures and Patient Race&quot;) %&gt;% 
+#   yml_author(name = author_names$name,
+#              affiliation = author_names$affiliation,
+#              email = author_names$email) %&gt;% 
+#   yml_date(lubridate::today()) %&gt;% 
+#   yml_output(
+#     word_document(keep_md = TRUE),
+#     pdf_document()
+#   ) %&gt;% 
+#   yml_citations(bibliography = &quot;paperII_citations.bib&quot;,
+#                 csl = &quot;apa.csl&quot;)
+# draw_yml_tree()</code></pre>
+<div id="code" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Code</h1>
+<p><strong>Population from all shifts during the observation year
+(2009-2010):</strong></p>
+<pre class="r"><code># load the population data from the full year, all 730 shifts&quot;
+population_730 &lt;- read_rds(paste0(rdata_dir, &quot;/population.Rdata&quot;))
+# clean race variable for analysis
+population_730 &lt;- population_730 %&gt;%
+  mutate(race = factor(race,
+              levels = c(&quot;Black&quot;,
+                         &quot;White&quot;,
+                         &quot;Other&quot;),
+              exclude = c(&quot;Not Recorded&quot;, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;)))
 
-person_df &lt;- person_df %&gt;% 
-  mutate(shift_num = as.character(shift_num))
+population_730 %&gt;% 
+    count(race)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["race"],"name":[1],"type":["fct"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Black","2":"46637"},{"1":"White","2":"9026"},{"1":"Other","2":"1109"},{"1":"NA","2":"742"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code># check results
+# population_730 %&gt;% 
+  # glimpse()
+# how many patients in population from 2009-2010?
+n_patients_730 &lt;- population_730 %&gt;%
+  nrow()</code></pre>
+<p><strong>Population from 81 shifts with observational
+data:</strong></p>
+<pre class="r"><code># load population data from the 81 observed shifts&quot;
+population_81 &lt;- read_rds(paste0(rdata_dir, &quot;/pt_info_final.Rdata&quot;))
 
-id_ntab_person &lt;- id_ntab_joined %&gt;% 
-  left_join(person_df, by = c(&quot;shift_num&quot; = &quot;shift_num&quot;,
-                              &quot;newsid&quot; = &quot;person&quot;)) %&gt;% 
-  select(-staff.y, -degree.y)
-glimpse(id_ntab_person)</code></pre>
-<pre><code>## Rows: 6,950
-## Columns: 17
-## $ sid              &lt;chr&gt; &quot;0002f35c&quot;, &quot;0002f445&quot;, &quot;0002f468&quot;, &quot;0002f469&quot;, &quot;0002…
-## $ newsid           &lt;chr&gt; &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;, &quot;7&quot;, &quot;8&quot;, &quot;9&quot;, &quot;10&quot;, &quot;1…
-## $ shift_num        &lt;chr&gt; &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;…
-## $ date             &lt;date&gt; 2009-07-09, 2009-07-09, 2009-07-09, 2009-07-09, 2009…
-## $ am_pm            &lt;chr&gt; &quot;pm&quot;, &quot;pm&quot;, &quot;pm&quot;, &quot;pm&quot;, &quot;pm&quot;, &quot;pm&quot;, &quot;pm&quot;, &quot;pm&quot;, &quot;pm&quot;,…
-## $ shift_start_dttm &lt;dttm&gt; 2009-07-09 20:00:00, 2009-07-09 20:00:00, 2009-07-09…
-## $ shift_start_tm   &lt;time&gt; 20:00:00, 20:00:00, 20:00:00, 20:00:00, 20:00:00, 20…
-## $ shift_end_dttm   &lt;dttm&gt; 2009-07-09 23:59:59, 2009-07-09 23:59:59, 2009-07-09…
-## $ shift_end_tm     &lt;time&gt; 23:59:59, 23:59:59, 23:59:59, 23:59:59, 23:59:59, 23…
-## $ staff.x          &lt;fct&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
-## $ observation      &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16…
-## $ id               &lt;chr&gt; &quot;7920091&quot;, &quot;7920092&quot;, &quot;7920093&quot;, &quot;7920094&quot;, &quot;7920095&quot;…
-## $ degree.x         &lt;dbl&gt; 31, 26, 34, 33, 34, 20, 27, 25, 44, 5, 2, 26, 22, 39,…
-## $ wdegree          &lt;dbl&gt; 21.46416667, 72.43944444, 57.76583333, 15.34166667, 7…
-## $ WtAlpha          &lt;dbl&gt; -0.43956735, 0.07468893, -0.35892884, 0.33440947, 0.0…
-## $ staff            &lt;fct&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
-## $ minutes          &lt;dbl&gt; 1287.850000, 4346.366667, 3465.950000, 920.500000, 44…</code></pre>
-<pre class="r"><code># left_join(pop_pt_dems, by = c(&quot;date&quot; = &quot;arrival_date&quot;))</code></pre>
-<pre class="r"><code>pts_pop %&gt;% 
-  select(patient, encnum, ID, d8, numshift) %&gt;% 
-  mutate(across(c(encnum, ID, numshift), as.character)) %&gt;%
-  rename(shift_num = numshift) %&gt;% 
-  glimpse()</code></pre>
-<pre><code>## Rows: 9,183
-## Columns: 5
-## $ patient   &lt;chr&gt; &quot;926382&quot;, &quot;933283&quot;, &quot;5941687&quot;, &quot;6009302&quot;, &quot;2853618&quot;, &quot;435454…
-## $ encnum    &lt;chr&gt; &quot;1200899190&quot;, &quot;5425719190&quot;, &quot;11684349190&quot;, &quot;11965399191&quot;, &quot;1…
-## $ ID        &lt;chr&gt; &quot;3802&quot;, &quot;10482&quot;, &quot;26084&quot;, &quot;27296&quot;, &quot;30062&quot;, &quot;4747&quot;, &quot;25072&quot;,…
-## $ d8        &lt;date&gt; 2009-07-09, 2009-07-09, 2009-07-09, 2009-07-09, 2009-07-09,…
-## $ shift_num &lt;chr&gt; &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, &quot;1&quot;, …</code></pre>
-<pre class="r"><code>pts_pop %&gt;% 
-  glimpse()</code></pre>
-<pre><code>## Rows: 9,183
-## Columns: 75
-## $ sid                    &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;0002f63d&quot;, &quot;00…
-## $ numshift               &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
-## $ d8                     &lt;date&gt; 2009-07-09, 2009-07-09, 2009-07-09, 2009-07-09…
-## $ shift_ampm             &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;pm&quot;, &quot;pm&quot;, &quot;pm…
-## $ Reason_shortShift      &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;,…
-## $ startd8time            &lt;dttm&gt; NA, NA, NA, NA, NA, NA, NA, NA, 2009-07-09 20:…
-## $ endd8time              &lt;dttm&gt; NA, NA, NA, NA, NA, NA, NA, NA, 2009-07-09 23:…
-## $ shift_d8_ampm          &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;200979pm&quot;, &quot;20…
-## $ quarter                &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, 1, 1, 1, 1, 1, …
-## $ weekday                &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, 1, 1, 1, 1, 1, …
-## $ H1N1                   &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, 0, 0, 0, 0, 0, …
-## $ SevenToTwelve          &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, 1, 2, 2, 1, 1, …
-## $ dup_tag                &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, 2, 1, 1, 1, 1, …
-## $ dup_samePT             &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, 1, 1, 1, 1, 1, …
-## $ keepDrop               &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;k&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;…
-## $ time_difference        &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;,…
-## $ random                 &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;,…
-## $ EncounterNum           &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot; 9824579190&quot;, …
-## $ ED_ARRIVAL             &lt;dttm&gt; NA, NA, NA, NA, NA, NA, NA, NA, 2009-07-09 21:…
-## $ ed_departure           &lt;dttm&gt; NA, NA, NA, NA, NA, NA, NA, NA, 2009-07-10 04:…
-## $ patient                &lt;chr&gt; &quot;926382&quot;, &quot;933283&quot;, &quot;5941687&quot;, &quot;6009302&quot;, &quot;2853…
-## $ tag_starttime          &lt;dttm&gt; NA, NA, NA, NA, NA, NA, NA, NA, 2009-07-09 21:…
-## $ tagofftime             &lt;dttm&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ CHANGESID              &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;,…
-## $ ad8                    &lt;date&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, 2009-07-10…
-## $ dd8                    &lt;date&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, 2009-07-10…
-## $ a                      &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;000&quot;, &quot;000…
-## $ b                      &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;00&quot;, &quot;00&quot;,…
-## $ sid_                   &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
-## $ tag_problem            &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;no&quot;, &quot;no&quot;,…
-## $ durationInED           &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, 178.8333, 3…
-## $ duration_UntilTag      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, 22, 4, 33, …
-## $ time_error             &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
-## $ JOB                    &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;PATIENT&quot;, &quot;PAT…
-## $ exclusionreason        &lt;chr&gt; &quot;Unacctd4&quot;, &quot;Unacctd4&quot;, &quot;Unacctd4&quot;, &quot;Unacctd4&quot;,…
-## $ fltimeerror            &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
-## $ flexcodes              &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
-## $ fld                    &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
-## $ flef                   &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
-## $ indups                 &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
-## $ er                     &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;,…
-## $ inwhich                &lt;chr&gt; &quot;p&quot;, &quot;p&quot;, &quot;p&quot;, &quot;p&quot;, &quot;p&quot;, &quot;p&quot;, &quot;p&quot;, &quot;p&quot;, &quot;both&quot;,…
-## $ encnum                 &lt;dbl&gt; 1200899190, 5425719190, 11684349190, 1196539919…
-## $ ID                     &lt;dbl&gt; 3802, 10482, 26084, 27296, 30062, 4747, 25072, …
-## $ ED_Arrival_Timestamp   &lt;dttm&gt; 2009-07-09 18:17:59, 2009-07-09 14:35:59, 2009…
-## $ Sex                    &lt;chr&gt; &quot;Male&quot;, &quot;Male&quot;, &quot;Female&quot;, &quot;Female&quot;, &quot;Female&quot;, &quot;…
-## $ Patient_Age_at_Visit   &lt;chr&gt; &quot;65&quot;, &quot;80&quot;, &quot;38&quot;, &quot;43&quot;, &quot;27&quot;, &quot;36&quot;, &quot;34&quot;, &quot;48&quot;,…
-## $ Race                   &lt;chr&gt; &quot;Black&quot;, &quot;Black&quot;, &quot;Black&quot;, &quot;Black&quot;, &quot;Black&quot;, &quot;B…
-## $ Chief_Complaint        &lt;chr&gt; &quot;Urinary Retention&quot;, &quot;Syncope, Near&quot;, &quot;Chest Pa…
-## $ Acuity                 &lt;chr&gt; &quot;3 Urgent&quot;, &quot;3 Urgent&quot;, &quot;3 Urgent&quot;, &quot;Not Record…
-## $ Arr_Mode               &lt;chr&gt; &quot;Private Vehicle&quot;, &quot;Private Vehicle&quot;, &quot;Walk&quot;, &quot;…
-## $ ED_Departure_Timestamp &lt;dttm&gt; 2009-07-09 20:57:33, 2009-07-10 00:21:55, 2009…
-## $ ED_Disposition         &lt;chr&gt; &quot;Discharge&quot;, &quot;Admit&quot;, &quot;Left W/out Being Seen&quot;, …
-## $ admitted               &lt;chr&gt; &quot;0.00%&quot;, &quot;100.00%&quot;, &quot;0.00%&quot;, &quot;0.00%&quot;, &quot;0.00%&quot;, …
-## $ d8ARR                  &lt;date&gt; 2009-07-09, 2009-07-09, 2009-07-09, 2009-07-09…
-## $ d8DEP                  &lt;date&gt; 2009-07-09, 2009-07-10, 2009-07-09, 2009-07-09…
-## $ timeARR                &lt;time&gt; 18:18:00.000000, 14:36:00.000000, 15:47:00.000…
-## $ timeDEP                &lt;time&gt; 20:57:34.000000, 00:21:55.000000, 21:51:22.000…
-## $ daysinED               &lt;dbl&gt; 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1,…
-## $ MinutesInED            &lt;dbl&gt; 159.5667, 585.9167, 364.3667, 48.0000, 202.0667…
-## $ AGE                    &lt;dbl&gt; 65, 80, 38, 43, 27, 36, 34, 48, 48, 61, 41, 46,…
-## $ ILI_Syndrome           &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;&quot;, &quot;&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No…
-## $ ILIwMissing            &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;missing&quot;, &quot;missing&quot;, &quot;No&quot;, &quot;…
-## $ hrsinED                &lt;dbl&gt; 2.659444, 9.765278, 6.072778, 0.800000, 3.36777…
-## $ timeCoveredbyShift     &lt;chr&gt; &quot;endsDuring&quot;, &quot;endsDuring&quot;, &quot;endsDuring&quot;, &quot;stay…
-## $ popnFreqbyshift        &lt;dbl&gt; 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98,…
-## $ shift_num_ampm         &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;,…
-## $ participantyn          &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;…
-## $ approached             &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;,…
-## $ Pt_withData            &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;,…
-## $ partic_if_eligible     &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;yes&quot;, &quot;yes&quot;, &quot;…
-## $ met_exclusion_crit     &lt;chr&gt; &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;,…
-## $ approachedYN           &lt;chr&gt; &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;,…
-## $ Participant_final      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, 1, 1, 1, 1, 1, …
-## $ dset                   &lt;chr&gt; &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;nm&quot;, &quot;…</code></pre>
+population_81 &lt;- population_81 %&gt;% 
+  mutate(race = factor(race,
+              levels = c(&quot;Black&quot;,
+                         &quot;White&quot;,
+                         &quot;Other&quot;),
+              exclude = c(&quot;Not Recorded&quot;, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;)))
+# how many patients in population of 81 shifts?
+n_patients_81 &lt;- population_81 %&gt;%
+  nrow()
+# n_patients_81
+population_81 %&gt;% 
+  count(race)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["race"],"name":[1],"type":["fct"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Black","2":"7472"},{"1":"White","2":"1424"},{"1":"Other","2":"174"},{"1":"NA","2":"113"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code># pull a column of all unique shift numbers
+shift_nums &lt;- population_81 %&gt;% 
+  distinct(shift_num)
+# create a vector of all shift numbers from that column
+shift_nums_vec &lt;- pull(shift_nums, shift_num)
+# set seed for reproducible random sampling
+set.seed(711)
+# randomly sample 20 shifts
+shift_sample_vec &lt;- sample(shift_nums_vec, 20)
+
+population_20 &lt;- population_81 %&gt;% 
+  filter(shift_num %in% shift_sample_vec) 
+n_population_20 &lt;- population_20 %&gt;% 
+  nrow()</code></pre>
+<pre class="r"><code># load data for patients included in the study:
+pt_sample &lt;- read_rds(paste0(rdata_dir, &quot;/pts_all.Rdata&quot;))
+# wrangle pt_sample to exclude unknown/not recorded/or undefined observations:
+pt_sample &lt;- pt_sample %&gt;% 
+  mutate(participant_cat = replace_na(job, &quot;PATIENT&quot;), 
+         race = factor(race,
+              levels = c(&quot;Black&quot;,
+                         &quot;White&quot;,
+                         &quot;Other&quot;),
+              exclude = c(&quot;Not Recorded&quot;, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;)),
+         arrival_mode = na_if(arrival_mode, &quot;Unknown&quot;),
+         disposition = na_if(disposition, &quot;Not Recorded&quot;),
+         .keep = &quot;unused&quot;) %&gt;%
+  relocate(participant_cat, .after = pt_id)
+# check results:
+# pt_sample %&gt;% 
+#   glimpse()
+pt_sample %&gt;% 
+  # filter(participant == &quot;Yes&quot;) %&gt;%
+  # nrow()
+  count(race)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["race"],"name":[1],"type":["fct"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Black","2":"3588"},{"1":"White","2":"637"},{"1":"Other","2":"64"},{"1":"NA","2":"489"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code># how many patient participants?
+n_pt_sample &lt;- pt_sample %&gt;% 
+  nrow()
+# n_pt_sample
+ptsample_20 &lt;-   pt_sample %&gt;% 
+  filter(shift_num %in% shift_sample_vec)
+
+ptsample_20 %&gt;% 
+  # nrow()
+  # select(-nested_loc) %&gt;% 
+  # filter(!is.na(participant) &amp; !is.na(approached) &amp; !is.na(participant_final)) %&gt;% # NA x 443
+  select(race,
+         age,
+         sex,
+         acuity, 
+         arrival_cat,
+         los_hours,) %&gt;% 
+  vtable::st()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Summary Statistics
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Variable
+</th>
+<th style="text-align:left;">
+N
+</th>
+<th style="text-align:left;">
+Mean
+</th>
+<th style="text-align:left;">
+Std. Dev.
+</th>
+<th style="text-align:left;">
+Min
+</th>
+<th style="text-align:left;">
+Pctl. 25
+</th>
+<th style="text-align:left;">
+Pctl. 75
+</th>
+<th style="text-align:left;">
+Max
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+race
+</td>
+<td style="text-align:left;">
+959
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… Black
+</td>
+<td style="text-align:left;">
+793
+</td>
+<td style="text-align:left;">
+82.7%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… White
+</td>
+<td style="text-align:left;">
+147
+</td>
+<td style="text-align:left;">
+15.3%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… Other
+</td>
+<td style="text-align:left;">
+19
+</td>
+<td style="text-align:left;">
+2%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+age
+</td>
+<td style="text-align:left;">
+971
+</td>
+<td style="text-align:left;">
+48.718
+</td>
+<td style="text-align:left;">
+18.919
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+33
+</td>
+<td style="text-align:left;">
+62
+</td>
+<td style="text-align:left;">
+97
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sex
+</td>
+<td style="text-align:left;">
+971
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… Female
+</td>
+<td style="text-align:left;">
+557
+</td>
+<td style="text-align:left;">
+57.4%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… Male
+</td>
+<td style="text-align:left;">
+414
+</td>
+<td style="text-align:left;">
+42.6%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+acuity
+</td>
+<td style="text-align:left;">
+967
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… 1 Immediate
+</td>
+<td style="text-align:left;">
+8
+</td>
+<td style="text-align:left;">
+0.8%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… 2 Emergent
+</td>
+<td style="text-align:left;">
+354
+</td>
+<td style="text-align:left;">
+36.6%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… 3 Urgent
+</td>
+<td style="text-align:left;">
+472
+</td>
+<td style="text-align:left;">
+48.8%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… 4 Stable
+</td>
+<td style="text-align:left;">
+130
+</td>
+<td style="text-align:left;">
+13.4%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… 5 Non Urgent
+</td>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+0.3%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+arrival_cat
+</td>
+<td style="text-align:left;">
+964
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… EMS
+</td>
+<td style="text-align:left;">
+294
+</td>
+<td style="text-align:left;">
+30.5%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… Custody
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… Ambulatory
+</td>
+<td style="text-align:left;">
+669
+</td>
+<td style="text-align:left;">
+69.4%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+… Unknown
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+0.1%
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+los_hours
+</td>
+<td style="text-align:left;">
+970
+</td>
+<td style="text-align:left;">
+8.639
+</td>
+<td style="text-align:left;">
+7.208
+</td>
+<td style="text-align:left;">
+0.464
+</td>
+<td style="text-align:left;">
+4.35
+</td>
+<td style="text-align:left;">
+9.279
+</td>
+<td style="text-align:left;">
+49.567
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>
+# how many patients are in the 20 sampled shifts?
+n_shift_sample &lt;- ptsample_20 %&gt;% 
+  nrow()
+# what are their races?
+ptsample_20 %&gt;% 
+  count(race) %&gt;% 
+  mutate(`%` = round(n/sum(n)*100, 2))</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["race"],"name":[1],"type":["fct"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]},{"label":["%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"Black","2":"793","3":"78.28"},{"1":"White","2":"147","3":"14.51"},{"1":"Other","2":"19","3":"1.88"},{"1":"NA","2":"54","3":"5.33"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code># what was their sex?
+ptsample_20 %&gt;% 
+  count(sex) %&gt;% 
+  mutate(`%` = round(n/sum(n)*100, 2))</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["sex"],"name":[1],"type":["fct"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]},{"label":["%"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"Female","2":"557","3":"54.99"},{"1":"Male","2":"414","3":"40.87"},{"1":"NA","2":"42","3":"4.15"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code># what was their age?
+ptsample_20 %&gt;% 
+  filter(!is.na(age)) %&gt;% 
+  summarise(age_mean = mean(age), 
+            sd_age = sd(age),
+            age_min = min(age), 
+            age_max = max(age))</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["age_mean"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sd_age"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["age_min"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["age_max"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"48.71782","2":"18.91916","3":"0","4":"97"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>staff_all &lt;- read_rds(paste0(rdata_dir, &quot;/staff_all.Rdata&quot;))
+# pull data for staff observed during the 20 sampled shifts
+staff_sample &lt;- staff_all %&gt;% 
+  filter(shift_num %in% shift_nums_vec)
+# group by sid to count individual staff
+n_staff_sample &lt;- staff_sample %&gt;% 
+  ungroup() %&gt;% 
+  distinct(sid) %&gt;% 
+  nrow()
+
+# glimpse(staff_sample)
+</code></pre>
+</div>
+<div id="abstract" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Abstract</h1>
+<div id="background" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Background:</h2>
+<p>The emergency department (ED) is a complex social setting in which
+clinical care and patients’ experiences depend on interpersonal
+encounters, or clinical interactions. Clinical interactions are
+multidimensional social phenomena embedded at the center of observable
+healthcare services. Clinical interactions are also one of the primary
+manifestations of healthcare disparities related to racism and
+discrimination. One roadblock to understanding the role of clinical
+interactions in ED disparities is a lack of methods available to study
+complex networks of interacting individuals. Social network analysis of
+close-proximity interactions data generated by real-time location
+systems is considered a powerful tool for studying social interactions.
+The purpose of this study is to describe a network analysis of clinical
+interactions (NACI) and the effects of patient race on structural
+network variables in an urban ED in the Southern United States.</p>
+</div>
+<div id="method" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Method:</h2>
+<p>This secondary analysis of clinical network data describes the ED
+clinical interactions for patients by self-identified race and gender
+groups. The Emory Institutional Review Board approved both the original
+study and this analysis. Radiofrequency identification (RFID) tags worn
+by consenting ED clinicians and patients were used to passively observe
+participants’ locations while in the ED. Location was identified every
+ten seconds for two randomly selected shifts per week over one year
+(July, 2009 through June, 2010). Clinical interactions were defined
+where two or more participants were in the same room and in close
+proximity (within 1m). Demographic and clinical data for the population
+and participants were pulled from medical records. Demographic
+information was not collected for ED staff other than job category (RN,
+MD, and Staff) to maintain participant confidentiality. ED staff were
+consented at the beginning of the study, and research staff intended to
+approach all patients as possible during the preselected shifts. ##
+Results:</p>
+<p>104 shifts were randomly selected for observation, one day and one
+night shift per week, from a total of 730 shifts (two shifts per day for
+one year). 23 shifts were considered ineligible due to unforeseeable
+issues like equipment failure and sick research staff. From the
+remaining 81 shifts,</p>
+</div>
+</div>
+<div id="racialized-network-structures-of-clinical-interactions-in-the-ed" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Racialized Network
+Structures of Clinical Interactions in the ED</h1>
+<div id="introduction-and-background" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Introduction and
+Background</h2>
+<p>Understanding racial disparities in health and healthcare is an
+ongoing priority for health services research investigators and
+institutions (Agency for Healthcare Research and Quality, 2020; AMA,
+2021; Association of Academic Chairs of Emergency Medicine, 2020;
+Borrell &amp; Vaughan, 2019; Carnethon et al., 2017; Doubeni, 2021;
+Hagle et al., 2021; National Institutes of Health, 2021a, 2021b; Newman
+et al., 2021). Structural, cultural, and interpersonal factors lead to
+racial healthcare disparities. Racial healthcare disparities are
+“differences in the quality of healthcare that are not due to
+access-related factors or clinical needs, preferences, and
+appropriateness of intervention” (Institute of Medicine, 2003, p. 4).
+Clinical interactions (CIs) are interpersonal encounters in the process
+of healthcare process with at least two individuals. Upon presentation
+to the emergency department (ED), people seeking help are embedded in a
+complex network of clinical interactions involving every staff member,
+clinician, caregiver, and patient present. Network science draws on the
+perspectives, philosophies, and methods of various qualitative and
+quantitative research traditions to understand relationships between
+objects embedded in complex systems. Network analyses of clinical
+interactions (NACI) have become increasingly common in the health
+services research literature over the past few decades (Benton et al.,
+2015). Health services researchers report correlations between
+hospitalizes patients’ clinical interaction network variables, cost of
+care, hospital characteristics, and patient demographics including age
+and sex (Abbasi et al., 2012). Focusing a network science lens on
+clinical interactions in the complex emergency department (ED)
+environment may add to current evidence of the social and interpersonal
+dimensions of racial healthcare disparities. The purpose of this paper
+is to report a secondary data analysis of clinical interactions in the
+Emergency Department of a large academic hospital in the Southern U.S.
+using social network analyses of ED clinical interactions between
+patients and healthcare personnel.</p>
+<div id="finding-meaning-in-social-network-structure" class="section level3" number="3.1.1">
+<h3><span class="header-section-number">3.1.1</span> Finding Meaning in
+Social Network Structure</h3>
+<p>The meaning of network structures depends on researchers’ decisions
+about how to define individual actors (i.e., nodes) and their
+inter-relational connections (i.e., ties). In fact, the research
+question under investigation is considered the guiding force behind
+conceptual and operational interpretations of networks. Consider, for
+example, data from a novel contact tracing app designed to identify
+exposures. This hypothetical network would consist of all individuals
+with the app who are at risk of exposure (i.e., vertices, nodes,
+actors), their interactions with other nodes (i.e., ties, edges), and
+exposure status (i.e., node/vertex attribute). In this example, node
+nj’s risk of exposure increases in relation to the number of
+interactions nj has with others in the network. The relative number of
+interactions, or ties, nj has compared to others in the network is a
+basic measure of network centrality. As more attribute data are
+available, say vaccination status, the meaning of network structures,
+like centrality, must be reconsidered. When studying ED network data, we
+can assume that a tie between patient and clinician nodes is a part of
+service delivery: specifically, a patient-clinician interactions (i.e.,
+clinical interactions). In some healthcare settings, clinical
+interactions are the building blocks of clinical relationships with
+broader implications for quality and equity. Clinical relationships are,
+however, beyond the purview of this paper. By defining network
+connections as clinician-patient interactions, its centrality is a
+measure of–at the least–quantity of direct clinical care, and–we
+hypothesize–important dimensions of quality clinical care like
+clinician-patient communication, changes in patient acuity, and ED
+throughput. Passive Location Collection with Radiofrequency
+Identification (RFID) RFID systems are used in a number of hospitals
+nationwide (Page, 2007), commonly for supply chain management, passive
+patient identification, safe medication administration, patient
+tracking, and asset tracking (Yao et al., 2012). RFID systems consist of
+small tags or badges that emit radio-frequencies that are picked up by
+sensors located strategically so that every RFID badge is always
+identifiable to at least 3 sensors for location by triangulation (Yao et
+al., 2012). The presence of RFID-enabled healthcare facilities
+nationwide will allow for replication of this research, and the
+evaluation of equity improvement interventions can be done with some
+minor alterations to existing hardware. Compared to other technologies
+used for locating resources, the inexpensive and unobtrusive design of
+RFID tags make them ideal for healthcare applications. Additionally,
+person-to-person proximity data, such as ours, is likely the most
+informative sensor-generated data for mapping and studying human
+networks (Pentland, 2012). We report a secondary analysis of
+longitudinal ED contact network data. Data were collected previously
+using a prospective longitudinal observational study design. The purpose
+of the parent study was to describe contact characteristics among
+patients and staff in the ED of a busy urban hospital to help inform
+cross-infection control measures <span class="citation">(Lowery-North et
+al., 2013)</span>.</p>
+</div>
+</div>
+<div id="method-1" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Method</h2>
+<p>This secondary analysis and its parent study independently received
+ethics approval by institutional review board. Sampling strategy and
+data collection methods were described previously <span class="citation">(Lowery-North et al., 2013)</span>.</p>
+<div id="sampling" class="section level3" number="3.2.1">
+<h3><span class="header-section-number">3.2.1</span> Sampling</h3>
+<p>Sampling strategies in network research are based on the research
+question <span class="citation">(<strong>borgatti2013?</strong>)</span>.
+Sampling strategies in network science defer to the boundaries of the
+network under investigation and the nature of the relationships between
+individual nodes <span class="citation">(<strong>borgatti2013?</strong>)</span>.</p>
+<p>Data were collected with a random sampling of one day shift and one
+night shift from a single academic urban ED every week over the course
+of one year. A total of 104 shifts of data were collected for the
+original study <span class="citation">(Lowery-North et al.,
+2013)</span>. Investigators chose this sampling strategy to minimize
+sampling bias related to variability in seasonal, weekly,and daily in
+census, acuity, and ED staffing patterns <span class="citation">(Lowery-North et al., 2013)</span>.</p>
+<p>Data points included detailed ED patient demographic and clinical
+information and basic information about clinicians. Clinicians were
+categorized into three professional groups; medical doctors (MD),
+registered nurses (RNs), and non-clinical staff. Patient data were
+collected for the following variables: race (Black, Hispanic, White, and
+other), sex, age, arrival mode (ambulatory, emergency medical transport,
+or in police custody), chief complaint, acuity (Emergency Severity
+Index), and disposition (admitted to hospital, discharged to community,
+left without being seen, or left against medical advice).</p>
+<p><strong><em>Acuity:</em></strong> Patient Acuity was measured in the
+parent study with the Emergency Severity Index (ESI) version 3. The ESI
+was designed to accurately predict ED patients’ resource needs and
+disposition (Tanabe, Gimbel, Yarnold, &amp; Adams, 2004; Tanabe, Gimbel,
+Yarnold, Kyriacou, et al., 2004). Each patient was assigned an ESI
+number on a scale of 1-5 by a triage nurse. Lower scores indicate more
+urgent patient needs, higher resource consumption, and greater
+likelihood of hospital admission (Tanabe, Gimbel, Yarnold, Kyriacou, et
+al., 2004). The ESI has excellent interrater reliability and
+consistently predicts hospital admissions with the following rates: ESI
+1 (80%), 2 (73%), 3 (51%), 4 (6%), and 5 (5%). In another study,
+patients with ESI levels 1-2 had higher rates of intensive care unit
+admissions more often than patients at levels 3-5 (Tanabe, Gimbel,
+Yarnold, Kyriacou, et al., 2004). A limitation of the ESI is that it is
+not measured throughout the patient’s visit, and patient conditions
+change over time.</p>
+</div>
+<div id="data-sources" class="section level3" number="3.2.2">
+<h3><span class="header-section-number">3.2.2</span> Data Sources</h3>
+<p>Original investigators collected data from three sources: patients’
+electronic health records (Cerner Millennium Electronic Health Record,
+Cerner Corp., Kansas City, MO), a radio-frequency identification system
+(Radianse Corp., Amherst, MA), and a tag identification database.</p>
+</div>
+<div id="analysis" class="section level3" number="3.2.3">
+<h3><span class="header-section-number">3.2.3</span> Analysis</h3>
+<p>We used the R open-source statistical programming language <span class="citation">(R Core Team, 2021)</span> with RStudio <span class="citation">(RStudio Team, 2022)</span> for all statistical tests
+and python programming language for network analytics and
+visualizations. Empirical analysis of longitudinal network data begins
+with basic descriptive properties including two-dimensional network
+graphs and plots of basic network statistics. Stratification by
+racial/ethnic group, rather than risk-adjustment, has been shown to
+generate more informative results in recent studies of healthcare
+disparities <span class="citation">(Profit et al., 2017)</span>.</p>
+</div>
+</div>
+<div id="results" class="section level2" number="3.3">
+<h2><span class="header-section-number">3.3</span> Results</h2>
+<p>Demographics for the whole ED patient population in the year in which
+data were collected were reported previously <span class="citation">(<strong>Lowery-North?</strong>)</span>. In summary,
+the ED had 57514 patient visits from July 2009 through June 2010 and
+9183 (16%) visits during the 81 observed shifts. Of visits that occurred
+during the observed shifts, 34% (3112) were not approached by the
+research team, 16% (941) were excluded for reasons related to the
+patient (e.g., refused or unable to consent), and 6% (389) had technical
+issues which precluded inclusion. Data were, therefore, available for
+4778 (52%) patients from 81 shifts, of which 1013 (21.2%).</p>
+<div id="staff-sample" class="section level3" number="3.3.1">
+<h3><span class="header-section-number">3.3.1</span> Staff Sample</h3>
+<p>88 (84.6%) of 104 eligible staff consented to participate, and all 88
+(100%) of those were present during at least one of the 20 shifts
+sampled for this analysis <span class="citation">(<strong>Lowery-North?</strong>)</span>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent" line-spacing="2">
+<div id="ref-lowery-north2013" class="csl-entry">
+Lowery-North, D. W., Hertzberg, V. S., Elon, L., Cotsonis, G., Hilton,
+S. A., Vaughns 2nd, C. F., Hill, E., Shrestha, A., Jo, A., &amp; Adams,
+N. (2013). Measuring social contacts in the emergency department
+[Journal Article]. <em>PLoS One</em>, <em>8</em>(8), e70854. <a href="https://doi.org/10.1371/journal.pone.0070854">https://doi.org/10.1371/journal.pone.0070854</a>
+</div>
+<div id="ref-profit2017" class="csl-entry">
+Profit, J., Gould, J. B., Bennett, M., Goldstein, B. A., Draper, D.,
+Phibbs, C. S., &amp; Lee, H. C. (2017). Racial/ethnic disparity in NICU
+quality of care delivery [Journal Article]. <em>Pediatrics</em>,
+<em>140</em>(3). <a href="https://doi.org/10.1542/peds.2017-0918">https://doi.org/10.1542/peds.2017-0918</a>
+</div>
+<div id="ref-r" class="csl-entry">
+R Core Team. (2021). <em>R: A language and environment for statistical
+computing</em>. R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a>
+</div>
+<div id="ref-rstudio" class="csl-entry">
+RStudio Team. (2022). <em>RStudio: Integrated development environment
+for r</em>. RStudio, PBC. <a href="http://www.rstudio.com/">http://www.rstudio.com/</a>
+</div>
+</div>
+</div>
+</div>
+</div>
 
 
 
