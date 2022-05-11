@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.5.9)  9 MAY 2022 15:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.5.10)  11 MAY 2022 10:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -477,8 +477,7 @@ Package: makecell 2009/08/03 V0.1e Managing of Tab Column Heads and Cells
 File: l3backend-pdftex.def 2022-04-20 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count314
 \l__pdf_internal_box=\box73
-)
-No file NACI_Paper_II.aux.
+) (./NACI_Paper_II.aux)
 \openout1 = `NACI_Paper_II.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 147.
@@ -535,6 +534,7 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 147.
 LaTeX Info: Redefining \pageref on input line 147.
 LaTeX Info: Redefining \nameref on input line 147.
+(./NACI_Paper_II.out) (./NACI_Paper_II.out)
 \@outlinefile=\write4
 \openout4 = `NACI_Paper_II.out'.
 
@@ -606,41 +606,37 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/Users/tommy-two/Library/TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 157.
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 193.
 (/Users/tommy-two/Library/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 170.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 206.
 
 LaTeX Font Warning: Font shape `T1/lmtt/bx/it' in size <10> not available
-(Font)              Font shape `T1/lmtt/b/sl' tried instead on input line 170.
+(Font)              Font shape `T1/lmtt/b/sl' tried instead on input line 206.
 
 [1
 
-{/Users/tommy-two/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Underfull \vbox (badness 3690) detected at line 278
- []
-
-[2]
+{/Users/tommy-two/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 284.
+(Font)              <10> on input line 320.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 284.
+(Font)              <7> on input line 320.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 284.
+(Font)              <5> on input line 320.
 ! Extra alignment tab has been changed to \cr.
 <recently read> \endtemplate 
                              
-l.292 age & 971 &
+l.328 age & 971 &
                   48.718 & 18.919 & 0 & 33 & 62 & 97\\ 
 Here is how much of TeX's memory you used:
- 14840 strings out of 480260
- 238511 string characters out of 5893587
- 571989 words of memory out of 5000000
- 32447 multiletter control sequences out of 15000+600000
- 514982 words of font info for 94 fonts, out of 8000000 for 9000
+ 14889 strings out of 480260
+ 238942 string characters out of 5893340
+ 575195 words of memory out of 5000000
+ 32458 multiletter control sequences out of 15000+600000
+ 522411 words of font info for 112 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 60i,9n,63p,1010b,370s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 60i,9n,63p,1010b,371s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
 !  ==> Fatal error occurred, no output PDF file produced!
