@@ -121,8 +121,8 @@ staff_sids_clean %>%
   count(ParticipantCat4) %>% 
   rmarkdown::paged_table()
 # Save to file
-write_csv(staff_sids_clean, file = paste(data_path, "Rdata", "staff_sids_clean.Rdata", sep = "/"))
-write_csv(staff_sids_clean, file = paste(data_path, "csv_files", "staff_sids_clean.csv", sep = "/"))
+# write_csv(staff_sids_clean, file = paste(data_path, "Rdata", "staff_sids_clean.Rdata", sep = "/"))
+# write_csv(staff_sids_clean, file = paste(data_path, "csv_files", "staff_sids_clean.csv", sep = "/"))
 # generate_dictionary(staff_sids_clean)
 ```
 
@@ -254,13 +254,29 @@ rmarkdown::paged_table(location_defs)
 ### `room_locs`
 
 ```{r room_locs}
-room_locs <- read_xlsx(paste(data_path, "rooms", "Room Locations and Square Footage - with Correction.xlsx", sep = "/"), col_names = c("id", "name", "type", "sqft_area"), col_types = c("text", "text", "text", "numeric", "skip"), skip = 1)
+room_locs <- read_xlsx(paste(data_path, 
+                             "rooms", 
+                             "Room Locations and Square Footage - with Correction.xlsx", 
+                             sep = "/"), 
+                       col_names = c("id", 
+                                     "name", 
+                                     "type", 
+                                     "sqft_area"), 
+                       col_types = c("text", 
+                                     "text", 
+                                     "text", 
+                                     "numeric", 
+                                     "skip"), 
+                       skip = 1)
 rmarkdown::paged_table(room_locs)
 ```
 ### `locations_list`
 
 ```{r locations_list}
-locations_list <- read_sas(paste(data_path, "rooms", "locationslist.sas7bdat", sep = "/"))
+locations_list <- read_sas(paste(data_path, 
+                                 "rooms", 
+                                 "locationslist.sas7bdat", 
+                                 sep = "/"))
 rmarkdown::paged_table(locations_list)
 ```
 

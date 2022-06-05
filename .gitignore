@@ -13,3 +13,9 @@ NACI_DataLog_cache/html
 NACI_Libraries_cache
 NACI_Libraries_cache/html
 Archive
+all_pts.csv
+all_pts.Rdata
+all_pts.xpt
+all_staff.csv
+all_staff.Rdata
+all_staff.xpt

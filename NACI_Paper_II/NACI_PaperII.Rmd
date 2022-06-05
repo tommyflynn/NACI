@@ -1,0 +1,268 @@
+---
+title: "NACI_PaperII"
+author: "Tommy J. Flynn"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    bibliography: paperII_citations.bib
+---
+
+```{r setup}
+library(tidyverse)
+library(lubridate)
+# library(naniar) # for missing data
+library(vtable) # makes good summary/descriptive statistics table
+library(kableExtra)
+library(RefManageR)
+library(readxl)
+library(haven)
+# set knit options
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      collapse = TRUE)
+
+# create path to data directory
+rdata_dir <- "/Users/tommy-two/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data/Rdata"
+```
+
+
+# Code
+
+__Population from all shifts during the observation year (2009-2010):__
+
+```{r population_730shifts}
+# load the population data from the full year, all 730 shifts"
+population_730 <- read_rds(paste0(rdata_dir, "/population.Rdata"))
+# clean race variable for analysis
+population_730 <- population_730 %>%
+  mutate(race = factor(race,
+              levels = c("Black",
+                         "White",
+                         "Other"),
+              exclude = c("Not Recorded", "1", "2", "3")))
+
+population_730 %>% 
+  count(race) %>% 
+  mutate(`%` = round(n/sum(n)*100, 2)) %>% 
+  kable(caption = "Distribution of self-identified race for entire ED patient population from the study year")
+
+# check results
+# population_730 %>% 
+  # glimpse()
+# how many patients in population from 2009-2010?
+n_population_730 <- population_730 %>%
+  nrow()
+freq_flyer_nums <- population_730 %>% 
+  count(med_rec_no) %>%
+  filter(n > 1) %>%
+  arrange(desc(n))
+  # mutate(med_rec_size = str_length(med_rec_no)) %>% 
+  # summarise(max_lenght = max(med_rec_size), min_length = min(med_rec_size), median_length = median(med_rec_size),
+  #           mean_length = mean(med_rec_size))
+  # med_rec_no is 5 to 7 characters in length, with a median of 7 and mean of 6.95. How many med_rec_no have length 5 = 156, over 2,000 have 6 characters. 
+n_freq_flyers <- freq_flyer_nums %>% 
+  nrow()
+n_freq_flyer_visits <- freq_flyer_nums %>% 
+  summarise(freq_flyer_visits = sum(n)) %>% 
+  pull(freq_flyer_visits)
+  # filter(n >= 3) %>% 
+  # summarise(mean_visits = mean(n), median_visits = median(n), sd_visits = sd(n), iqr_visits = IQR(n))
+n_unique_pats730 <- population_730 %>% 
+  distinct(med_rec_no) %>% 
+  nrow()
+```
+
+__Population from 81 shifts with observational data:__
+
+```{r population_81shifts}
+# load population data from the 81 observed shifts"
+population_81 <- read_rds(paste0(rdata_dir, "/pt_info_final.Rdata"))
+
+population_81 <- population_81 %>% 
+  mutate(race = factor(race,
+              levels = c("Black",
+                         "White",
+                         "Other"),
+              exclude = c("Not Recorded", "1", "2", "3")))
+# how many patients in population of 81 shifts?
+n_population_81 <- population_81 %>%
+  nrow()
+# n_population_81
+population_81 %>% 
+  count(race) %>%
+  mutate(`%` = round(n/sum(n)*100, 2)) %>% 
+  kable(caption = "Distribution of self-identified race for ED patient population during 81 shifts")
+```
+
+
+```{r shift_nums}
+# pull a column of all unique shift numbers
+shift_nums <- population_81 %>% 
+  distinct(shift_num)
+
+# create a vector of all shift numbers from that column
+shift_nums_vec <- pull(shift_nums, shift_num)
+rm(shift_nums)
+```
+
+
+```{r shift_dates}
+# create a variable with date intervals for patients' ED stays from arrival date and departure date
+pop_730_interval <- population_730 %>% 
+  mutate(ed_interval = interval(arrival_date, 
+                                departure_date),
+         los_seconds = int_length(ed_interval))
+
+
+pop_730_interval %>% count(los) %>% 
+  arrange(desc(n)) %>% 
+  mutate(los_seconds = seconds(los),
+         los_days = days(los_seconds))
+
+
+
+pop_730_interval %>% 
+  mutate(shift_ampm = if_else(as_date("2009-07-09") %within% ed_interval, "pm", NA_character_)) %>% 
+  count(shift_ampm)
+population_81 %>% filter(as_date(arrival_dttm) == "2009-07-09" | as_date(departure_dttm) == "2009-07-09")
+
+population_81 %>% mutate(los = NULL,
+                         job = "PATIENT")
+  
+
+
+# shift_dates <- 
+
+population_81 %>% 
+  distinct(date, shift_num)
+```
+
+
+```{r shift_subsample}
+# set seed for reproducible random sampling
+set.seed(711)
+# randomly sample 20 shifts
+shift_sample_vec <- sample(shift_nums_vec, 20)
+
+population_20 <- population_730 %>% 
+  filter(shift_num %in% shift_sample_vec) 
+# number of patients in population_20
+n_population_20 <- population_20 %>% 
+  nrow()
+pop_20_arrdate <- population_20 %>% 
+  mutate(arrival_date = date(arrival_dttm)) %>% 
+  pull(arrival_date)
+population_20 %>% count(shift_num) %>% 
+  arrange(n)
+names(population_81)
+```
+
+
+
+```{r sample_81}
+# load data for patients included in the study:
+sample_81 <- read_rds(paste0(rdata_dir, "/pts_all.Rdata"))
+# wrangle sample_81 to exclude unknown/not recorded/or undefined observations:
+sample_81 <- sample_81 %>% 
+  mutate(participant_cat = replace_na(job, "PATIENT"), 
+         race = factor(race,
+              levels = c("Black",
+                         "White",
+                         "Other"),
+              exclude = c("Not Recorded", "1", "2", "3")),
+         arrival_mode = na_if(arrival_mode, "Unknown"),
+         disposition = na_if(disposition, "Not Recorded"),
+         .keep = "unused") %>%
+  relocate(participant_cat, .after = pt_id)
+# check results:
+# sample_81 %>% 
+#   glimpse()
+sample_81 %>% 
+  # filter(participant == "Yes") %>%
+  # nrow()
+  count(race) %>% 
+  mutate(`%` = round(n/sum(n)*100, 2)) %>% 
+  kable(caption = "Distribution of self-identified race for ED patient sample from 81 shifts")
+# how many patient participants?
+n_sample_81 <- sample_81 %>% 
+  nrow()
+# n_sample_81
+sample_20 <-   sample_81 %>% 
+  filter(shift_num %in% shift_sample_vec)
+
+# sample_81_20 %>% 
+  # nrow()
+  # select(-nested_loc) %>% 
+  # filter(!is.na(participant) & !is.na(approached) & !is.na(participant_final)) %>% # NA x 443
+  # select(race,
+  #        age,
+  #        sex,
+  #        acuity, 
+  #        arrival_cat,
+  #        los_hours,) %>% 
+  # vtable::st()
+
+# how many patients are in the 20 sampled shifts?
+n_sample_20 <- sample_20 %>% 
+  nrow()
+# what are their races?
+sample_20 %>% 
+  count(race) %>% 
+  mutate(`%` = round(n/sum(n)*100, 2))%>% 
+  kable(caption = "Distribution of self-identified race for ED patient sample from 20 shifts")
+# what was their sex?
+sample_20 %>% 
+  count(sex) %>% 
+  mutate(`%` = round(n/sum(n)*100, 2)) %>% 
+  kable(caption = "Sex of ED patients from 20 shifts")
+# what was their age?
+sample_20 %>% 
+  filter(!is.na(age)) %>% 
+  summarise(age_mean = mean(age), 
+            sd_age = sd(age),
+            age_min = min(age), 
+            age_max = max(age))%>% 
+  kable(caption = "Distribution of patient age for ED patient sample from 20 shifts")
+```
+
+
+
+
+
+
+
+
+```{r staff_exploration}
+staff_all <- read_rds(paste0(rdata_dir, "/staff_all.Rdata"))
+# pull data for staff observed during the 20 sampled shifts
+staff_sample20 <- staff_all %>% 
+  filter(shift_num %in% shift_nums_vec)
+# group by sid to count individual staff
+n_staff_sample <- staff_sample20 %>% 
+  ungroup() %>% 
+  distinct(sid) %>% 
+  nrow()
+
+# glimpse(staff_sample)
+
+
+```
+
+
+
+
+
+
+# Patient Population and Sample
+
+Demographics for the whole ED patient population in the year in which data were collected were reported previously [@lowery-north2013]. In summary, `r n_unique_pats730` unique patients visited the the ED `r n_population_730` times between July 1, 2009 and June 30, 2010. `r n_freq_flyers` (`r round(n_freq_flyers/n_unique_pats730 * 100, 1)`%) patients visited the ED more than once and were collectively responsible for `r n_freq_flyer_visits` (`r round(n_freq_flyer_visits/n_population_730 * 100, 1)`%). encounters.
+`r n_population_81` (`r round(n_population_81/n_population_730*100, 1)`%) visits occurred during 81 observed shifts.
+
+Of patients that visited the ED during these 81 observed shifts, 34% (3112) were not approached by the research team, 16% (941) were excluded for reasons related to the patient (e.g., refused or unable to consent), and 6% (389) had technical issues which precluded inclusion. Data were, therefore, available for `r n_sample_81` (`r round(n_sample_81/n_population_81*100, 1)`%) patients from 81 shifts, of which `r n_sample_20` (`r round(n_sample_20/n_sample_81*100, 1)`%).
+
+# Staff Sample
+
+`r n_staff_sample` (`r round(n_staff_sample/104*100, 1)`%) of 104 eligible staff consented to participate [@lowery-north2013], and all `r n_staff_sample` (100%) of those staff members were present during at least one of the 20 shifts included in this secondary analysis.
+

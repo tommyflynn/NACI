@@ -1,0 +1,1178 @@
+---
+title: "NACI Data Prep"
+author: "Tommy J. Flynn"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+---
+# WRANGLING
+
+
+```{r setup, message=FALSE}
+#| code-fold: true 
+knitr::opts_chunk$set(error = FALSE,
+                      tidy = TRUE,
+                      # tidy.opts = list(width.cutoff = 60),
+                      message = FALSE,
+                      warning = FALSE)
+library(tidyverse)
+library(readxl)
+library(readr)
+library(haven)
+library(knitr)
+library(kableExtra)
+library(lubridate)
+library(labelled)
+library(gtsummary)
+library(data.table)
+```
+
+```{r directories}
+#| code-fold: true 
+# Working directory saved as `wd` and data path as `data_path`  
+wd <- getwd()
+data_path <- paste(wd, "Data", sep = "/")
+```
+
+## Identification numbers 
+
+## `id_sid_matchup`
+
+```{r id_sid_matchup}
+# Import & clean id_sid_matchup2.sas7bdat
+id_sid_matchup2 <- read_sas(paste(data_path, "ids", "id_sid_matchup2.sas7bdat", sep = "/"))
+id_sid_clean <- id_sid_matchup2 %>% 
+  transmute(sid,
+            newsid = as.character(newsid),
+            shift_num = str_extract(shift_num_ampm, "[:digit:]+"),
+            date = d8,
+            am_pm = str_extract(shift_num_ampm, "am|pm"),
+            shift_start_dttm = startd8time,
+            shift_start_tm = ShiftStart,
+            shift_end_dttm = ymd_hms(paste(date, ShiftEnd)),
+            shift_end_tm = ShiftEnd,
+            staff = as_factor(staff))
+
+# preview id_sid_match_cleaned
+rmarkdown::paged_table(id_sid_clean)
+# Save id_sid_clean to files in csv and Rdata format
+# write_csv(id_sid_clean, path = paste(data_path, "Rdata", "id_sid_clean.Rdata", sep = "/"))
+# write_csv(id_sid_clean, path = paste(data_path, "csv_files", "id_sid_clean.csv", sep = "/"))
+```
+
+## `id_final`
+
+```{r ids_final}
+ids_final <- read_sas(paste(data_path, "ids", "finalsids6944.sas7bdat", sep = "/"))
+# preview ids_final (no cleaning needed)
+rmarkdown::paged_table(ids_final)
+# Check if sids repeate within shifts:
+ids_final %>% 
+  group_by(shift_num) %>% 
+  count(sid) %>% 
+  filter(n > 1) %>% 
+  rmarkdown::paged_table()
+
+```
+
+## `pt_sids`
+
+```{r pt_sids}
+pt_sids <- read_sas(paste(data_path, "ids", "patientSIDs_in_completepat.sas7bdat", sep = "/"))
+# preview unclean pt_sids
+# glimpse(pt_sids)
+pt_sid_clean <- pt_sids %>% 
+  transmute(sid,
+         shift_num = str_extract(shift_num_ampm, "[:digit:]+"),
+         shift_ampm = as_factor(str_extract(shift_num_ampm, "am|pm")))
+# preview pt_sid_clean
+rmarkdown::paged_table(pt_sid_clean)
+pt_sid_clean %>% 
+  group_by(shift_num) %>% 
+  count(shift_ampm) %>% 
+  arrange(shift_num) %>% 
+  rmarkdown::paged_table()
+
+pt_sid_clean %>% 
+  count(shift_ampm) %>% 
+  rmarkdown::paged_table()
+# Save to file
+# write_rds(pt_sid_clean, path = paste(data_path, "Rdata", "pt_sid_clean.Rdata", sep = "/"))
+# write_csv(pt_sid_clean, path = paste(data_path, "csv_files", "pt_sid_clean.csv", sep = "/"))
+# generate_dictionary(pt_sid_clean)
+```
+
+##`staff_sids`
+
+```{r staff_sids}
+staff_sids <- read_sas(paste(data_path, "ids", "staffsids_in_eventfile.sas7bdat", sep = "/"))
+str(staff_sids)
+staff_sids_clean <- staff_sids %>% 
+  mutate(across(.cols = !sid, .fns = as.factor)) %>% 
+  select(-job)
+rmarkdown::paged_table(staff_sids_clean)
+staff_sids_clean %>%
+  count(ParticipantCat4) %>% 
+  rmarkdown::paged_table()
+# Save to file
+# write_csv(staff_sids_clean, file = paste(data_path, "Rdata", "staff_sids_clean.Rdata", sep = "/"))
+# write_csv(staff_sids_clean, file = paste(data_path, "csv_files", "staff_sids_clean.csv", sep = "/"))
+# generate_dictionary(staff_sids_clean)
+```
+
+## `allstaff`
+
+```{r allstaff_clean}
+allstaff <- read_sas(paste(data_path, "staff", "allstaff_numbyshift.sas7bdat", sep = "/"))
+# str(allstaff)
+allstaff_clean <- allstaff %>% 
+  mutate(job_title = as_factor(JOBTITLE),
+         .keep = "unused")
+# write_rds(allstaff_clean, paste(data_path, "Rdata", "allstaff_clean.Rdata", sep = "/"))
+# write_csv(allstaff_clean, paste(data_path, "csv_files", "allstaff_clean.csv", sep = "/"))
+rmarkdown::paged_table(allstaff_clean)
+
+# generate_dictionary(allstaff_clean)
+```
+
+
+## `ntab2`  
+
+```{r ntab}
+ntab2 <- read_csv(file = paste(data_path, "ids", "nTab2.csv", sep = "/"))
+# glimpse(ntab2)
+ntab2_clean <- ntab2 %>% 
+  transmute(observation = obs,
+            sid = sids,
+            id = as.character(ID),
+            date = dmy(D8),
+            shift_num = shiftnum,
+            shift_person = person,
+            staff = as_factor(staff),
+            degree,
+            wdegree,
+            WtAlpha)
+
+rmarkdown::paged_table(ntab2_clean)
+# save to file
+# write_rds(ntab2_clean, file = paste(data_path, "Rdata", "ntab2_clean.Rdata", sep = "/"))
+# write_csv(ntab2_clean, file = paste(data_path, "csv_files", "ntab2_clean.csv", sep = "/"))
+# generate_dictionary(ntab2_clean)
+```
+
+ntab2 lists `r max(ntab2_clean$observation)` observations inclusive of all shifts. These observations list up to `r max(ntab2_clean$person)` individuals per shift, all 81 shifts.
+
+## Shift Info
+
+## `shift_times`
+
+```{r shift_times}
+shift_times <- read_xls(paste(data_path, "shifts", "Shift Start End times v3.xls", sep = "/"), 
+                        col_names = c("date", 
+                                      "shift_start_tm", 
+                                      "shift_end_tm",
+                                      "shift_ampm",
+                                      "comments"), 
+                        col_types = c("date",
+                                      "guess",
+                                      "guess",
+                                      "text",
+                                      "text",
+                                      "skip",
+                                      "skip",
+                                      "skip",
+                                      "skip",
+                                      "skip",
+                                      "skip"), 
+                        skip = 1)
+# shift_times %>% 
+#   str()
+rmarkdown::paged_table(shift_times)
+# generate_dictionary(shift_times)
+# write_csv(shift_times, file = paste(data_path, "csv_files", "shift_times.csv", sep = "/"))
+# write_rds(shift_times, file = paste(data_path, "Rdata", "shift_times.Rdata", sep = "/"))
+```
+
+## `counts_per_shift`
+
+```{r counts_per_shift}
+counts_per_shift <- read_sas(paste(data_path, "shifts", "countspershift.sas7bdat", sep = "/"))
+# str(counts_per_shift)
+countspershift_clean <- counts_per_shift %>% 
+  transmute(shift_num,
+         date = d8,
+         am_pm = str_extract(shift_num_ampm, "am|pm"),
+         staffcount = as.integer(staffcount),
+         patcount = as.integer(patcount),
+         total = as.integer(total))
+rmarkdown::paged_table(countspershift_clean)
+# write_rds(countspershift_clean, file = paste(data_path, "Rdata", "countspershift_clean.Rdata", sep = "/"))
+# write_csv(countspershift_clean, file = paste(data_path, "csv_files", "countspershift_clean.csv", sep = "/"))
+```
+
+## `person_dataset`
+
+```{r person_dataset}
+person_dataset <- read_sas(paste(data_path, "patients", "person_dataset.sas7bdat", sep = "/"))
+
+person_dataset <- person_dataset %>% 
+  transmute(shift_num = as.integer(shiftnum),
+            person = as.character(person),
+            staff = as_factor(staff),
+            degree,
+            minutes)
+rmarkdown::paged_table(person_dataset)
+# generate_dictionary(person_dataset)
+# write_rds(person_dataset, paste(data_path, "Rdata", "person_dataset.Rdata", sep = "/"))
+# write_csv(person_dataset, paste(data_path, "csv_files", "person_dataset.csv", sep = "/"))
+
+```
+
+## Room Info
+
+### `location_categories`
+
+```{r location_cats}
+location_cats <- read_sas(paste(data_path, "rooms", "location_categories_list.sas7bdat", sep = "/"))
+rmarkdown::paged_table(location_cats)
+```
+### `location_defs`
+
+```{r location_defs}
+location_defs <- read_sas(paste(data_path, "rooms", "location_definitions.sas7bdat", sep = "/"))
+rmarkdown::paged_table(location_defs)
+# generate_dictionary(location_defs)
+
+```
+
+### `room_locs`
+
+```{r room_locs}
+room_locs <- read_xlsx(paste(data_path, 
+                             "rooms", 
+                             "Room Locations and Square Footage - with Correction.xlsx", 
+                             sep = "/"), 
+                       col_names = c("id", 
+                                     "name", 
+                                     "type", 
+                                     "sqft_area"), 
+                       col_types = c("text", 
+                                     "text", 
+                                     "text", 
+                                     "numeric", 
+                                     "skip"), 
+                       skip = 1)
+rmarkdown::paged_table(room_locs)
+```
+### `locations_list`
+
+```{r locations_list}
+locations_list <- read_sas(paste(data_path, 
+                                 "rooms", 
+                                 "locationslist.sas7bdat", 
+                                 sep = "/"))
+rmarkdown::paged_table(locations_list)
+```
+
+
+## Patient Data
+
+## Patient Demographics
+
+Demographic information with med_rec numbers and encounter numbers. Note that **med_rec numbers may repeat!**
+
+### `demographics_df` 
+
+```{r demographics_df}
+demographic_df <- read_csv(paste(data_path, "patients", "Population_Patient_Demographics.csv", sep = "/"))
+# glimpse(demographic_df)
+demographics_clean <- demographic_df %>%
+  transmute(med_rec_no = as.character(`Medical Record Number`),
+         encounter_no = as.character(`Enc .`),
+         arrival_date = mdy(`ED Arrival Timestamp`), 
+         departure_date = mdy(`ED Departure Timestamp`),
+         # across(!where(is.Date)
+         #        & !where(is.double)
+         #        & !where(is.integer)
+         #        & !med_rec_no
+         #        & !encounter_no
+         #        & !`ED Arrival Timestamp`
+         #        & !`ED Departure Timestamp`
+         #        & !`Chief Complaint`
+         #        & !`% ED Patients Admitted as Inpt or Obs`, 
+         #        .fns = as_factor),
+         sex = as_factor(Sex, ),
+         age = `Patient Age at Visit`,
+         race = as_factor(Race),
+         chief_complaint = `Chief Complaint`,
+         acuity = as_factor(Acuity),
+         arrival_mode = as_factor(`Arr Mode`),
+         disposition = as_factor(`ED Disposition`)) %>% 
+  # str()
+# demographics_clean_test %>% 
+  mutate(across(where(is.factor), ~recode(.x, `Not Recorded` = NA_character_, `Unknown` = NA_character_))) %>% 
+  mutate(acuity = fct_relevel(acuity,
+                              "1 Immediate",
+                              "2 Emergent",
+                              "3 Urgent",
+                              "4 Stable",
+                              "5 Non Urgent"),
+         arrival_cat = fct_recode(arrival_mode,
+                                  "EMS" = "EMS Ground",
+                                  "EMS" = "EMS Air",
+                                  "Custody" = "Police/Jail",
+                                  "Ambulatory" = "Private Vehicle",
+                                  "Ambulatory" = "Public Trans", 
+                                  "Ambulatory" = "Walk"),
+         race = fct_relevel(race,
+                            "Black",
+                            "White",
+                            "Hispanic",
+                            "Asian",
+                            "Other",
+                            "1",
+                            "2",
+                            "3"), .after = 10)
+# generate_dictionary(demographics_clean_test)
+
+# generate_dictionary(demographics_clean)
+
+rmarkdown::paged_table(demographics_clean)
+demographics_clean %>% 
+  count(race) %>% 
+  rmarkdown::paged_table()
+demographics_clean %>% 
+  group_by(acuity) %>% 
+  summarise(`Total (n)` = n(), 
+            `Black (n)` = sum(race == "Black", na.rm = TRUE),
+            `Black (%)` = round((`Black (n)`/`Total (n)`)*100, 2),
+            `White (n)` = sum(race == "White", na.rm = TRUE),
+            `White (%)` = round((`White (n)`/`Total (n)`)*100, 2),
+            `Hispanic (n)` = sum(race == "Hispanic", na.rm = TRUE),
+            `Hispanic (%)` = round((`Hispanic (n)`/`Total (n)`) * 100, 2),
+            `Other (n)` = sum(race == "Other", na.rm = TRUE),
+            `Other (%)` = round((`Other (n)`/`Total (n)`) * 100, 2),
+            `Missing (n)` = sum(is.na(race)),
+            `Missing (%)` = round((`Missing (n)`/`Total (n)`) * 100, 2)) %>% 
+  rename(Acuity = acuity) %>% 
+  rmarkdown::paged_table()
+# write_rds(demographics_clean, paste(data_path, "Rdata", "demographics_clean.Rdata", sep = "/"))
+# write_csv(demographics_clean, paste(data_path, "csv_files", "demographics_clean.csv", sep = "/"))
+```
+
+### `pop_pt_demographics`  
+
+```{r pop_pt_demographics}
+pop_pt_demographics <- read_csv(paste(data_path, "patients", "Population_Patient_Demographics.csv", sep = "/"))
+nms <- c("arrival_date", 
+         "med_rec_no", 
+         "encounter_no", 
+         "sex",
+         "age",
+         "race",
+         "chief_complaint",
+         "acuity",
+         "arrival_mode", 
+         "departure_date",
+         "disposition",
+         "prop_admitted")
+names(pop_pt_demographics) <- nms
+# str(pop_pt_demographics)
+# generate_dictionary(pop_pt_demographics)
+pop_pt_demo_clean <- pop_pt_demographics %>% 
+  mutate(med_rec_no = as.character(med_rec_no),
+         encounter_no = as.character(encounter_no),
+         arrival_date = mdy(arrival_date), .after = 3,
+         departure_date = mdy(departure_date),
+         sex = as_factor(sex),
+         race = as_factor(race),
+         acuity = as_factor(acuity),
+         arrival_mode = as_factor(arrival_mode)) %>% 
+  mutate(across(where(is.factor), ~recode(.x, "Not Recorded" = NA_character_, "Unknown" = NA_character_))) %>% 
+  mutate(acuity = fct_relevel(acuity,
+                              "1 Immediate",
+                              "2 Emergent",
+                              "3 Urgent",
+                              "4 Stable",
+                              "5 Non Urgent"),
+         arrival_cat = fct_recode(arrival_mode,
+                                  "EMS" = "EMS Ground",
+                                  "EMS" = "EMS Air",
+                                  "Custody" = "Police/Jail",
+                                  "Ambulatory" = "Private Vehicle",
+                                  "Ambulatory" = "Public Trans",
+                                  "Ambulatory" = "Walk"),
+         .after = 9,
+         race = fct_relevel(race,
+                            "Black",
+                            "White",
+                            "Hispanic",
+                            "Asian",
+                            "Other",
+                            "1",
+                            "2",
+                            "3"))
+
+rmarkdown::paged_table(pop_pt_demo_clean)
+# generate_dictionary(pop_pt_demo_clean)
+# write_csv(pop_pt_demo_clean, file = paste(data_path, "csv_files", "pop_pt_demo_clean.csv", sep = "/"))
+# write_rds(pop_pt_demo_clean, file = paste(data_path, "Rdata", "pop_pt_demo_clean.Rdata", sep = "/"))
+```
+
+### `pts_population`  
+
+```{r pts_population}
+pts_population <- read_sas(paste(data_path, "patients", "Patients_population.sas7bdat", sep = "/"))
+rmarkdown::paged_table(pts_population)
+# generate_dictionary(pts_population)
+# write_csv(pts_population, file = paste(data_path, "csv_files", "pts_population.csv", sep = "/"))
+# write_rds(pts_population, file = paste(data_path, "Rdata", "pts_population.Rdata", sep = "/"))
+```
+
+### `pts_pop2`
+
+```{r pts_pop2}
+pts_pop2 <- read_sas(paste(data_path, "patients", "patients_population2.sas7bdat", sep = "/"))
+rmarkdown::paged_table(pts_pop2)
+# generate_dictionary(pts_pop2)
+
+# write_csv(pts_pop2, file = paste(data_path, "csv_files", "pts_pop2.csv", sep = "/"))
+# write_rds(pts_pop2, file = paste(data_path, "Rdata", "pts_pop2.Rdata", sep = "/"))
+
+```
+
+
+
+"completepat.sas7bdat" contains RFID badge locations (by *room number*) for each sampled patient for every second they were monitored in the ED.
+
+The file is large, so subset a random sample of observations with `slice_sample()` to test code for wrangling.
+
+Use `pivot_longer()` to reshape from wide format to long format by collapsing all location-by-second columns (variables `flocX$`, where `X` is the shift time in seconds that the respective SID was identified in room number `flocX`) into two columns, names set to `seconds` and values to `location`. 
+
+> Note that `pivot_longer()` will create *many duplicate SIDs and many* `NA`s which will require filtering.
+
+## Patient RFID Data  
+
+### `pt_complete`
+
+```{r pt_complete}
+#| code-fold: true
+pt_complete <- read_sas(paste(data_path, "patients", "completepat.sas7bdat", sep = "/"))
+# glimpse(pt_complete)
+# 1. subset a random sample of 30 observations for data transformation code preparation
+# set.seed(711)
+# pt_complete_sample <- pt_complete %>% slice_sample(n = 30)
+# pt_complete_sample %>%
+pt_complete_long <- pt_complete %>%
+
+# 2. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "seconds," and placing respective observations for each "floc" variable into a "location_num" column
+  pivot_longer(cols = starts_with("floc"), 
+               names_to = "shift_second", # moves column names to new column "seconds"
+               values_to = "location_num", # moves location numbers to new column "location_num"
+               values_drop_na = TRUE) %>% # removes all rows (observations) without location data
+# 3. Delete the prefix "floc" from `seconds` and change class to numeric
+  mutate(shift_second = as.double(str_replace(shift_second, "floc", "")),
+         location_num = as_factor(location_num),
+         shift_num_ampm = str_trim(shift_num_ampm),
+         am_pm = as_factor(str_extract(shift_num_ampm, "am|pm")),
+         shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")),
+         date = make_date(year = year, month = mon, day = day)) %>% 
+  select(sid, date, shift_num, am_pm, location_num, shift_second) %>% 
+  # count(am_pm)
+  mutate(day_night = as_factor(if_else(am_pm == "am", "day", "night")),
+         .after = 4) # %>% 
+  # glimpse()
+# Save as .Rdata file
+rmarkdown::paged_table(pt_complete_long)
+# write_rds(pt_complete_long, file = paste(data_path, "Rdata", "pt_complete_long.Rdata", sep = "/"))
+# write_csv(pt_complete_long, file = paste(data_path, "csv_files", "pt_complete_long.csv", sep = "/"))
+# generate_dictionary(pt_complete_long)
+```
+
+> After transforming & cleaning "completepat.sas7bdat", `pt_complete_long` is __`r ncol(pt_complete_long)`__ variables wide and __`r nrow(pt_complete_long)`__ rows long.  
+
+
+## Staff Data
+
+## Staff RFID data
+
+
+The SAS data file, "completestaff.sas7bdat," contains RFID badge location (by *room number*) for all staff each second of every shift.
+
+### `staff_complete`
+
+```{r staff_complete}
+# 1. pull "completestaff.sas7bdat" from `sas_data_list` as `tibble()` 
+staff_complete <- read_sas(paste(data_path, "staff", "completestaff.sas7bdat", sep = "/"))
+# Subset a random sample of 30 observations
+# set.seed(321)
+# staff_complete_sample <- staff_complete %>% slice_sample(n = 30)
+# 2. Use a random sample of staff_complete for data cleaning & transformation 
+staff_complete_long <- staff_complete %>% 
+  # 2a. Pivot the data.frame from wide to long by placing all column names that start with "floc" into a new column, "seconds," and placing respective observations for each "floc" variable into a "location_num" column
+  pivot_longer(cols = starts_with("floc"), 
+               names_to = "seconds", 
+               values_to = "location_num",
+               values_drop_na = TRUE) %>% 
+  # 2b. Remove the prefix "floc" from `time_seconds` and keep the digits as `seconds`
+  mutate(seconds = as.double(str_replace(seconds, "floc", "")),
+         location_num = as_factor(location_num),
+         shift_num_ampm = str_trim(shift_num_ampm),
+         shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")),
+         am_pm = as_factor(str_extract(shift_num_ampm, "am|pm")),
+         date = make_date(year = year, month = mon, day = day)) %>%
+  select(-d8:-mon)
+
+# staff_complete_sample2
+# write_rds(staff_complete_long, file = paste(data_path, "Rdata", "staff_complete_long.Rdata", sep = "/"))
+# write_csv(staff_complete_long, file = paste(data_path, "csv_files", "staff_complete_long.csv", sep = "/"))
+# 3. View data frame structure
+# generate_dictionary(staff_complete_long)
+rmarkdown::paged_table(staff_complete_long)
+```
+
+
+
+
+## Network Data  
+
+## Whole Networks
+
+### `net_all_xl`
+
+
+```{r net_all_xl}
+#| label: "net_all"
+net_all_xl <- read_xlsx(paste(data_path, "networks", "network_allshifts.xlsx", sep = "/"))
+str(net_all_xl)
+net_all_xl %>% 
+  rmarkdown::paged_table()
+```
+### `net_all_sas`
+
+```{r net_all_sas}
+net_all_sas <- read_sas(paste(data_path, "networks", "network_allshifts.sas7bdat", sep = "/"))
+# str(net_all_sas)
+net_all_sas %>% 
+  rmarkdown::paged_table()
+generate_dictionary(net_all_sas)
+```
+
+
+## Edges 
+
+### `edges_all`
+
+```{r edges_all}
+#| label: "edges_all"
+edges_all <- read_sas(paste(data_path, "networks", "allshifts_edges.sas7bdat", sep = "/"))
+# str(edges_all)
+edges_all %>% 
+  rmarkdown::paged_table()
+```
+
+```{r edges2}
+#| label: "edges2"
+edges2 <- read_sas(paste(data_path, "networks", "edges2.sas7bdat", sep = "/"))
+rmarkdown::paged_table(edges2)
+```
+## Events
+
+### `events_long`
+
+```{r events_long}
+events_long <- read_sas(paste(data_path, "events", "eventfile_long2.sas7bdat", sep = "/"))
+rmarkdown::paged_table(events_long)
+# write_csv(events_long, file = paste(data_path, "csv_files", "events_long.csv", sep = "/"))
+```
+
+`events_long` has duplicates, use `eventfile_nodup` if needed.
+
+### `events_unique`
+
+```{r events_unique}
+events_unique <- read_sas(paste(data_path, "events", "events_uniquepersid2.sas7bdat", sep = "/"))
+rmarkdown::paged_table(events_unique)
+```
+
+### `eventfile_nodup`
+
+```{r eventfile_nodup}
+eventfile_nodup <- read_sas(paste(data_path, "events", "eventfile_long6944_noduploc.sas7bdat", sep = "/"))
+eventfile_nodup %>% 
+  rmarkdown::paged_table()
+# write_csv(eventfile_nodup, file = paste(data_path, "csv_files", "eventfile_nodup.csv", sep = "/"))
+# write_rds(eventfile_nodup, file = paste(data_path, "Rdata", "eventfile_nodup.Rdata", sep = "/"))
+```
+
+
+## Fully Joined Datasets  
+
+```{r full_join}
+rdata_dir <- paste0(getwd(), "/Data/Rdata/")
+
+# population.Rdata
+population <- read_rds(paste0(rdata_dir, "population.Rdata"))
+glimpse(population)
+# names(population)
+# demographics.Rdata
+# demographics <- read_rds(paste0(rdata_dir, "demographics_clean.Rdata"))
+# glimpse(demographics)
+
+# pts_all.Rdata
+pts_all <- read_rds(paste0(rdata_dir, "pts_all.Rdata"))
+# glimpse(pts_all)
+# names(pts_all)
+test <- population %>%
+  full_join(pts_all, by = c("encounter_no",
+                            "sex",
+                            "age",
+                            "race",
+                            "chief_complaint",
+                            "acuity",
+                            "arrival_mode",
+                            "arrival_cat",
+                            "disposition"))
+glimpse(test)
+all_pts <-  test %>%
+  unnest(cols = "nested_loc", keep_empty = TRUE) # %>%
+  # glimpse()
+# pts_all == pts_nested
+glimpse(all_pts)
+
+
+
+# staff_all == staff_locs_nested
+staff_all <- read_rds(paste0(rdata_dir, "staff_all.Rdata"))
+# glimpse(staff_all)
+
+all_staff <- staff_all %>%
+  unnest(cols = nested_loc, keep_empty = TRUE)
+glimpse(all_staff)
+
+# what file format do data need to for uploading to google cloud???
+# write_rds(all_pts, file = "all_pts.Rdata")
+# write_rds(all_staff, file = "all_staff.Rdata")
+
+```
+
+
+```{r wrangling_old_code, eval=FALSE}
+
+
+
+# directory path
+rdata_dir <- "/Users/tommy-two/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data/Rdata"
+rdata_archive <- paste0(rdata_dir, "/rds_archive")
+# rdata_dir
+# WRANGLING----
+
+## X--ntab2_final----
+ntab2_final <- read_rds(paste0(rdata_dir, "/ntab2_final.Rdata"))
+# view loaded data
+ntab2_final %>%
+  glimpse()
+# ntab2_clean <- ntab2_clean %>%
+#   mutate(shift_num = as.character(shift_num),
+#          shift_person = as.character(shift_person),
+#          sid = format(sid, scientific = FALSE))
+# ntab2_clean <- ntab2_clean %>%
+#   relocate(shift_person, .after = id) %>%
+#   mutate(sid = str_trim(sid))
+# ntab2_nms <- names(ntab2_clean)
+
+# Duplicate sid for two patients in the same shift (shift 91; 10/07/2009):
+# ntab2_final %>%
+#   mutate(sid = (sid)) %>%
+#   group_by(shift_num) %>%
+#   count(sid) %>%
+#   filter(n > 1)
+# one duplicate sid from shift 91:
+# ntab2_final %>%
+#   filter(shift_num == "91" & sid == "2.17E+04")
+# id_sid_final %>%
+#   glimpse()
+# ntab2_final %>%
+#   # filter(str_detect(sid, "^2")) %>%
+#   filter(shift_num == "8") %>%
+#   count(sid) %>%
+#   arrange(desc(n)) #%>%
+#   filter(str_detect(sid, "2\\.17"))
+# id_sid_final %>%
+#   # glimpse()
+#   group_by(shift_num) %>%
+#   count(sid) %>%
+#   arrange(desc(n)) %>%
+#   filter(str_detect(sid, "217"))
+#   filter(str_detect(sid, "217"))
+#   mutate(staff = if_else(staff == 1, "Staff", "Patient"))
+# write_rds(ntab2_clean, file = paste0(rdata_dir, "/ntab2_final.Rdata"))
+# rm(ntab2_clean)
+
+## X--id_sid_clean----
+id_sid_clean <- read_rds(paste0(rdata_dir, "/id_sid_clean.Rdata"))
+# view loaded data
+# id_sid_clean %>%
+#   glimpse()
+# compare to original file: "id_sid_matchup2.sas7bdat"
+# idsid_matchup <- read_sas("Data/ids/id_sid_matchup2.sas7bdat")
+id_sid_clean %>%
+  glimpse()
+# idsid_matchup %>%
+  # glimpse()
+  # group_by(numshift) %>%
+  # count(newsid) %>%
+  # filter(n > 1)
+  # summarise(max(newsid))
+
+id_sid_clean <- id_sid_clean %>%
+  rename(shift_ampm = am_pm,
+         shift_person = newsid) # %>%
+# glimpse()
+# write_rds(id_sid_clean, paste0(rdata_dir, "/id_sid_final.Rdata"))
+# rm(id_sid_clean)
+
+id_sid_clean %>%
+  group_by(shift_num) %>%
+  count(sid) %>%
+  arrange(desc(n))
+# **ids_final ------
+id_sid_final <- read_rds(paste0(rdata_dir, "/id_sid_final.Rdata"))
+id_sid_final %>%
+  group_by(staff) %>%
+  count(shift_num) %>%
+  ungroup() %>%
+  pivot_wider(names_from = staff, values_from = n) %>%
+  transmute(`Shift Number` = as.numeric(shift_num),
+            `Patients (n)` = `0`,
+            `Staff (n)` = `1`) %>%
+  arrange(`Shift Number`) %>%
+  rownames_to_column() %>%
+  mutate(`Shift Number` = rowname,
+         .keep = "unused") %>%
+  relocate(`Shift Number`, `Patients (n)`, `Staff (n)`) %>%
+  mutate(`Total (n)` = `Patients (n)` + `Staff (n)`)
+
+
+id_sid_final %>%
+  glimpse()
+## **staff_sids----
+# staff_sids <- read_csv(file = "Data/csv_files/staff_sids_clean.csv",
+#                        col_names = c("sid", "job_sah", "participant_cat", "jobtitle"),
+#                        col_types = "cfff",
+#                        skip = 1)
+# Read saved R object from file = "staff_sids_clean.Rdata"
+staff_sids <- read_rds(paste0(rdata_dir, "/staff_sids-5_1_22.Rdata"))
+staff_sids %>%
+  # glimpse()
+  count(sid) %>%
+  arrange(desc(n))
+# write_rds(staff_sids, paste0(rdata_dir, "/staff_sids_final.Rdata"))
+# rm(staff_sids)
+
+# no duplicates in staff sid. 88 total staff members.
+staff_sids_final <- read_rds(paste0(rdata_dir, "/staff_sids_final.Rdata"))
+staff_sids_final %>%
+  glimpse()
+
+## **pt_sids----
+pt_sid_clean <- read_rds(paste0(rdata_dir, "/pt_sid_clean.Rdata"))
+# view loaded data
+shifts_vec <- pt_sid_clean %>%
+  mutate(shift_num = as.integer(shift_num)) %>%
+  arrange(shift_num) %>%
+  pull(shift_num) %>%
+  unique() %>%
+  as.character()
+# set seed for reproducibility:
+set.seed(711)
+# select a random sample of
+random_shifts <- sample(shifts_vec, 20)
+
+# many duplicate sids:
+pt_sid_clean %>%
+  count(sid) %>%
+  filter(n > 1) %>%
+  arrange(desc(n))
+# no duplicate sids when grouped by shift:
+pt_sid_clean %>%
+  group_by(shift_num) %>%
+  count(sid) %>%
+  arrange(desc(n))
+# write_rds(pt_sid_clean, paste0(rdata_dir, "/pt_sid_final.Rdata"))
+# rm(pt_sid_clean)
+
+
+## **population (from demographics_clean)----
+demographics_clean <- read_rds(paste0(rdata_dir, "/demographics_clean.Rdata"))
+demographics_clean %>%
+  glimpse()
+# saved as population.Rdata
+# write_rds(demographics_clean, paste0(rdata_dir, "/population.Rdata"))
+
+## **pts_pop_clean----
+pts_population <- read_rds(paste0(rdata_archive, "/pts_population.Rdata"))
+pts_pop_clean <- pts_population %>%
+  mutate(sid,
+         encounter_no = str_trim(EncounterNum),
+         encounter_no2 = as.character(encnum),
+         pt_id = as.character(ID),
+         date = d8,
+         shift_num = as.character(numshift),
+         shift_ampm = factor(shift_ampm),
+         sex = factor(Sex),
+         age = as.numeric(Patient_Age_at_Visit),
+         age2 = AGE,
+         race = factor(Race,
+                       levels = c("Black",
+                                  "White",
+                                  "Hispanic",
+                                  "Other"),
+                       exclude = c("Not Recorded", "1", "2", "3")),
+         chief_complaint = Chief_Complaint,
+         acuity = factor(Acuity,
+                         levels = c("1 Immediate",
+                                    "2 Emergent",
+                                    "3 Urgent",
+                                    "4 Stable",
+                                    "5 Non Urgent"),
+                         exclude = "Not Recorded"),
+         arrival_dttm = ED_Arrival_Timestamp,
+         arrival_tm = timeARR,
+         arrival_mode = factor(Arr_Mode, exclude = "Not Recorded"),
+         arrival_cat = fct_recode(arrival_mode,
+                                  "EMS" = "EMS Ground",
+                                  "EMS" = "EMS Air",
+                                  "Custody" = "Police/Jail",
+                                  "Ambulatory" = "Private Vehicle",
+                                  "Ambulatory" = "Public Trans",
+                                  "Ambulatory" = "Walk"),
+         departure_dttm = ED_Departure_Timestamp,
+         departure_tm = timeDEP,
+         time2tag = duration_UntilTag,
+         start_date = startd8time,
+         end_date = endd8time,
+         los = durationInED,
+         los_minutes = MinutesInED,
+         los_hours = hrsinED,
+         disposition = ED_Disposition,
+         job = JOB,
+         approached = factor(approached),
+         participant = factor(participantyn),
+         pt_with_data = factor(Pt_withData),
+         # levels = c("Yes" = 1,
+         #            "No" = 0)),
+         participant_final = factor(Participant_final),
+         .keep = "none") %>%
+  mutate(across(where(is.factor), ~na_if(., ""))) %>%
+  mutate(across(where(is.character), ~na_if(., ""))) %>%
+  mutate(across(where(is.factor), ~na_if(., "Not Recorded"))) %>%
+  mutate(across(where(is.character), ~na_if(., "Not Recorded"))) %>%
+  relocate(shift_ampm, .after = date) %>%
+  relocate(arrival_cat, .after = arrival_mode) %>%
+  relocate(approached, .before = participant)
+
+# check results
+pts_pop_clean %>%
+  glimpse()
+  # filter(encounter_no %in% demographics_clean$encounter_no)
+  count(shift_num)
+
+  # filter(encounter_no %in% pts_pop_clean$encounter_no)
+# write pts_pop to rds file:
+# write_rds(pts_pop, paste0(rdata_dir, "/pts_pop_clean.Rdata"))
+# rm(pts_pop)
+
+## X--allstaff_clean----
+allstaff_clean <- read_rds(paste0(rdata_dir, "/allstaff_clean.Rdata"))
+allstaff_clean %>%
+  glimpse()
+
+## **pt_complete----
+# pt_complete <- read_rds(paste0(rdata_dir, "/pt_complete_long.Rdata"))
+# view loaded data
+# pt_comp <- pt_complete %>%
+#   mutate(shift_num = as.character(shift_num),
+#          day_night = NULL) %>%
+#   rename(shift_ampm = am_pm)
+pt_comp_nested <- read_rds(paste0(rdata_dir, "/pt_comp_nested-5_2_22.Rdata"))
+# create unnested version
+pt_comp_unnested <- pt_comp_nested %>%
+  unnest(cols = c(data))
+# view unnested version
+glimpse(pt_comp_unnested)
+# ungroup unnested df
+pt_comp_unnested %>%
+  ungroup() %>%
+  count(date) %>%
+  arrange(date) %>%
+  plot(date, n)
+# renest df by sid & shift_num only
+pt_comp_nested <- pt_comp_unnested %>%
+  group_by(sid, shift_num) %>%
+  nest(nested_loc = c(location_num, shift_second)) # %>%
+# check for duplicates:
+# pt_comp has many duplicate sids:
+pt_comp %>%
+  count(sid) %>%
+  filter(n > 1)
+
+# pt_comp_nested has no duplicate sids
+  pt_comp_nested %>%
+    # glimpse() %>%
+    count(sid) %>%
+    filter(n > 1)
+# no duplicates found
+# glimpse(pt_comp_unnested)
+glimpse(pt_comp_nested)
+# write_rds(pt_comp_nested, file = paste0(rdata_dir, "/pt_locs_nested.Rdata"))
+# rm(pt_comp_nested)
+
+## **staff_complete----
+staff_complete <- read_rds(paste0(rdata_dir, "/staff_complete_long.Rdata"))
+
+staff_comp <- staff_complete %>%
+  mutate(shift_num = as.character(shift_num),
+         firstday = NULL) %>%
+  rename(shift_ampm = am_pm,
+         shift_second = seconds) %>%
+  relocate(sid, date, shift_num, shift_ampm, location_num, shift_second)
+# exclude from staff_sids all rows with sid not in staff_complete
+stf_comp_sids <- staff_complete %>%
+  distinct(sid)
+stf_sids_sids <- staff_sids %>%
+  select(sid)
+excluded_staff_sids <- staff_sids %>%
+  filter(!(stf_sids_sids$sid %in% stf_comp_sids$sid)) %>%
+  pull(sid)
+staff_sids_88 <- staff_sids %>%
+  filter(!(sid %in% excluded_staff_sids))
+
+# write_rds(staff_sids_88, file = paste0(rdata_dir, "/staff_sids-5_1_22.Rdata"))
+# write_csv(staff_sids_88, file = paste0("Data/csv_files/staff_sids-5_1_22"))
+staff_comp %>%
+  glimpse()
+
+# staff_comp has many duplicated sid numbers, but not within shifts:
+
+staff_comp %>%
+  count(sid) %>%
+  filter(n > 1)
+
+
+
+staff_comp_nested <- staff_comp %>%
+  group_by(sid, shift_num) %>%
+  nest(nested_loc = c(location_num, shift_second)) # %>%
+# staff_comp_nested has no duplicated sids
+# the following table shows number of observed staff (n) per shift, totals of staff working per shift is not available
+staff_comp_nested %>%
+  ungroup() %>%
+  count(shift_num) %>%
+  arrange(desc(n))
+  # filter(n > 1)
+# to unnest staff_comp_nested, use:
+staff_comp_nested %>%
+  unnest(cols = c(nested_loc))
+# view glimpse() of staff_comp_nested:
+staff_comp_nested %>%
+  glimpse()
+write_rds(staff_comp_nested, paste0(rdata_dir, "/staff_locs_nested.Rdata"))
+rm(staff_comp, staff_comp_nested)
+rm(staff_complete)
+## **events_clean----
+# load eventfile_nodup.Rdata
+events <- read_rds(paste0(rdata_dir, "/eventfile_nodup.Rdata"))
+
+# number of staff: 88
+# events %>%
+#   filter(ParticipantCat2 == "STAFF") %>%
+#   group_by(sid) %>%
+#   count() %>%
+#   ungroup() %>%
+#   summarise(n_staff = length(sid))
+
+
+
+# clean events:
+events_clean <- events %>%
+  mutate(sid = sid,
+         pt_id = patient,
+         encounter_no = str_trim(EncounterNum),
+         participant_cat = factor(ParticipantCat4),
+         job_cat = factor(job),
+         job_name = if_else(jobfullname == "", "Patient", jobfullname),
+         date = ymd(d8),
+         shift_num = shift_num,
+         shift_start_dttm = startd8time,
+         shift_end_dttm = endd8time,
+         tag_on_dttm = tag_starttime,
+         tag_off_dttm = tagofftime,
+         event_id = factor(event),
+         event_dttm = ymd_hms(et),
+         event_tm = ti,
+         room_index = locindex,
+         room_name = room,
+         .keep = "none",
+         .after = "sid") %>%
+  relocate(pt_id, date, shift_num, participant_cat, .after = encounter_no)
+
+# write_rds(events_clean, paste0(rdata_dir, "/events_final.Rdata"))
+# rm(events_clean, events)
+pt_id_vec <- events_clean %>%
+  filter(pt_id %in% pts_pop_clean$id_no) %>%
+  pull(pt_id)
+# c(pt_id_vec)
+pt_id_vec <- pt_id_vec %>%
+  # group_by(pt_id) %>%
+  distinct(pt_id) %>%
+  pull(pt_id)
+
+pts_pop_clean %>%
+  filter(id_no %in% pt_id_vec$pt_id)
+
+events_clean %>%
+  filter(pt_id %in% pt_id_vec$pt_id)
+
+events_cl_nested <- events_clean %>%
+  group_by(shift_num, sid, encounter_no, date) %>%
+  nest()
+
+
+# JOINING DFs:-----
+# Read saved data objects:
+id_sid <- read_rds(paste0(rdata_dir, "/id_sid_final.Rdata"))
+ntab2 <- read_rds(paste0(rdata_dir, "/ntab2_final.Rdata"))
+pt_info <- read_rds(paste0(rdata_dir, "/pt_info_final.Rdata"))
+pt_sids <- read_rds(paste0(rdata_dir, "/pt_sid_final.Rdata"))
+pts_nested <- read_rds(paste0(rdata_dir, "/pt_locs_nested.Rdata"))
+staff_nested <- read_rds(paste0(rdata_dir, "/staff_locs_nested.Rdata"))
+staff_sids <- read_rds(paste0(rdata_dir, "/staff_sids_final.Rdata"))
+events <- read_rds(paste0(rdata_dir, "/events_final.Rdata"))
+
+## staff_all <-  staff_nested + staff_sids =====
+staff_all <- staff_nested %>%
+  left_join(staff_sids, by = "sid")
+
+staff_all %>%
+  glimpse()
+
+
+
+# write_rds(staff_all, paste0(rdata_dir, "/staff_all.Rdata"))
+
+# pts_all <- pts_nested + pt_info----
+
+pt_info %>%
+  glimpse()
+# names(pts_nested)
+# names(pt_info)
+# test <- pts_nested %>%
+#   full_join(pt_info, by = c("sid",
+#                             "date",
+#                             "shift_num",
+#                             "shift_ampm"))
+
+# glimpse(test)
+# pts_nested %>%
+  # glimpse()
+# move list column to last position
+pts_all <- pts_all %>%
+  ungroup() %>%
+  relocate(nested_loc, .after = participant_final)
+pts_all %>%
+  glimpse()
+
+# pts_all_unnested <- pts_all %>%
+#   unnest(cols = nested_loc) #%>%
+
+# save pts_all_unnested as .csv & .Rdata files:
+# write_csv(pts_all_unnested, paste0("Data/csv_files/pts_all_unnested.csv"))
+# write_rds(pts_all, paste0(rdata_dir, "/pts_all.Rdata"))
+
+
+
+
+
+
+# SLICES:----
+
+sliced_pts <- pts_all %>%
+  unnest(cols = c(nested_loc)) %>%
+  group_by(sid, shift_num) %>%
+  slice_sample(prop = 0.005)
+
+# sliced_pts %>%
+#   ungroup() %>%
+#   group_by(encounter_no)# %>%
+# summarise(n_pts = n(),
+#           n_participants = sum(as.numeric(participant_final), na.rm = TRUE))
+
+
+# sliced_pts %>%
+#   # glimpse()
+#   ungroup() %>%
+#   count(sid) %>%
+#   summarise(sliced_pts_n = n(), sliced_obs_n = sum(n))
+# summarise(sum(n))
+```
+
+
+
+
+# EXPLORATION  
+
+```{r exploratory_old_code, eval=FALSE}
+# SETUP ----
+## create path to data archive
+rdata_dir <- "/Users/tommy-two/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data/Rdata"
+rdata_archive <- paste0(rdata_dir, "/rds_archive")
+## load packages
+# library(naniar) # for missing data
+# library(lubridate)
+library(labelled)
+library(vtable)# good package for summary tables
+library(tidyverse)
+## import data sets
+population_730 <- read_rds(paste0(rdata_dir, "/population.Rdata"))
+n_patients_730 <- population_730 %>%
+  nrow()
+# n_patients_730
+population_81 <- read_rds(paste0(rdata_dir, "/pt_info_final.Rdata"))
+n_patients_81 <- population_81 %>%
+  nrow()
+# n_patients_81
+
+# Make a table of patient & staff counts (n) per shift (shift_counts_table.csv)----
+id_sid_final <- read_rds(paste0(rdata_dir, "/id_sid_final.Rdata"))
+shift_counts_table <- id_sid_final %>%
+  group_by(staff) %>%
+  count(shift_num) %>%
+  ungroup() %>%
+  pivot_wider(names_from = staff, values_from = n) %>%
+  transmute(`Shift Number` = as.numeric(shift_num),
+            `Patients (n)` = `0`,
+            `Staff (n)` = `1`) %>%
+  arrange(`Shift Number`) %>%
+  rownames_to_column() %>%
+  mutate(`Shift Number` = rowname,
+         .keep = "unused") %>%
+  relocate(`Shift Number`, `Patients (n)`, `Staff (n)`) %>%
+  mutate(`Total (n)` = `Patients (n)` + `Staff (n)`)
+# write_csv(shift_counts_table, paste0(getwd(), "/Tables/shift_counts_table.csv"))
+
+
+
+
+```
+
+# SessionInfo
+
+```{r SessionInfo}
+sessioninfo::session_info()%>%
+  details::details(
+    summary = 'Current session info',
+    open    = FALSE
+  )
+```

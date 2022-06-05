@@ -1,0 +1,576 @@
+me to% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={NACI\_PaperII},
+  pdfauthor={Tommy J. Flynn},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{NACI\_PaperII}
+\author{Tommy J. Flynn}
+\date{2022-05-11}
+
+\begin{document}
+\maketitle
+
+\hypertarget{code}{%
+\section{Code}\label{code}}
+
+\textbf{Population from all shifts during the observation year
+(2009-2010):}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# load the population data from the full year, all 730 shifts"}
+\NormalTok{population\_730 }\OtherTok{\textless{}{-}} \FunctionTok{read\_rds}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(rdata\_dir, }\StringTok{"/population.Rdata"}\NormalTok{))}
+\CommentTok{\# clean race variable for analysis}
+\NormalTok{population\_730 }\OtherTok{\textless{}{-}}\NormalTok{ population\_730 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{race =} \FunctionTok{factor}\NormalTok{(race,}
+              \AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"Black"}\NormalTok{,}
+                         \StringTok{"White"}\NormalTok{,}
+                         \StringTok{"Other"}\NormalTok{),}
+              \AttributeTok{exclude =} \FunctionTok{c}\NormalTok{(}\StringTok{"Not Recorded"}\NormalTok{, }\StringTok{"1"}\NormalTok{, }\StringTok{"2"}\NormalTok{, }\StringTok{"3"}\NormalTok{)))}
+
+\NormalTok{population\_730 }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{count}\NormalTok{(race)}
+\DocumentationTok{\#\# \# A tibble: 4 x 2}
+\DocumentationTok{\#\#   race      n}
+\DocumentationTok{\#\#   \textless{}fct\textgreater{} \textless{}int\textgreater{}}
+\DocumentationTok{\#\# 1 Black 46637}
+\DocumentationTok{\#\# 2 White  9026}
+\DocumentationTok{\#\# 3 Other  1109}
+\DocumentationTok{\#\# 4 \textless{}NA\textgreater{}    742}
+\CommentTok{\# check results}
+\CommentTok{\# population\_730 \%\textgreater{}\% }
+  \CommentTok{\# glimpse()}
+\CommentTok{\# how many patients in population from 2009{-}2010?}
+\NormalTok{n\_patients\_730 }\OtherTok{\textless{}{-}}\NormalTok{ population\_730 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{nrow}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{Population from 81 shifts with observational data:}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# load population data from the 81 observed shifts"}
+\NormalTok{population\_81 }\OtherTok{\textless{}{-}} \FunctionTok{read\_rds}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(rdata\_dir, }\StringTok{"/pt\_info\_final.Rdata"}\NormalTok{))}
+
+\NormalTok{population\_81 }\OtherTok{\textless{}{-}}\NormalTok{ population\_81 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{race =} \FunctionTok{factor}\NormalTok{(race,}
+              \AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"Black"}\NormalTok{,}
+                         \StringTok{"White"}\NormalTok{,}
+                         \StringTok{"Other"}\NormalTok{),}
+              \AttributeTok{exclude =} \FunctionTok{c}\NormalTok{(}\StringTok{"Not Recorded"}\NormalTok{, }\StringTok{"1"}\NormalTok{, }\StringTok{"2"}\NormalTok{, }\StringTok{"3"}\NormalTok{)))}
+\CommentTok{\# how many patients in population of 81 shifts?}
+\NormalTok{n\_patients\_81 }\OtherTok{\textless{}{-}}\NormalTok{ population\_81 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{nrow}\NormalTok{()}
+\CommentTok{\# n\_patients\_81}
+\NormalTok{population\_81 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{count}\NormalTok{(race)}
+\DocumentationTok{\#\# \# A tibble: 4 x 2}
+\DocumentationTok{\#\#   race      n}
+\DocumentationTok{\#\#   \textless{}fct\textgreater{} \textless{}int\textgreater{}}
+\DocumentationTok{\#\# 1 Black  7472}
+\DocumentationTok{\#\# 2 White  1424}
+\DocumentationTok{\#\# 3 Other   174}
+\DocumentationTok{\#\# 4 \textless{}NA\textgreater{}    113}
+\CommentTok{\# pull a column of all unique shift numbers}
+\NormalTok{shift\_nums }\OtherTok{\textless{}{-}}\NormalTok{ population\_81 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{distinct}\NormalTok{(shift\_num)}
+\CommentTok{\# create a vector of all shift numbers from that column}
+\NormalTok{shift\_nums\_vec }\OtherTok{\textless{}{-}} \FunctionTok{pull}\NormalTok{(shift\_nums, shift\_num)}
+\CommentTok{\# set seed for reproducible random sampling}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{711}\NormalTok{)}
+\CommentTok{\# randomly sample 20 shifts}
+\NormalTok{shift\_sample\_vec }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(shift\_nums\_vec, }\DecValTok{20}\NormalTok{)}
+
+\NormalTok{population\_20 }\OtherTok{\textless{}{-}}\NormalTok{ population\_81 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(shift\_num }\SpecialCharTok{\%in\%}\NormalTok{ shift\_sample\_vec) }
+\NormalTok{n\_population\_20 }\OtherTok{\textless{}{-}}\NormalTok{ population\_20 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{nrow}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# load data for patients included in the study:}
+\NormalTok{pt\_sample }\OtherTok{\textless{}{-}} \FunctionTok{read\_rds}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(rdata\_dir, }\StringTok{"/pts\_all.Rdata"}\NormalTok{))}
+\CommentTok{\# wrangle pt\_sample to exclude unknown/not recorded/or undefined observations:}
+\NormalTok{pt\_sample }\OtherTok{\textless{}{-}}\NormalTok{ pt\_sample }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{participant\_cat =} \FunctionTok{replace\_na}\NormalTok{(job, }\StringTok{"PATIENT"}\NormalTok{), }
+         \AttributeTok{race =} \FunctionTok{factor}\NormalTok{(race,}
+              \AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"Black"}\NormalTok{,}
+                         \StringTok{"White"}\NormalTok{,}
+                         \StringTok{"Other"}\NormalTok{),}
+              \AttributeTok{exclude =} \FunctionTok{c}\NormalTok{(}\StringTok{"Not Recorded"}\NormalTok{, }\StringTok{"1"}\NormalTok{, }\StringTok{"2"}\NormalTok{, }\StringTok{"3"}\NormalTok{)),}
+         \AttributeTok{arrival\_mode =} \FunctionTok{na\_if}\NormalTok{(arrival\_mode, }\StringTok{"Unknown"}\NormalTok{),}
+         \AttributeTok{disposition =} \FunctionTok{na\_if}\NormalTok{(disposition, }\StringTok{"Not Recorded"}\NormalTok{),}
+         \AttributeTok{.keep =} \StringTok{"unused"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{relocate}\NormalTok{(participant\_cat, }\AttributeTok{.after =}\NormalTok{ pt\_id)}
+\CommentTok{\# check results:}
+\CommentTok{\# pt\_sample \%\textgreater{}\% }
+\CommentTok{\#   glimpse()}
+\NormalTok{pt\_sample }\SpecialCharTok{\%\textgreater{}\%}
+  \CommentTok{\# filter(participant == "Yes") \%\textgreater{}\%}
+  \CommentTok{\# nrow()}
+  \FunctionTok{count}\NormalTok{(race)}
+\DocumentationTok{\#\# \# A tibble: 4 x 2}
+\DocumentationTok{\#\#   race      n}
+\DocumentationTok{\#\#   \textless{}fct\textgreater{} \textless{}int\textgreater{}}
+\DocumentationTok{\#\# 1 Black  3588}
+\DocumentationTok{\#\# 2 White   637}
+\DocumentationTok{\#\# 3 Other    64}
+\DocumentationTok{\#\# 4 \textless{}NA\textgreater{}    489}
+\CommentTok{\# how many patient participants?}
+\NormalTok{n\_pt\_sample }\OtherTok{\textless{}{-}}\NormalTok{ pt\_sample }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{nrow}\NormalTok{()}
+\CommentTok{\# n\_pt\_sample}
+\NormalTok{ptsample\_20 }\OtherTok{\textless{}{-}}\NormalTok{   pt\_sample }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(shift\_num }\SpecialCharTok{\%in\%}\NormalTok{ shift\_sample\_vec)}
+
+\NormalTok{ptsample\_20 }\SpecialCharTok{\%\textgreater{}\%}
+  \CommentTok{\# nrow()}
+  \CommentTok{\# select({-}nested\_loc) \%\textgreater{}\% }
+  \CommentTok{\# filter(!is.na(participant) \& !is.na(approached) \& !is.na(participant\_final)) \%\textgreater{}\% \# NA x 443}
+  \FunctionTok{select}\NormalTok{(race,}
+\NormalTok{         age,}
+\NormalTok{         sex,}
+\NormalTok{         acuity, }
+\NormalTok{         arrival\_cat,}
+\NormalTok{         los\_hours,) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  vtable}\SpecialCharTok{::}\FunctionTok{st}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}
+
+\caption{\label{tab:pt_sample}Summary Statistics}
+\centering
+\begin{tabular}[t]{llllllll}
+\toprule
+Variable & N & Mean & Std. Dev. & Min & Pctl. 25 & Pctl. 75 & Max\\
+\midrule
+race & 959 &  &  &  &  &  & \\
+... Black & 793 & 82.7% &  &  &  &  & \\
+... White & 147 & 15.3% &  &  &  &  & \\
+... Other & 19 & 2% &  &  &  &  & \\
+age & 971 & 48.718 & 18.919 & 0 & 33 & 62 & 97\\
+\addlinespace
+sex & 971 &  &  &  &  &  & \\
+... Female & 557 & 57.4% &  &  &  &  & \\
+... Male & 414 & 42.6% &  &  &  &  & \\
+acuity & 967 &  &  &  &  &  & \\
+... 1 Immediate & 8 & 0.8% &  &  &  &  & \\
+\addlinespace
+... 2 Emergent & 354 & 36.6% &  &  &  &  & \\
+... 3 Urgent & 472 & 48.8% &  &  &  &  & \\
+... 4 Stable & 130 & 13.4% &  &  &  &  & \\
+... 5 Non Urgent & 3 & 0.3% &  &  &  &  & \\
+arrival_cat & 964 &  &  &  &  &  & \\
+\addlinespace
+... EMS & 294 & 30.5% &  &  &  &  & \\
+... Custody & 0 & 0% &  &  &  &  & \\
+... Ambulatory & 669 & 69.4% &  &  &  &  & \\
+... Unknown & 1 & 0.1% &  &  &  &  & \\
+los_hours & 970 & 8.639 & 7.208 & 0.464 & 4.35 & 9.279 & 49.567\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\CommentTok{\# how many patients are in the 20 sampled shifts?}
+\NormalTok{n\_shift\_sample }\OtherTok{\textless{}{-}}\NormalTok{ ptsample\_20 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{nrow}\NormalTok{()}
+\CommentTok{\# what are their races?}
+\NormalTok{ptsample\_20 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{count}\NormalTok{(race) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\StringTok{\textasciigrave{}}\AttributeTok{\%}\StringTok{\textasciigrave{}} \OtherTok{=} \FunctionTok{round}\NormalTok{(n}\SpecialCharTok{/}\FunctionTok{sum}\NormalTok{(n)}\SpecialCharTok{*}\DecValTok{100}\NormalTok{, }\DecValTok{2}\NormalTok{))}
+\DocumentationTok{\#\# \# A tibble: 4 x 3}
+\DocumentationTok{\#\#   race      n   \textasciigrave{}\%\textasciigrave{}}
+\DocumentationTok{\#\#   \textless{}fct\textgreater{} \textless{}int\textgreater{} \textless{}dbl\textgreater{}}
+\DocumentationTok{\#\# 1 Black   793 78.3 }
+\DocumentationTok{\#\# 2 White   147 14.5 }
+\DocumentationTok{\#\# 3 Other    19  1.88}
+\DocumentationTok{\#\# 4 \textless{}NA\textgreater{}     54  5.33}
+\CommentTok{\# what was their sex?}
+\NormalTok{ptsample\_20 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{count}\NormalTok{(sex) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\StringTok{\textasciigrave{}}\AttributeTok{\%}\StringTok{\textasciigrave{}} \OtherTok{=} \FunctionTok{round}\NormalTok{(n}\SpecialCharTok{/}\FunctionTok{sum}\NormalTok{(n)}\SpecialCharTok{*}\DecValTok{100}\NormalTok{, }\DecValTok{2}\NormalTok{))}
+\DocumentationTok{\#\# \# A tibble: 3 x 3}
+\DocumentationTok{\#\#   sex        n   \textasciigrave{}\%\textasciigrave{}}
+\DocumentationTok{\#\#   \textless{}fct\textgreater{}  \textless{}int\textgreater{} \textless{}dbl\textgreater{}}
+\DocumentationTok{\#\# 1 Female   557 55.0 }
+\DocumentationTok{\#\# 2 Male     414 40.9 }
+\DocumentationTok{\#\# 3 \textless{}NA\textgreater{}      42  4.15}
+\CommentTok{\# what was their age?}
+\NormalTok{ptsample\_20 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(age)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}\AttributeTok{age\_mean =} \FunctionTok{mean}\NormalTok{(age), }
+            \AttributeTok{sd\_age =} \FunctionTok{sd}\NormalTok{(age),}
+            \AttributeTok{age\_min =} \FunctionTok{min}\NormalTok{(age), }
+            \AttributeTok{age\_max =} \FunctionTok{max}\NormalTok{(age))}
+\DocumentationTok{\#\# \# A tibble: 1 x 4}
+\DocumentationTok{\#\#   age\_mean sd\_age age\_min age\_max}
+\DocumentationTok{\#\#      \textless{}dbl\textgreater{}  \textless{}dbl\textgreater{}   \textless{}dbl\textgreater{}   \textless{}dbl\textgreater{}}
+\DocumentationTok{\#\# 1     48.7   18.9       0      97}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{staff\_all }\OtherTok{\textless{}{-}} \FunctionTok{read\_rds}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(rdata\_dir, }\StringTok{"/staff\_all.Rdata"}\NormalTok{))}
+\CommentTok{\# pull data for staff observed during the 20 sampled shifts}
+\NormalTok{staff\_sample }\OtherTok{\textless{}{-}}\NormalTok{ staff\_all }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(shift\_num }\SpecialCharTok{\%in\%}\NormalTok{ shift\_nums\_vec)}
+\CommentTok{\# group by sid to count individual staff}
+\NormalTok{n\_staff\_sample }\OtherTok{\textless{}{-}}\NormalTok{ staff\_sample }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{distinct}\NormalTok{(sid) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{nrow}\NormalTok{()}
+
+\CommentTok{\# glimpse(staff\_sample)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{network-analysis-of-clinical-interactions-patient-race-and-network-structures}{%
+\section{Network Analysis of Clinical Interactions: Patient Race and
+Network
+Structures}\label{network-analysis-of-clinical-interactions-patient-race-and-network-structures}}
+
+The emergency department (ED) is a complex social setting in which
+clinical care and patients' experiences depend on interpersonal
+encounters, or clinical interactions. Clinical interactions are
+multidimensional social phenomena embedded at the center of observable
+healthcare services. Clinical interactions are also one of the primary
+manifestations of healthcare disparities related to racism and
+discrimination. One roadblock to understanding the role of clinical
+interactions in ED disparities is a lack of methods available to study
+complex networks of interacting individuals. Social network analysis of
+close-proximity interactions data generated by real-time location
+systems is considered a powerful tool for studying social interactions.
+The purpose of this study is to describe a network analysis of clinical
+interactions (NACI) and the effects of patient race on structural
+network variables in an urban ED in the Southern United States.
+
+\hypertarget{method}{%
+\subsection{Method:}\label{method}}
+
+This secondary analysis and its parent study independently received
+ethics approval by institutional review board. Methods, including
+sampling strategy and data collection processes, were described
+previously {[}@lowery-north2013{]}. Data were generated passively with
+RFID sensors and participant-worn tags to map the clinical interaction
+network in the ED. The Emory Institutional Review Board approved both
+the original study and this analysis. Radiofrequency identification
+(RFID) tags worn by consenting ED clinicians and patients were used to
+passively observe participants' locations while in the ED. Location was
+identified every ten seconds for two randomly selected shifts per week
+over one year (July, 2009 through June, 2010). Clinical interactions
+were defined where two or more participants were in the same room and in
+close proximity (within 1m). Demographic and clinical data for the
+population and participants were pulled from medical records.
+Demographic information was not collected for ED staff other than job
+category (RN, MD, and Staff) to maintain participant confidentiality. ED
+staff were consented at the beginning of the study, and research staff
+intended to approach all patients as possible during the preselected
+shifts.
+
+Understanding racial disparities in health and healthcare is an ongoing
+priority for health services research investigators and institutions
+{[}@nhqdr2019,\\
+AMA, 2021; National Institutes of Health, 2021a, 2021b; Newman et al.,
+2021
+
+Structural, cultural, and interpersonal factors lead to racial
+healthcare disparities. Racial healthcare disparities are ``differences
+in the quality of healthcare that are not due to access-related factors
+or clinical needs, preferences, and appropriateness of intervention''
+
+Institute of Medicine, 2003, p.~4
+
+Clinical interactions (CIs) are interpersonal encounters in the process
+of healthcare process with at least two individuals. Upon presentation
+to the emergency department (ED), people seeking help are embedded in a
+complex network of clinical interactions involving every staff member,
+clinician, caregiver, and patient present.
+
+Network science draws on the perspectives, philosophies, and methods of
+various qualitative and quantitative research traditions to understand
+relationships between objects embedded in complex systems. Network
+analyses of clinical interactions (NACI) have become increasingly common
+in the health services research literature over the past few decades
+{[}@benton2015{]}. Health services researchers report correlations
+between hospitalizes patients' clinical interaction network variables,
+cost of care, hospital characteristics, and patient demographics
+including age and sex {[}@abbasi2012{]}.
+
+Focusing a network science lens on clinical interactions in the complex
+emergency department (ED) environment may add to current evidence of the
+social and interpersonal dimensions of racial healthcare disparities.
+The purpose of this paper is to report a secondary data analysis of
+clinical interactions in the Emergency Department of a large academic
+hospital in the Southern U.S. using social network analyses of ED
+clinical interactions between patients and healthcare personnel.
+
+The meaning of network structures depends on researchers' decisions
+about how to define individual actors (i.e., nodes) and their
+inter-relational connections (i.e., ties). In fact, the research
+question under investigation is considered the guiding force behind
+conceptual and operational interpretations of networks. Consider, for
+example, data from a novel contact tracing app designed to identify
+exposures. This hypothetical network would consist of all individuals
+with the app who are at risk of exposure (i.e., vertices, nodes,
+actors), their interactions with other nodes (i.e., ties, edges), and
+exposure status (i.e., node/vertex attribute). In this example, node
+nj's risk of exposure increases in relation to the number of
+interactions nj has with others in the network. The relative number of
+interactions, or ties, nj has compared to others in the network is a
+basic measure of network centrality. As more attribute data are
+available, say vaccination status, the meaning of network structures,
+like centrality, must be reconsidered. When studying ED network data, we
+can assume that a tie between patient and clinician nodes is a part of
+service delivery: specifically, a patient-clinician interactions (i.e.,
+clinical interactions). In some healthcare settings, clinical
+interactions are the building blocks of clinical relationships with
+broader implications for quality and equity. Clinical relationships are,
+however, beyond the purview of this paper. By defining network
+connections as clinician-patient interactions, its centrality is a
+measure of--at the least--quantity of direct clinical care, and--we
+hypothesize--important dimensions of quality clinical care like
+clinician-patient communication, changes in patient acuity, and ED
+throughput.
+
+RFID systems are used in a number of hospitals nationwide
+
+(Page, 2007)
+
+, commonly for supply chain management, passive patient identification,
+safe medication administration, patient tracking, and asset tracking
+
+(Yao et al., 2012)
+
+. RFID systems consist of small tags or badges that emit
+radio-frequencies that are picked up by sensors located strategically so
+that every RFID badge is always identifiable to at least 3 sensors for
+location by triangulation
+
+(Yao et al., 2012).
+
+The presence of RFID-enabled healthcare facilities nationwide will allow
+for replication of this research, and the evaluation of equity
+improvement interventions can be done with some minor alterations to
+existing hardware. Compared to other technologies used for locating
+resources, the inexpensive and unobtrusive design of RFID tags make them
+ideal for healthcare applications. Additionally, person-to-person
+proximity data, such as ours, is likely the most informative
+sensor-generated data for mapping and studying human networks (Pentland,
+2012).
+
+We report a secondary analysis of longitudinal ED contact network data.
+Data were collected previously using a prospective longitudinal
+observational study design. The purpose of the parent study was to
+describe contact characteristics among patients and staff in the ED of a
+busy urban hospital to help inform cross-infection control measures
+{[}@lowery-north2013{]}.
+
+\hypertarget{sampling}{%
+\subsubsection{Sampling}\label{sampling}}
+
+Sampling strategies in network research are based on the research
+question {[}@borgatti2013{]}. Sampling strategies in network science
+defer to the boundaries of the network under investigation and the
+nature of the relationships between individual nodes
+{[}@borgatti2013{]}.
+
+Data were collected with a random sampling of one day shift and one
+night shift from a single academic urban ED every week over the course
+of one year. A total of 104 shifts of data were collected for the
+original study {[}@lowery-north2013{]}. Investigators chose this
+sampling strategy to minimize sampling bias related to variability in
+seasonal, weekly,and daily in census, acuity, and ED staffing patterns
+{[}@lowery-north2013{]}.
+
+Data points included detailed ED patient demographic and clinical
+information and basic information about clinicians. Clinicians were
+categorized into three professional groups; medical doctors (MD),
+registered nurses (RNs), and non-clinical staff. Patient data were
+collected for the following variables: race (Black, Hispanic, White, and
+other), sex, age, arrival mode (ambulatory, emergency medical transport,
+or in police custody), chief complaint, acuity (Emergency Severity
+Index), and disposition (admitted to hospital, discharged to community,
+left without being seen, or left against medical advice).
+
+\textbf{\emph{Acuity:}} Patient Acuity was measured in the parent study
+with the Emergency Severity Index (ESI) version 3. The ESI was designed
+to accurately predict ED patients' resource needs and disposition
+{[}@tanabe2004, @tanabe2004b{]}. Each patient was assigned an ESI number
+on a scale of 1-5 by a triage nurse. Lower scores indicate more urgent
+patient needs, higher resource consumption, and greater likelihood of
+hospital admission {[}@tanabe2004{]}. The ESI has excellent interrater
+reliability and consistently predicts hospital admissions with the
+following rates: ESI 1 (80\%), 2 (73\%), 3 (51\%), 4 (6\%), and 5 (5\%).
+In another study, patients with ESI levels 1-2 had higher rates of
+intensive care unit admissions more often than patients at levels 3-5
+{[}@tanabe2004b{]}. A limitation of the ESI is its intended use as a
+one-time triage tool assessed at the beginning of patients' visits,
+though patients' condition may change.
+
+\hypertarget{data-sources}{%
+\subsubsection{Data Sources}\label{data-sources}}
+
+Original investigators collected data from three sources: patients'
+electronic health records (Cerner Millennium Electronic Health Record,
+Cerner Corp., Kansas City, MO), a radio-frequency identification system
+(Radianse Corp., Amherst, MA), and a tag identification database.
+
+\hypertarget{analysis}{%
+\subsubsection{Analysis}\label{analysis}}
+
+We used the R open-source statistical programming language {[}@r{]} with
+RStudio {[}@rstudio{]} for all statistical tests and python programming
+language for network analytics and visualizations. Empirical analysis of
+longitudinal network data begins with basic descriptive properties
+including two-dimensional network graphs and plots of basic network
+statistics. Stratification by racial/ethnic group, rather than
+risk-adjustment, has been shown to generate more informative results in
+recent studies of healthcare disparities {[}@profit2017{]}.
+
+\hypertarget{results}{%
+\subsection{Results}\label{results}}
+
+\hypertarget{patient-sample}{%
+\subsubsection{Patient Sample}\label{patient-sample}}
+
+Demographics for the whole ED patient population in the year in which
+data were collected were reported previously {[}@lowery-north2013{]}. In
+summary, the ED had 57514 patient visits from July 2009 through June
+2010 and 9183 (16\%) visits during the 81 observed shifts. Of visits
+that occurred during the observed shifts, 34\% (3112) were not
+approached by the research team, 16\% (941) were excluded for reasons
+related to the patient (e.g., refused or unable to consent), and 6\%
+(389) had technical issues which precluded inclusion. Data were,
+therefore, available for 4778 (52\%) patients from 81 shifts, of which
+1013 (21.2\%).
+
+\hypertarget{staff-sample1}{%
+\subsubsection{Staff Sample1}\label{staff-sample1}}
+
+88 (84.6\%) of 104 eligible staff consented to participate, and all 88
+(100\%) of those were present during at least one of the 20 shifts
+sampled for this analysis {[}@lowery-north2013{]}.
+
+\end{document}
