@@ -1,10 +1,23 @@
 ---
+title: "Paper II: Network Analysis of Clinical Interactions"
 author: Thomas Flynn
 date: '`r format(Sys.Date())`'
-output: pdf_document
+output: 
+  pdf_document:
+    toc: true
 ---
 
-```{r setup, include=FALSE}
+# SETUP
+
+```{r setup, include=TRUE}
+library(knitr)
+# set knit options
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      collapse = TRUE)
+library(tinytex)
+# set tinytex output options (only for testing/debugging)
 options(tinytex.verbose = TRUE)
 library(ymlthis)
 library(tidyverse)
@@ -12,12 +25,7 @@ library(lubridate)
 # library(naniar) # for missing data
 library(vtable) # makes good summary/descriptive statistics table
 library(kableExtra)
-# set knit options
-knitr::opts_chunk$set(echo = TRUE,
-                      warning = FALSE,
-                      message = FALSE,
-                      collapse = TRUE)
-
+library(readODS)
 # create path to data directory
 rdata_dir <- "/Users/tommy-two/Documents/1_Research/2_Data_Science/0_Projects/1_NACI/Data/Rdata"
 ```
@@ -61,167 +69,29 @@ yml() %>%
 # draw_yml_tree()
 ```
 
-# Code
 
-__Population from all shifts during the observation year (2009-2010):__
+# GOOGLE CLOUD  
 
-```{r population_730shifts}
-# load the population data from the full year, all 730 shifts"
-population_730 <- read_rds(paste0(rdata_dir, "/population.Rdata"))
-# clean race variable for analysis
-population_730 <- population_730 %>%
-  mutate(race = factor(race,
-              levels = c("Black",
-                         "White",
-                         "Other"),
-              exclude = c("Not Recorded", "1", "2", "3")))
-
-population_730 %>% 
-    count(race)
-# check results
-# population_730 %>% 
-  # glimpse()
-# how many patients in population from 2009-2010?
-n_patients_730 <- population_730 %>%
-  nrow()
+```{r bigrquery}
+library(bigrquery)
+con <- DBI::dbConnect(
+    bigrquery::bigquery(),
+    project = "extended-tenure-345822",
+    dataset = "naci_ed",
+    billing = "tommy_billing"
+)
+coloc_df <- tbl(con, "colocation")
 
 ```
 
-__Population from 81 shifts with observational data:__
-
-```{r population_81shifts}
-# load population data from the 81 observed shifts"
-population_81 <- read_rds(paste0(rdata_dir, "/pt_info_final.Rdata"))
-
-population_81 <- population_81 %>% 
-  mutate(race = factor(race,
-              levels = c("Black",
-                         "White",
-                         "Other"),
-              exclude = c("Not Recorded", "1", "2", "3")))
-# how many patients in population of 81 shifts?
-n_patients_81 <- population_81 %>%
-  nrow()
-# n_patients_81
-population_81 %>% 
-  count(race)
-# pull a column of all unique shift numbers
-shift_nums <- population_81 %>% 
-  distinct(shift_num)
-# create a vector of all shift numbers from that column
-shift_nums_vec <- pull(shift_nums, shift_num)
-# set seed for reproducible random sampling
-set.seed(711)
-# randomly sample 20 shifts
-shift_sample_vec <- sample(shift_nums_vec, 20)
-
-population_20 <- population_81 %>% 
-  filter(shift_num %in% shift_sample_vec) 
-n_population_20 <- population_20 %>% 
-  nrow()
-```
-
-
-
-```{r pt_sample}
-# load data for patients included in the study:
-pt_sample <- read_rds(paste0(rdata_dir, "/pts_all.Rdata"))
-# wrangle pt_sample to exclude unknown/not recorded/or undefined observations:
-pt_sample <- pt_sample %>% 
-  mutate(participant_cat = replace_na(job, "PATIENT"), 
-         race = factor(race,
-              levels = c("Black",
-                         "White",
-                         "Other"),
-              exclude = c("Not Recorded", "1", "2", "3")),
-         arrival_mode = na_if(arrival_mode, "Unknown"),
-         disposition = na_if(disposition, "Not Recorded"),
-         .keep = "unused") %>%
-  relocate(participant_cat, .after = pt_id)
-# check results:
-# pt_sample %>% 
-#   glimpse()
-pt_sample %>% 
-  # filter(participant == "Yes") %>%
-  # nrow()
-  count(race)
-# how many patient participants?
-n_pt_sample <- pt_sample %>% 
-  nrow()
-# n_pt_sample
-ptsample_20 <-   pt_sample %>% 
-  filter(shift_num %in% shift_sample_vec)
-
-ptsample_20 %>% 
-  # nrow()
-  # select(-nested_loc) %>% 
-  # filter(!is.na(participant) & !is.na(approached) & !is.na(participant_final)) %>% # NA x 443
-  select(race,
-         age,
-         sex,
-         acuity, 
-         arrival_cat,
-         los_hours,) %>% 
-  vtable::st()
-
-# how many patients are in the 20 sampled shifts?
-n_shift_sample <- ptsample_20 %>% 
-  nrow()
-# what are their races?
-ptsample_20 %>% 
-  count(race) %>% 
-  mutate(`%` = round(n/sum(n)*100, 2))
-# what was their sex?
-ptsample_20 %>% 
-  count(sex) %>% 
-  mutate(`%` = round(n/sum(n)*100, 2))
-# what was their age?
-ptsample_20 %>% 
-  filter(!is.na(age)) %>% 
-  summarise(age_mean = mean(age), 
-            sd_age = sd(age),
-            age_min = min(age), 
-            age_max = max(age))
-```
-
-
-
-
-
-
-
-
-```{r staff_exploration}
-staff_all <- read_rds(paste0(rdata_dir, "/staff_all.Rdata"))
-# pull data for staff observed during the 20 sampled shifts
-staff_sample <- staff_all %>% 
-  filter(shift_num %in% shift_nums_vec)
-# group by sid to count individual staff
-n_staff_sample <- staff_sample %>% 
-  ungroup() %>% 
-  distinct(sid) %>% 
-  nrow()
-
-# glimpse(staff_sample)
-
-
-```
-
-
-
-```{r analyze}
-
-```
-
-
-
-# Network Analysis of Clinical Interactions: Patient Race and Network Structures 
+# NACI 
 
 The emergency department (ED) is a complex social setting in which clinical care and patients’ experiences depend on interpersonal encounters, or clinical interactions. Clinical interactions are multidimensional social phenomena embedded at the center of observable healthcare services. Clinical interactions are also one of the primary manifestations of healthcare disparities related to racism and discrimination. One roadblock to understanding the role of clinical interactions in ED disparities is a lack of methods available to study complex networks of interacting individuals. Social network analysis of close-proximity interactions data generated by real-time location systems is considered a powerful tool for studying social interactions. The purpose of this study is to describe a network analysis of clinical interactions (NACI) and the effects of patient race on structural network variables in an urban ED in the Southern United States.
 
 ## Method: 
 
 This secondary analysis and its parent study independently received ethics approval by institutional review board. Methods, including sampling strategy and data collection processes, were described previously [@lowery-north2013]. Data were generated passively with RFID sensors and participant-worn tags to map the clinical interaction network in the ED. The Emory Institutional Review Board approved both the original study and this analysis. Radiofrequency identification (RFID) tags worn by consenting ED clinicians and patients were used to passively observe participants’ locations while in the ED. Location was identified every ten seconds for two randomly selected shifts per week over one year (July, 2009 through June, 2010). Clinical interactions were defined where two or more participants were in the same room and in close proximity (within 1m). Demographic and clinical data for the population and participants were pulled from medical records. Demographic information was not collected for ED staff other than job category (RN, MD, and Staff) to maintain participant confidentiality. ED staff were consented at the beginning of the study, and research staff intended to approach all patients as possible during the preselected shifts. 
+
 
 
 Understanding racial disparities in health and healthcare is an ongoing priority for health services research investigators and institutions 
@@ -295,3 +165,9 @@ Demographics for the whole ED patient population in the year in which data were 
 ### Staff Sample1
 
 88 (`r round(88/104*100, 1)`%) of 104 eligible staff consented to participate, and all `r n_staff_sample` (100%) of those were present during at least one of the 20 shifts sampled for this analysis [@lowery-north2013].
+
+# METHODS  
+
+
+
+
