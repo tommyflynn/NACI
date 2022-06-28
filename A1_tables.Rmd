@@ -1,0 +1,35 @@
+---
+title: "Tables"
+author: "Tommy J. Flynn"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include = FALSE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(results = "hold",
+                      collapse = TRUE,
+                      warning = FALSE,
+                      highlight = TRUE)
+library(tidyverse)
+library(lubridate)
+library(gtsummary)
+library(kableExtra)
+
+
+```
+
+
+
+```{r population}
+# load `all_pts` from file using the R console
+all_pts <- read_rds(paste(getwd(), "Data", "all_pts.Rdata", sep = "/"))
+```
+
+
+```{r timeseries}
+
+
+
+```
+
+

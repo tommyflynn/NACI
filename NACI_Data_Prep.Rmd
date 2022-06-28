@@ -980,7 +980,7 @@ staff_comp_nested %>%
 # view glimpse() of staff_comp_nested:
 staff_comp_nested %>%
   glimpse()
-write_rds(staff_comp_nested, paste0(rdata_dir, "/staff_locs_nested.Rdata"))
+# write_rds(staff_comp_nested, paste0(rdata_dir, "/staff_locs_nested.Rdata"))
 rm(staff_comp, staff_comp_nested)
 rm(staff_complete)
 ## **events_clean----
