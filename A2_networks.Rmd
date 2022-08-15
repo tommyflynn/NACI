@@ -1,0 +1,774 @@
+---
+title: "Networks by Shift"
+author: "Tommy J. Flynn"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+library(igraph)
+library(tidyverse)
+library(tsna)
+library(ndtv)
+library(animation)
+library(networkDynamic)
+```
+
+
+```{r, warning=FALSE}
+layouts <- grep("^layout_.", ls(package:igraph), value=TRUE)
+# Remove layouts that do not apply to our graph (not bipartite)
+layouts <- layouts[!grepl("bipartite|merge|norm|sugiyama|tree", layouts)]
+
+layouts
+```
+
+
+
+# Shift 1
+
+
+```{r}
+shift_1 <- read_rds("Data/networks/shift_1_net.Rdata")
+net_1 <- graph_from_data_frame(d= shift_1$edges, vertices = shift_1$vertices, directed=F)
+# calculate degree and resize vertices 
+# deg <- degree(net_1, mode = "total")
+# V(net_1)$size <- deg
+
+# plot(net_1)
+
+
+
+# set edge width equal to colocation duration in hours
+# E(net_1)$width <- E(net_1)$coloc_duration/60/60
+
+# create examples of all relevant layouts in igraph
+par(mfrow=c(3,3), mar=c(1,1,1,1))
+for (layout in layouts) {
+  print(layout)
+  l <- do.call(layout, list(net_1))
+  plot(net_1, layout=l, main=layout) 
+}
+
+library(ggraph)
+library(ggplot2)
+ggraph(net_1, layout = "fr") +
+  geom_edge_link() + 
+  geom_node_text(aes(label = sid_type)) +
+  ggtitle("Shift 1") + 
+  theme_void()
+```
+
+
+# Shift 2
+
+```{r}
+shift_8 <- read_rds('Data/networks/shift_8_net.Rdata')
+net_8 <- graph_from_data_frame(d= shift_8$edges, vertices = shift_8$vertices, directed=F)
+plot(net_8)
+
+```
+
+# Shift 10
+
+```{r}
+shift_10 <- read_rds('Data/networks/shift_10_net.Rdata')
+net_10 <- graph_from_data_frame(d= shift_10$edges, vertices = shift_10$vertices, directed=F)
+plot(net_10)
+
+
+```
+
+# Shift 17
+
+```{r}
+shift_17 <- read_rds('Data/networks/shift_17_net.Rdata')
+net_17 <- graph_from_data_frame(d= shift_17$edges, vertices = shift_17$vertices, directed=F)
+plot(net_17)
+
+```
+
+# Shift 19
+
+```{r}
+shift_19 <- read_rds('Data/networks/shift_19_net.Rdata')
+net_19 <- graph_from_data_frame(d= shift_19$edges, vertices = shift_19$vertices, directed=F)
+plot(net_19)
+```
+
+# Shift 23
+
+```{r}
+shift_23 <- read_rds('Data/networks/shift_23_net.Rdata')
+net_23 <- graph_from_data_frame(d= shift_23$edges, vertices = shift_23$vertices, directed=F)
+plot(net_23)
+```
+
+# Shift 25
+
+```{r}
+shift_25 <- read_rds('Data/networks/shift_25_net.Rdata')
+net_25 <- graph_from_data_frame(d= shift_25$edges, vertices = shift_25$vertices, directed=F)
+plot(net_25)
+
+```
+
+# Shift 38
+
+```{r}
+shift_38 <- read_rds('Data/networks/shift_38_net.Rdata')
+net_38 <- graph_from_data_frame(d= shift_38$edges, vertices = shift_38$vertices, directed=F)
+plot(net_38)
+
+
+```
+
+# Shift 43
+
+```{r}
+shift_43 <- read_rds('Data/networks/shift_43_net.Rdata')
+net_43 <- graph_from_data_frame(d= shift_43$edges, vertices = shift_43$vertices, directed=F)
+plot(net_43)
+```
+
+# Shift 47
+
+```{r}
+shift_47 <- read_rds('Data/networks/shift_47_net.Rdata')
+net_47 <- graph_from_data_frame(d= shift_47$edges, vertices = shift_47$vertices, directed=F)
+plot(net_47)
+```
+
+# Shift 53
+
+```{r}
+shift_53 <- read_rds('Data/networks/shift_53_net.Rdata')
+net_53 <- graph_from_data_frame(d= shift_53$edges, vertices = shift_53$vertices, directed=F)
+plot(net_53)
+
+
+```
+
+# Shift 56
+
+```{r}
+shift_56 <- read_rds('Data/networks/shift_56_net.Rdata')
+net_56 <- graph_from_data_frame(d= shift_56$edges, vertices = shift_56$vertices, directed=F)
+plot(net_56)
+
+
+```
+
+# Shift 63
+
+```{r}
+shift_63 <- read_rds('Data/networks/shift_63_net.Rdata')
+net_63 <- graph_from_data_frame(d= shift_63$edges, vertices = shift_63$vertices, directed=F)
+plot(net_63)
+
+
+```
+
+# Shift 67
+
+```{r}
+shift_67 <- read_rds('Data/networks/shift_67_net.Rdata')
+net_67 <- graph_from_data_frame(d= shift_67$edges, vertices = shift_67$vertices, directed=F)
+plot(net_67)
+
+
+```
+
+# Shift 78
+
+```{r}
+shift_78 <- read_rds('Data/networks/shift_78_net.Rdata')
+net_78 <- graph_from_data_frame(d= shift_78$edges, vertices = shift_78$vertices, directed=F)
+plot(net_78)
+
+
+```
+
+# Shift 81
+
+```{r}
+shift_81 <- read_rds('Data/networks/shift_81_net.Rdata')
+net_81 <- graph_from_data_frame(d= shift_81$edges, vertices = shift_81$vertices, directed=F)
+plot(net_81)
+
+
+```
+
+# Shift 86
+
+```{r}
+shift_86 <- read_rds('Data/networks/shift_86_net.Rdata')
+net_86 <- graph_from_data_frame(d= shift_86$edges, vertices = shift_86$vertices, directed=F)
+plot(net_86)
+
+
+```
+
+# Shift 91
+
+```{r}
+shift_91 <- read_rds('Data/networks/shift_91_net.Rdata')
+net_91 <- graph_from_data_frame(d= shift_91$edges, vertices = shift_91$vertices, directed=F)
+plot(net_91)
+
+```
+
+# Shift 93
+
+```{r}
+shift_93 <- read_rds('Data/networks/shift_93_net.Rdata')
+net_93 <- graph_from_data_frame(d= shift_93$edges, vertices = shift_93$vertices, directed=F)
+plot(net_93)
+```
+
+# Shift 96
+
+```{r}
+shift_96 <- read_rds('Data/networks/shift_96_net.Rdata')
+net_96 <- graph_from_data_frame(d= shift_96$edges, vertices = shift_96$vertices, directed=F)
+plot(net_96)
+
+```
+
+# Shift 98
+
+```{r}
+shift_98 <- read_rds('Data/networks/shift_98_net.Rdata')
+net_98 <- graph_from_data_frame(d= shift_98$edges, vertices = shift_98$vertices, directed=F)
+plot(net_98)
+```
+
+# Shift 102
+
+```{r}
+shift_102 <- read_rds('Data/networks/shift_102_net.Rdata')
+net_102 <- graph_from_data_frame(d= shift_102$edges, vertices = shift_102$vertices, directed=F)
+plot(net_102)
+```
+
+# Shift 104
+
+```{r}
+shift_104 <- read_rds('Data/networks/shift_104_net.Rdata')
+net_104 <- graph_from_data_frame(d= shift_104$edges, vertices = shift_104$vertices, directed=F)
+plot(net_104)
+
+```
+
+# Shift 112
+
+```{r}
+shift_112 <- read_rds('Data/networks/shift_112_net.Rdata')
+net_112 <- graph_from_data_frame(d= shift_112$edges, vertices = shift_112$vertices, directed=F)
+plot(net_112)
+
+```
+
+# Shift 114
+
+```{r}
+shift_114 <- read_rds('Data/networks/shift_114_net.Rdata')
+net_114 <- graph_from_data_frame(d= shift_114$edges, vertices = shift_114$vertices, directed=F)
+plot(net_114)
+
+```
+
+# Shift 132
+
+```{r}
+shift_132 <- read_rds('Data/networks/shift_132_net.Rdata')
+net_132 <- graph_from_data_frame(d= shift_132$edges, vertices = shift_132$vertices, directed=F)
+plot(net_132)
+
+```
+
+# Shift 138
+
+```{r}
+shift_138 <- read_rds('Data/networks/shift_138_net.Rdata')
+net_138 <- graph_from_data_frame(d= shift_138$edges, vertices = shift_138$vertices, directed=F)
+plot(net_138)
+
+```
+
+# Shift 145
+
+```{r}
+shift_145 <- read_rds('Data/networks/shift_145_net.Rdata')
+net_145 <- graph_from_data_frame(d= shift_145$edges, vertices = shift_145$vertices, directed=F)
+plot(net_145)
+
+```
+
+# Shift 148
+
+```{r}
+shift_148 <- read_rds('Data/networks/shift_148_net.Rdata')
+net_148 <- graph_from_data_frame(d= shift_148$edges, vertices = shift_148$vertices, directed=F)
+plot(net_148)
+```
+
+# Shift 155
+
+```{r}
+shift_155 <- read_rds('Data/networks/shift_155_net.Rdata')
+net_155 <- graph_from_data_frame(d= shift_155$edges, vertices = shift_155$vertices, directed=F)
+plot(net_155)
+
+
+```
+
+# Shift 161
+
+```{r}
+shift_161 <- read_rds('Data/networks/shift_161_net.Rdata')
+net_161 <- graph_from_data_frame(d= shift_161$edges, vertices = shift_161$vertices, directed=F)
+plot(net_161)
+
+```
+
+# Shift 163
+
+```{r}
+shift_163 <- read_rds('Data/networks/shift_163_net.Rdata')
+net_163 <- graph_from_data_frame(d= shift_163$edges, vertices = shift_163$vertices, directed=F)
+plot(net_163)
+
+```
+
+# Shift 166
+
+```{r}
+shift_166 <- read_rds('Data/networks/shift_166_net.Rdata')
+net_166 <- graph_from_data_frame(d= shift_166$edges, vertices = shift_166$vertices, directed=F)
+plot(net_166)
+
+```
+
+# Shift 168
+
+```{r}
+shift_168 <- read_rds('Data/networks/shift_168_net.Rdata')
+net_168 <- graph_from_data_frame(d= shift_168$edges, vertices = shift_168$vertices, directed=F)
+plot(net_168)
+
+```
+
+# Shift 172
+
+```{r}
+shift_172 <- read_rds('Data/networks/shift_172_net.Rdata')
+net_172 <- graph_from_data_frame(d= shift_172$edges, vertices = shift_172$vertices, directed=F)
+plot(net_172)
+
+```
+
+# Shift 179
+
+```{r}
+shift_179 <- read_rds('Data/networks/shift_179_net.Rdata')
+net_179 <- graph_from_data_frame(d= shift_179$edges, vertices = shift_179$vertices, directed=F)
+plot(net_179)
+
+```
+
+# Shift 181
+
+```{r}
+shift_181 <- read_rds('Data/networks/shift_181_net.Rdata')
+net_181 <- graph_from_data_frame(d= shift_181$edges, vertices = shift_181$vertices, directed=F)
+plot(net_181)
+
+```
+
+# Shift 189
+
+```{r}
+shift_189 <- read_rds('Data/networks/shift_189_net.Rdata')
+net_189 <- graph_from_data_frame(d= shift_189$edges, vertices = shift_189$vertices, directed=F)
+plot(net_189)
+
+```
+
+# Shift 191
+
+```{r}
+shift_191 <- read_rds('Data/networks/shift_191_net.Rdata')
+net_191 <- graph_from_data_frame(d= shift_191$edges, vertices = shift_191$vertices, directed=F)
+plot(net_191)
+```
+
+# Shift 195
+
+```{r}
+shift_195 <- read_rds('Data/networks/shift_195_net.Rdata')
+net_195 <- graph_from_data_frame(d= shift_195$edges, vertices = shift_195$vertices, directed=F)
+plot(net_195)
+
+
+```
+
+# Shift 197
+
+```{r}
+shift_197 <- read_rds('Data/networks/shift_197_net.Rdata')
+net_197 <- graph_from_data_frame(d= shift_197$edges, vertices = shift_197$vertices, directed=F)
+plot(net_197)
+
+```
+
+# Shift 201
+
+```{r}
+shift_201 <- read_rds('Data/networks/shift_201_net.Rdata')
+net_201 <- graph_from_data_frame(d= shift_201$edges, vertices = shift_201$vertices, directed=F)
+plot(net_201)
+
+```
+
+# Shift 206
+
+```{r}
+shift_206 <- read_rds('Data/networks/shift_206_net.Rdata')
+net_206 <- graph_from_data_frame(d= shift_206$edges, vertices = shift_206$vertices, directed=F)
+plot(net_206)
+
+```
+
+# Shift 209
+
+```{r}
+shift_209 <- read_rds('Data/networks/shift_209_net.Rdata')
+net_209 <- graph_from_data_frame(d= shift_209$edges, vertices = shift_209$vertices, directed=F)
+plot(net_209)
+
+```
+
+# Shift 214
+
+```{r}
+shift_214 <- read_rds('Data/networks/shift_214_net.Rdata')
+net_214 <- graph_from_data_frame(d= shift_214$edges, vertices = shift_214$vertices, directed=F)
+plot(net_214)
+```
+
+# Shift 217
+
+```{r}
+shift_217 <- read_rds('Data/networks/shift_217_net.Rdata')
+net_217 <- graph_from_data_frame(d= shift_217$edges, vertices = shift_217$vertices, directed=F)
+plot(net_217)
+
+```
+
+# Shift 223
+
+```{r}
+shift_223 <- read_rds('Data/networks/shift_223_net.Rdata')
+net_223 <- graph_from_data_frame(d= shift_223$edges, vertices = shift_223$vertices, directed=F)
+plot(net_223)
+
+```
+
+# Shift 226
+
+```{r}
+shift_226 <- read_rds('Data/networks/shift_226_net.Rdata')
+net_226 <- graph_from_data_frame(d= shift_226$edges, vertices = shift_226$vertices, directed=F)
+plot(net_226)
+
+```
+
+# Shift 230
+
+```{r}
+shift_230 <- read_rds('Data/networks/shift_230_net.Rdata')
+net_230 <- graph_from_data_frame(d= shift_230$edges, vertices = shift_230$vertices, directed=F)
+plot(net_230)
+```
+
+# Shift 233
+
+```{r}
+shift_233 <- read_rds('Data/networks/shift_233_net.Rdata')
+net_233 <- graph_from_data_frame(d= shift_233$edges, vertices = shift_233$vertices, directed=F)
+plot(net_233)
+
+
+```
+
+# Shift 240
+
+```{r}
+shift_240 <- read_rds('Data/networks/shift_240_net.Rdata')
+net_240 <- graph_from_data_frame(d= shift_240$edges, vertices = shift_240$vertices, directed=F)
+plot(net_240)
+
+```
+
+# Shift 243
+
+```{r}
+shift_243 <- read_rds('Data/networks/shift_243_net.Rdata')
+net_243 <- graph_from_data_frame(d= shift_243$edges, vertices = shift_243$vertices, directed=F)
+plot(net_243)
+
+```
+
+# Shift 247
+
+```{r}
+shift_247 <- read_rds('Data/networks/shift_247_net.Rdata')
+net_247 <- graph_from_data_frame(d= shift_247$edges, vertices = shift_247$vertices, directed=F)
+plot(net_247)
+
+```
+
+# Shift 252
+
+```{r}
+shift_252 <- read_rds('Data/networks/shift_252_net.Rdata')
+net_252 <- graph_from_data_frame(d= shift_252$edges, vertices = shift_252$vertices, directed=F)
+plot(net_252)
+
+```
+
+# Shift 258
+
+```{r}
+shift_258 <- read_rds('Data/networks/shift_258_net.Rdata')
+net_258 <- graph_from_data_frame(d= shift_258$edges, vertices = shift_258$vertices, directed=F)
+plot(net_258)
+
+```
+
+# Shift 262
+
+```{r}
+shift_262 <- read_rds('Data/networks/shift_262_net.Rdata')
+net_262 <- graph_from_data_frame(d= shift_262$edges, vertices = shift_262$vertices, directed=F)
+plot(net_262)
+
+```
+
+# Shift 264
+
+```{r}
+shift_264 <- read_rds('Data/networks/shift_264_net.Rdata')
+net_264 <- graph_from_data_frame(d= shift_264$edges, vertices = shift_264$vertices, directed=F)
+plot(net_264)
+
+```
+
+# Shift 266
+
+```{r}
+shift_266 <- read_rds('Data/networks/shift_266_net.Rdata')
+net_266 <- graph_from_data_frame(d= shift_266$edges, vertices = shift_266$vertices, directed=F)
+plot(net_266)
+
+```
+
+# Shift 271
+
+```{r}
+shift_271 <- read_rds('Data/networks/shift_271_net.Rdata')
+net_271 <- graph_from_data_frame(d= shift_271$edges, vertices = shift_271$vertices, directed=F)
+plot(net_271)
+```
+
+# Shift 276
+
+```{r}
+shift_276 <- read_rds('Data/networks/shift_276_net.Rdata')
+net_276 <- graph_from_data_frame(d= shift_276$edges, vertices = shift_276$vertices, directed=F)
+plot(net_276)
+
+```
+
+# Shift 278
+
+```{r}
+shift_278 <- read_rds('Data/networks/shift_278_net.Rdata')
+net_278 <- graph_from_data_frame(d= shift_278$edges, vertices = shift_278$vertices, directed=F)
+plot(net_278)
+
+```
+
+# Shift 283
+
+```{r}
+shift_283 <- read_rds('Data/networks/shift_283_net.Rdata')
+net_283 <- graph_from_data_frame(d= shift_283$edges, vertices = shift_283$vertices, directed=F)
+plot(net_283)
+
+```
+
+# Shift 286
+
+```{r}
+shift_286 <- read_rds('Data/networks/shift_286_net.Rdata')
+net_286 <- graph_from_data_frame(d= shift_286$edges, vertices = shift_286$vertices, directed=F)
+plot(net_286)
+```
+
+# Shift 289
+
+```{r}
+shift_289 <- read_rds('Data/networks/shift_289_net.Rdata')
+net_289 <- graph_from_data_frame(d= shift_289$edges, vertices = shift_289$vertices, directed=F)
+plot(net_289)
+
+```
+
+# Shift 293
+
+```{r}
+shift_293 <- read_rds('Data/networks/shift_293_net.Rdata')
+net_293 <- graph_from_data_frame(d= shift_293$edges, vertices = shift_293$vertices, directed=F)
+plot(net_293)
+
+```
+
+# Shift 295
+
+```{r}
+shift_295 <- read_rds('Data/networks/shift_295_net.Rdata')
+net_295 <- graph_from_data_frame(d= shift_295$edges, vertices = shift_295$vertices, directed=F)
+plot(net_295)
+
+```
+
+# Shift 298
+
+```{r}
+shift_298 <- read_rds('Data/networks/shift_298_net.Rdata')
+net_298 <- graph_from_data_frame(d= shift_298$edges, vertices = shift_298$vertices, directed=F)
+plot(net_298)
+```
+
+# Shift 304
+
+```{r}
+shift_304 <- read_rds('Data/networks/shift_304_net.Rdata')
+net_304 <- graph_from_data_frame(d= shift_304$edges, vertices = shift_304$vertices, directed=F)
+plot(net_304)
+```
+
+# Shift 306
+
+```{r}
+shift_306 <- read_rds('Data/networks/shift_306_net.Rdata')
+net_306 <- graph_from_data_frame(d= shift_306$edges, vertices = shift_306$vertices, directed=F)
+plot(net_306)
+```
+
+# Shift 308
+
+```{r}
+shift_308 <- read_rds('Data/networks/shift_308_net.Rdata')
+net_308 <- graph_from_data_frame(d= shift_308$edges, vertices = shift_308$vertices, directed=F)
+plot(net_308)
+```
+
+# Shift 313
+
+```{r}
+shift_313 <- read_rds('Data/networks/shift_313_net.Rdata')
+net_313 <- graph_from_data_frame(d= shift_313$edges, vertices = shift_313$vertices, directed=F)
+plot(net_313)
+
+```
+
+# Shift 317
+
+```{r}
+shift_317 <- read_rds('Data/networks/shift_317_net.Rdata')
+net_317 <- graph_from_data_frame(d= shift_317$edges, vertices = shift_317$vertices, directed=F)
+plot(net_317)
+
+```
+
+# Shift 320
+
+```{r}
+shift_320 <- read_rds('Data/networks/shift_320_net.Rdata')
+net_320 <- graph_from_data_frame(d= shift_320$edges, vertices = shift_320$vertices, directed=F)
+plot(net_320)
+
+```
+
+# Shift 325
+
+```{r}
+shift_325 <- read_rds('Data/networks/shift_325_net.Rdata')
+net_325 <- graph_from_data_frame(d= shift_325$edges, vertices = shift_325$vertices, directed=F)
+plot(net_325)
+```
+
+# Shift 328
+
+```{r}
+shift_328 <- read_rds('Data/networks/shift_328_net.Rdata')
+net_328 <- graph_from_data_frame(d= shift_328$edges, vertices = shift_328$vertices, directed=F)
+plot(net_328)
+```
+
+
+
+# Shift 331
+
+```{r}
+shift_331 <- read_rds('Data/networks/shift_331_net.Rdata')
+net_331 <- graph_from_data_frame(d= shift_331$edges, vertices = shift_331$vertices, directed=F)
+plot(net_331)
+```
+
+# Shift 335
+
+```{r}
+shift_335 <- read_rds('Data/networks/shift_335_net.Rdata')
+net_335 <- graph_from_data_frame(d= shift_335$edges, vertices = shift_335$vertices, directed=F)
+plot(net_335)
+```
+
+# Shift 341
+
+```{r}
+shift_341 <- read_rds('Data/networks/shift_341_net.Rdata')
+net_341 <- graph_from_data_frame(d= shift_341$edges, vertices = shift_341$vertices, directed=F)
+plot(net_341)
+```
+
+# Shift 346
+
+```{r}
+shift_346 <- read_rds('Data/networks/shift_346_net.Rdata')
+net_346 <- graph_from_data_frame(d= shift_346$edges, vertices = shift_346$vertices, directed=F)
+plot(net_346)
+```
+
+# Shift 353
+
+```{r}
+shift_353 <- read_rds('Data/networks/shift_353_net.Rdata')
+net_353 <- graph_from_data_frame(d= shift_353$edges, vertices = shift_353$vertices, directed=F)
+plot(net_353)
+```
+
+# Shift 355
+
+```{r}
+shift_355 <- read_rds('Data/networks/shift_355_net.Rdata')
+net_355 <- graph_from_data_frame(d= shift_355$edges, vertices = shift_355$vertices, directed=F)
+plot(net_355)
+```
+

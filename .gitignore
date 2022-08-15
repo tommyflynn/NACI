@@ -21,3 +21,7 @@ all_staff.Rdata
 all_staff.xpt
 
 all_pts.tsv
+
+*.Rdata
+
+*.csv

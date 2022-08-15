@@ -2,34 +2,201 @@
 title: "Tables"
 author: "Tommy J. Flynn"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: 
+    pdf_document:
+      toc: true
+      toc_depth: 2
+      number_sections: true
+      df_print: kable
 ---
 
 ```{r setup, include = FALSE, message = FALSE, warning = FALSE}
-knitr::opts_chunk$set(results = "hold",
-                      collapse = TRUE,
+knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE,
-                      highlight = TRUE)
+                      message = FALSE)
+knitr::knit_hooks$set(inline = function(x) {
+  if(!is.numeric(x)){     x   }
+  else{    prettyNum(round(x,2), big.mark=",")    } })
 library(tidyverse)
 library(lubridate)
 library(gtsummary)
 library(kableExtra)
+library(tidytable)
+library(haven)
+```
+
+
+# Descriptive Statistics   
+
+```{r load_data, cache=TRUE}
+pts <- read_rds("patients_complete.Rdata")
+staff <- read_rds("staff_complete.Rdata")
+# Note: to print a reproducible random sample, first run set.seed(), then apply the function `slice_sample()` to the data_fram
+# map(list(patients = pts, staff = sc), head)
+```
+
+```{r n_patients}
+n_counts <- pts %>% 
+  distinct(encounter_no, .keep_all = TRUE) %>% 
+  summarize(annual = n(), 
+            shifts_observed = sum(pt_present_81),
+            sample = sum(loc_data)) %>% 
+  pivot_longer(cols = c("annual", "shifts_observed", "sample"), names_to = "group", values_to = "visits")
+# n_counts
+unique_pts <- pts %>% 
+  distinct(med_rec_no, .keep_all = TRUE) %>% 
+  summarize(annual = n(),
+            shifts_observed = sum(pt_present_81),
+            sample = sum(loc_data)) %>% 
+  pivot_longer(cols = c("annual", "shifts_observed", "sample"), names_to = "group", values_to = "patients")
+# unique_pts
+visits_patients <- unique_pts %>% 
+  inner_join(n_counts, by = "group") 
+
+locations %>% filter(loc_id == 88)
+
+```
+
+## Patient Population and Sample  
+
+There were `r visits_patients$visits[1]` visits by `r visits_patients$patients[1]` unique patients during the year in which data were collected. `r round(visits_patients$visits[2]/visits_patients$visits[1] * 100, 2)`% of those visits (N = `r visits_patients$visits[2]`), with `r visits_patients$patients[2]`  (`r round(visits_patients$patients[2]/visits_patients$patients[1] * 100, 2)`%) unique patients, occurred during the 81 shifts for which data were collected. `r round(visits_patients$visits[3]/visits_patients$visits[2] * 100, 2)`% of those visits (n = `r visits_patients$visits[3]`), representing `r visits_patients$patients[3]`  (`r round(visits_patients$patients[3]/visits_patients$patients[2] * 100, 2)`%) unique patients, consented to participate and were included in the analysis.
+
+
+```{r demographics_table}
+# create data_frames for population stats for full year population, 81 shifts population, and participants
+population <- pts %>% 
+  distinct(encounter_no, .keep_all = TRUE) %>% 
+  select(race:age, acuity, arrival_cat, disposition) %>% 
+  mutate(patient_group = "Population")
+# population present in 81 sampled shifts
+population_81 <- pts %>% 
+  distinct(encounter_no, .keep_all = TRUE) %>% 
+  filter(pt_present_81) %>% 
+  select(race:age, acuity, arrival_cat, disposition) %>% 
+  mutate(patient_group = "81 Shifts")
+
+# participating patients
+sampled_pts <- pts %>% 
+  distinct(encounter_no, .keep_all = TRUE) %>% 
+  filter(loc_data) %>% 
+  select(race:age, acuity, arrival_cat, disposition) %>% 
+  mutate(patient_group = "Sample")
+
+# bind rows and group by `patient_group` to print
+patient_demos <- population %>% 
+  bind_rows(population_81) %>% 
+  bind_rows(sampled_pts) %>% 
+  mutate(patient_group = factor(patient_group, levels = c("Population", "81 Shifts", "Sample")))
+# make list of labels to replace column_names
+# make a list of print-friendly table labels
+tbl_labels <- list(
+    race ~ "Race",
+    sex ~ "Sex",
+    age ~ "Age",
+    acuity ~ "Acuity",
+    arrival_cat ~ "Arrival Mode",
+    disposition ~ "Disposition")
+
+# make gtsummary table object, replace column names with tbl_labels
+demographics_tbl <- patient_demos %>% 
+  tbl_summary(by = patient_group,
+              label = tbl_labels,
+              missing = "no",
+              ) %>% 
+  modify_header(list("stat_2" ~ "Population",
+                     "stat_1" ~ "Total")) %>% 
+  modify_spanning_header(list(c("stat_2", 'stat_3') ~ "81 Sampled Shifts",
+                              "stat_1" ~ "All Year")) %>% 
+  modify_caption("Patient Population and Sample Demographics") %>%
+  bold_labels()
+
+demographics_tbl
+
+
+```
+
+
+```{r sample}
+visits_patients %>% 
+  kable(caption = "Total visits and unique patients by population group")
+# print summary stats for number of visits per patient per year)
+visit_summary_yr <- pts %>%
+  distinct(encounter_no, .keep_all = TRUE) %>%
+  count(med_rec_no) %>%
+  summarise(min_visits = min(n),
+            max_visits = max(n),
+            mean_visits = mean(n),
+            median_visits = median(n))
+
+visit_summary_yr %>% 
+  kable(caption = "Visits per Patient")
+
+# pull the med_rec_nos for all patients with >= 15 ED visits
+visits_outliers_yr <- pts %>% 
+  distinct(encounter_no, .keep_all = TRUE) %>% 
+  count(med_rec_no) %>%
+  filter(n >= 15) %>% 
+  arrange(desc(n)) %>% 
+  pull(med_rec_no)
+
+# length(visits_outliers_yr)
+
+outliers_tot_visits <- pts %>% 
+  filter(med_rec_no %in% visits_outliers_yr) %>% 
+  distinct(encounter_no) %>% 
+  nrow()
+
+# outliers_tot_visits
+
+# get minimum number for visits for patients with >= 15 visits during the year (outliers_min)
+outliers_min <- pts %>% 
+  distinct(encounter_no, .keep_all = TRUE) %>% 
+  count(med_rec_no) %>%
+  filter(n >= 15) %>% 
+  summarise(visit_min = min(n)) %>% 
+  pull(visit_min)
+
+# get maximum number for visits for patients with >= 15 visits during the year (outliers_max)
+outliers_max <- pts %>% 
+  distinct(encounter_no, .keep_all = TRUE) %>% 
+  count(med_rec_no) %>%
+  filter(n >= 15) %>% 
+  summarise(visit_max = max(n)) %>% 
+  pull(visit_max)
+```
+
+The mean number of visits per patient during the study year was `r visit_summary_yr[[3]]`. `r length(visits_outliers_yr)` patients visited the ED  more than `r outliers_min` times (total of `r outliers_tot_visits` visits) during the study year. 
+
+**QUESTION** _Should we remove patients with `r outliers_min` or more ED visits from network analyses because they had greater familiarity with ED staff?_  
+
+
+## Staff  
+
+```{r staff}
+
 
 
 ```
 
 
 
-```{r population}
-# load `all_pts` from file using the R console
-all_pts <- read_rds(paste(getwd(), "Data", "all_pts.Rdata", sep = "/"))
+- 
+
+## Contacts 
+
+- There were 16,827 patient-staff, and 10,418,682 staff-staff, clinical interactions between participants in the 81 observed shifts.
+
+```{r, colocationevents}
+events_list <- read_rds("events_list.Rdata")
+contact_counts <- map(events_list, ~count(.x, shift_num))
+enframe(contact_counts) %>%
+  unnest(value) %>%
+  select(-name) %>%
+  summarise(min_contacts = min(n),
+            max_contacts = max(n),
+            mean_contacts = mean(n),
+            median_contacts = median(n),
+            sd_contacts = sd(n),
+            iqr_contacts = IQR(n))
 ```
-
-
-```{r timeseries}
-
-
-
-```
-
 
