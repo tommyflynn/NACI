@@ -29,8 +29,7 @@ library(haven)
 # Descriptive Statistics   
 
 ```{r load_data, cache=TRUE}
-pts <- read_rds("patients_complete.Rdata")
-staff <- read_rds("staff_complete.Rdata")
+
 # Note: to print a reproducible random sample, first run set.seed(), then apply the function `slice_sample()` to the data_fram
 # map(list(patients = pts, staff = sc), head)
 ```

@@ -1,0 +1,141 @@
+---
+title: "NACI Data Prep"
+author: "Tommy J. Flynn"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float: true
+---
+# WRANGLING
+
+
+```{r setup, message=FALSE}
+#| code-fold: true 
+knitr::opts_chunk$set(error = FALSE,
+                      tidy = TRUE,
+                      # tidy.opts = list(width.cutoff = 60),
+                      message = FALSE,
+                      warning = FALSE)
+library(tidyverse)
+# Tidyverse packages include: 
+# readr
+# forcats
+# tidyr
+# stringr
+# purrr
+# ggplot2
+# dplyr
+# tibble
+
+# library(readxl)
+# library(haven)
+# library(knitr)
+# library(kableExtra)
+library(lubridate)
+# library(labelled)
+# library(gtsummary)
+# library(data.table)
+```
+
+```{r read.files}
+# THIS WILL READ ALL THE .TXT FILES INTO R AS A LIST OF DATA FRAMES
+# NOTE: Set the working director to that of the files being read
+setwd(paste0(getwd(), "/Data/txt_copy/"))
+raw_rfid <- list.files(pattern = "*.txt") %>%
+  map_df(~read_csv(., col_names  = c("sid", "pat", "shift_num_ampm", "datetime", "floc", "second"),
+                   col_types = "ccccid", skip = 1))
+```
+
+
+```{r clean.rfid}
+rfid_df <- raw_rfid %>% 
+  mutate(pt_or_staff = factor(pat, levels = c("Staff", "Patient")),# turn pat into factor where 0 = Staff & 1 = Patient
+         shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")), # extract shift number from shift_num_ampm into new column shift_num
+         shift_ampm = factor(str_extract(shift_num_ampm, "[:alpha:]{2}")), # extract shift am/pm from shift_num_ampm into new column shift_ampm
+         datetime = dmy_hms(datetime), # make datetime into a dttm object (lubridate)
+         shift_second = second, # rename second and floc to shift_second and location_num, respectively, to maintain consistency with other data files
+         location_num = floc,
+         .keep = "unused")
+```
+
+
+```{r create_nodeID}
+rfid_newid <- rfid_df %>% 
+  mutate(node_id = paste(sid, shift_num, sep = "_"))
+rfid_newid %>% 
+  filter(pt_or_staff == "Patient") %>% 
+  group_by(node_id) %>% nrow()
+rfid_newid %>% 
+  filter(pt_or_staff == "Staff") %>% 
+  group_by(node_id) %>% nrow()
+staff_atts <- read_rds("Data/staff_attributes.Rdata")
+# Add staff titles to RFID data
+rfid_titled <- rfid_newid %>% 
+  left_join(staff_atts, by = "sid") %>% rename(title = "staff_title") %>% 
+  replace_na(list(title = "PATIENT"))
+# Filter out staff to make a df with only patient RFID data
+pt_rfid <- rfid_titled %>% filter(title == "PATIENT")
+# Filter out patients to make a df with only staff RFID data
+staff_rfid <- rfid_titled %>% filter(title == "MD" | title == "RN" | title == "NT" | title == "STAFF")
+
+nested_edges <- pt_rfid %>%
+  left_join(staff_rfid, by = c("shift_num", 
+                                 "shift_ampm",
+                                 "datetime",
+                                 "shift_second",
+                                 "location_num"),
+              suffix = c(x = "_i", y = "_j")) %>%
+  filter(node_id_i != node_id_j) %>% 
+  select(shift_num, 
+         starts_with("node"),
+         starts_with("title"),
+         datetime,
+         shift_second,
+         location_num) %>% 
+  group_by(shift_num) %>% 
+  nest()
+
+```
+
+
+```{r nest}
+test_nest <- test %>% group_by(shift_num) %>% nest()
+nodes <- lst()
+for (i in 1:length(test)) {
+  node_id_i <- test[[i]] %>%
+    distinct(node_id_i, .keep_all = TRUE) %>%
+    mutate(node_id = node_id_i,
+           title = title_i,
+           shift_num = names(test)[i],
+           rfid_start_dttm,
+           rfid_end_dttm,
+           .keep = "none") %>%
+    relocate(sid, .before = everything())
+  node_id_j <- snest[[i]] %>%
+    # distinct(node_id_j, .keep_all = TRUE) %>%
+    mutate(sid = node_id_j,
+           participant_type = participant_type_j,
+           shift_num = names(snest)[i],
+           rfid_start_dttm,
+           rfid_end_dttm,
+           .keep = "none") %>%
+    relocate(sid, .before = everything())
+  nodes[[i]] <- node_id_i %>% bind_rows(node_id_j) %>% distinct(sid, .keep_all = TRUE)
+  names(nodes)[i] <- paste0("Shift_", names(snest)[i])
+  rm(node_id_i, node_id_j)
+}
+
+```
+
+
+# SessionInfo
+
+```{r SessionInfo}
+sessioninfo::session_info()%>%
+  details::details(
+    summary = 'Current session info',
+    open    = FALSE
+  )
+```
