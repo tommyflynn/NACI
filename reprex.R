@@ -1,43 +1,20 @@
-
-set.seed(2019)
-test_df <- list(sid = rep(c(1L, 2L, 3L), 7),
-     event_time = rep(seq(Sys.time(),Sys.time() + 6, by = "sec"), 3),
-     location_num = sample(letters[1:2], 21, replace = TRUE)) %>%
-  as.data.frame()
-
-
-
-
-  # .Names = c("ID", "event_time"),
-  # sorted = c("ID", "event_time"),
-  # class = c("data.table", "data.frame")
-# )
-test_df %>% left_join(test_df, by = c("event_time", "location_num"), suffix = c(x = "_i", y = "_j")) %>% filter(sid_i != sid_j)
-
-
-colocation_maker <- function(x, by_cols) {
-  x %>%
-    left_join(x, by = by_cols,
-              suffix = c(x = "_i", y = "_j")) %>%
-    filter(sid_i != sid_j)
-}
-
-
-
-dat_colocations <- colocation_maker(dat,
-                                     by_cols = c("location_num",
-                                                 "datetime"))
-
-
-
-
-
-
-# How to find colocation events (edges) between individuals (vertices) from real-time location data in r
-# This is my first question, please advise as needed.
-#
-# I am working with real-time location data including actor_id, shift_id, location_id, and timestamp. I need a way to create a data frame where, for each shift_id group, every row is an event where two or more actors were colocated (i.e., in the same place at the same time). The result I am looking for is a data frame with the variables: actor_id_1, actor_id_2, shift_id, location_id, colocation_start_time, and colocation_end_time.
-# ```
-#
-# ```
-
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(lubridate))
+suppressPackageStartupMessages(library(data.table))
+# data represent interactions between a pair of nodes such that each row is one second of one interaction for a specific dyad (`id`)
+df <- tibble(datetime = as_datetime(1511870400:1511870409)) %>%
+  mutate(id = c(rep("x_1", 4), rep("x_2", 3), rep("x_1", 2), "x_2"), rl = rleid(id))
+# rleid sets a unique numeric identifier for each interaction or run of events (consecutive rows with shared ID)
+df
+# grouped summarize to get the start_datetime, end_datetime, & duration of each interaction/event
+events <- df %>%
+  group_by(rl) %>%
+  summarize(start_date = min(datetime),
+            end_date = max(datetime),
+            duration = difftime(end_date, start_date, "second"))
+events
+# join events to df so each row represents a single interaction with start_date, end_date, & duration
+df %>%
+  right_join(events, by = "rl") %>%
+  distinct(rl, .keep_all = TRUE) %>%
+  select(-datetime)

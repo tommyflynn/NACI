@@ -1,141 +1,273 @@
 ---
-title: "NACI Data Prep"
+title: "NACI_Analysis"
 author: "Tommy J. Flynn"
 date: "`r Sys.Date()`"
-output:
-  html_document:
-    df_print: paged
-    toc: true
-    toc_float: true
+output: pdf_document
 ---
-# WRANGLING
 
+# Setup  
 
-```{r setup, message=FALSE}
-#| code-fold: true 
-knitr::opts_chunk$set(error = FALSE,
-                      tidy = TRUE,
-                      # tidy.opts = list(width.cutoff = 60),
-                      message = FALSE,
-                      warning = FALSE)
+```{r setup, echo = FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE) #, comment = '', fig.width = 6, fig.height = 6)
+knitr::knit_hooks$set(inline = function(x) { 
+  if(!is.numeric(x)) { x } 
+  else {  prettyNum(round(x,2), big.mark=",") }})
+ 
+
 library(tidyverse)
-# Tidyverse packages include: 
-# readr
-# forcats
-# tidyr
-# stringr
-# purrr
-# ggplot2
-# dplyr
-# tibble
-
-# library(readxl)
-# library(haven)
-# library(knitr)
-# library(kableExtra)
+library(tinytex)
+library(kableExtra)
 library(lubridate)
-# library(labelled)
-# library(gtsummary)
-# library(data.table)
-```
-
-```{r read.files}
-# THIS WILL READ ALL THE .TXT FILES INTO R AS A LIST OF DATA FRAMES
-# NOTE: Set the working director to that of the files being read
-setwd(paste0(getwd(), "/Data/txt_copy/"))
-raw_rfid <- list.files(pattern = "*.txt") %>%
-  map_df(~read_csv(., col_names  = c("sid", "pat", "shift_num_ampm", "datetime", "floc", "second"),
-                   col_types = "ccccid", skip = 1))
+library(gtsummary)
+library(lessR)
+library(ggplot2)
 ```
 
 
-```{r clean.rfid}
-rfid_df <- raw_rfid %>% 
-  mutate(pt_or_staff = factor(pat, levels = c("Staff", "Patient")),# turn pat into factor where 0 = Staff & 1 = Patient
-         shift_num = as.integer(str_extract(shift_num_ampm, "[:digit:]+")), # extract shift number from shift_num_ampm into new column shift_num
-         shift_ampm = factor(str_extract(shift_num_ampm, "[:alpha:]{2}")), # extract shift am/pm from shift_num_ampm into new column shift_ampm
-         datetime = dmy_hms(datetime), # make datetime into a dttm object (lubridate)
-         shift_second = second, # rename second and floc to shift_second and location_num, respectively, to maintain consistency with other data files
-         location_num = floc,
-         .keep = "unused")
+```{r data, echo = FALSE}
+# all visitors for the year
+pts <- read_rds("Data/Rdata/all_pt_attributes.Rdata")
+# other visitor groups
+co_pts <- pts %>% 
+  filter(!is.na(shift_num))
+# participants
+pt_sample <- pts %>% 
+  filter(!is.na(sid))
+# staff
+staff <- read_rds("Data/staff_attributes.Rdata") %>%
+  mutate(node_type = if_else(staff_title == "STAFF", "Staff", staff_title), .keep = "unused")
+# RFID data
+edges <- read_rds("edges_final_all.Rdata")
 ```
 
+# Node Data  
 
-```{r create_nodeID}
-rfid_newid <- rfid_df %>% 
-  mutate(node_id = paste(sid, shift_num, sep = "_"))
-rfid_newid %>% 
-  filter(pt_or_staff == "Patient") %>% 
-  group_by(node_id) %>% nrow()
-rfid_newid %>% 
-  filter(pt_or_staff == "Staff") %>% 
-  group_by(node_id) %>% nrow()
-staff_atts <- read_rds("Data/staff_attributes.Rdata")
-# Add staff titles to RFID data
-rfid_titled <- rfid_newid %>% 
-  left_join(staff_atts, by = "sid") %>% rename(title = "staff_title") %>% 
-  replace_na(list(title = "PATIENT"))
-# Filter out staff to make a df with only patient RFID data
-pt_rfid <- rfid_titled %>% filter(title == "PATIENT")
-# Filter out patients to make a df with only staff RFID data
-staff_rfid <- rfid_titled %>% filter(title == "MD" | title == "RN" | title == "NT" | title == "STAFF")
+The ED had `r nrow(pts)` patient visits between July 2009 and June 2010, and `r nrow(co_pts)` visits during the 81 observed shifts. Research staff approached `r sum(co_pts$approached == "Yes", na.rm = TRUE)` (`r round(sum(co_pts$approached == "Yes", na.rm = TRUE)/nrow(co_pts) * 100, 1)`%) patients in total, and `r nrow(pt_sample)` consented to participate. Demographic characteristics of the annual ED population, the population from the 81 shifts, and our representative sample are presented in Table 1. 
 
-nested_edges <- pt_rfid %>%
-  left_join(staff_rfid, by = c("shift_num", 
-                                 "shift_ampm",
-                                 "datetime",
-                                 "shift_second",
-                                 "location_num"),
-              suffix = c(x = "_i", y = "_j")) %>%
-  filter(node_id_i != node_id_j) %>% 
-  select(shift_num, 
-         starts_with("node"),
-         starts_with("title"),
-         datetime,
-         shift_second,
-         location_num) %>% 
-  group_by(shift_num) %>% 
-  nest()
+## Sample      
+
+```{r demographics-tbl}
+sumtbl_df <- pts %>% mutate(pop_group = "Visitors during study year") %>% 
+  bind_rows(co_pts) %>% 
+  mutate(pop_group = if_else(is.na(pop_group), "Visitors during observed shifts", pop_group)) %>% 
+  bind_rows(pt_sample) %>% 
+  mutate(pop_group = if_else(is.na(pop_group), "Visitor sample", pop_group)) %>% 
+  mutate(pop_group = factor(pop_group, 
+                            levels = c("Visitors during study year", 
+                                       "Visitors during observed shifts",
+                                       "Visitor sample")))
+
+
+sumtbl_df %>% 
+  # select("Acuity",
+  #        "Race" = fct_explicit_na(race),
+  #        "Sex" = sex,
+  #        "Age" = age,
+  #        "Arrival Category" = arrival_cat,
+  #        Disposition,
+  #        pop_group,
+  #        .keep = "none") %>% 
+  tbl_summary(., 
+              missing = "no", 
+              by = "pop_group") %>% 
+  bold_labels() %>% 
+  modify_header(all_stat_cols() ~ "**{level}**\nN = {n}") %>%
+  as_kable_extra(booktabs = TRUE,
+                 longtable = TRUE) %>%
+  kable_styling(position = "left",
+                latex_options = c("repeat_header"))
+```
+
+```{r race-group-tble}
+sumtbl_df %>%
+  filter(pop_group == "Visitor sample" &
+           Race != "Other" &
+           !is.na(Race)) %>% 
+  mutate(Race = factor(Race, levels = c("Black", "White"))) %>%
+  select(-pop_group) %>% 
+  # mutate("Acuity" = acuity,
+  #        "Race" = fct_explicit_na(race),
+  #        "Sex" = sex,
+  #        "Age" = age,
+  #        "Arrival Category" = arrival_cat,
+  #        Disposition,
+  #        .keep = "none") %>% 
+  tbl_summary(missing = "no", by = "Race") %>% 
+  # add_p() %>% 
+  bold_labels() %>% 
+  modify_header(all_stat_cols() ~ "**{level}**\nN = {n}") %>%
+    # add_p(list(all_categorical() ~ "prop.test")) %>% 
+  as_kable_extra(booktabs = TRUE,
+                 longtable = TRUE) %>%
+  kable_styling(position = "left",
+                latex_options = c("repeat_header"))
+```
+
+```{r case-controls}
 
 ```
 
+## Patient Demographics
 
-```{r nest}
-test_nest <- test %>% group_by(shift_num) %>% nest()
-nodes <- lst()
-for (i in 1:length(test)) {
-  node_id_i <- test[[i]] %>%
-    distinct(node_id_i, .keep_all = TRUE) %>%
-    mutate(node_id = node_id_i,
-           title = title_i,
-           shift_num = names(test)[i],
-           rfid_start_dttm,
-           rfid_end_dttm,
-           .keep = "none") %>%
-    relocate(sid, .before = everything())
-  node_id_j <- snest[[i]] %>%
-    # distinct(node_id_j, .keep_all = TRUE) %>%
-    mutate(sid = node_id_j,
-           participant_type = participant_type_j,
-           shift_num = names(snest)[i],
-           rfid_start_dttm,
-           rfid_end_dttm,
-           .keep = "none") %>%
-    relocate(sid, .before = everything())
-  nodes[[i]] <- node_id_i %>% bind_rows(node_id_j) %>% distinct(sid, .keep_all = TRUE)
-  names(nodes)[i] <- paste0("Shift_", names(snest)[i])
-  rm(node_id_i, node_id_j)
+**How many patients were female?**
+
+> There were `r sum(pt_sample$sex == "Female", na.rm = TRUE)` (`r round(sum(pt_sample$sex == "Female", na.rm = TRUE)/length(pt_sample$sex) * 100, 2)`)  female and `r sum(pt_sample$sex == "Male", na.rm = TRUE)` (`r round(sum(pt_sample$sex == "Male", na.rm = TRUE)/length(pt_sample$sex) * 100, 2)`%) male participants.
+
+**How did most visitors arrive?**
+
+> Most participants (`r round(sum(pt_sample$arrival_cat == "Ambulatory", na.rm = TRUE)/sum(!is.na(pt_sample$arrival_cat)) * 100, 2)`%) arrived via personal or public transportation (i.e., ambulatory), and `r round(sum(pt_sample$arrival_cat == "EMS", na.rm = TRUE)/sum(!is.na(pt_sample$arrival_cat)) * 100, 2)`%) arrived via emergency medical services (EMS).
+
+**What was the most common disposition? Least common?**
+  
+> `r round(sum(pt_sample$Disposition == "Admit", na.rm = TRUE)/sum(!is.na(pt_sample$Disposition)) * 100, 2)`% of patients were admitted to the hospital and `r round(sum(pt_sample$Disposition == "Discharge", na.rm = TRUE)/sum(!is.na(pt_sample$Disposition)) * 100, 2)`% were discharged to the community.
+
+
+**Most common chief complaint? Least common?**
+
+> `r str_to_title(as.character((pt_sample %>% count(cc_category) %>% arrange(desc(n)))[[1,1]]))` was the most common chief complaint, followed by `r as.character((pt_sample %>% count(cc_category) %>% arrange(desc(n)))[[2,1]])` and `r as.character((pt_sample %>% count(cc_category) %>% arrange(desc(n)))[[3,1]])` complaints, respectively.
+
+**How old was the sample?**
+
+> The average age of participants was `r mean(pt_sample$age, na.rm = TRUE)`(SD `r sd(pt_sample$age, na.rm = TRUE)`).
+
+**How was acuity distributed in the sampled patients?**
+
+> There were `r sum(pt_sample$acuity == levels(pt_sample$acuity)[1], na.rm = TRUE)` (`r sum(pt_sample$acuity == levels(pt_sample$acuity)[1], na.rm = TRUE)/sum(!is.na(pt_sample$acuity) * 100`%) immediate, `r sum(pt_sample$acuity == levels(pt_sample$acuity)[2], na.rm = TRUE)` (`r sum(pt_sample$acuity == levels(pt_sample$acuity)[2], na.rm = TRUE)/sum(!is.na(pt_sample$acuity) * 100`%) emergent, `r sum(pt_sample$acuity == levels(pt_sample$acuity)[3], na.rm = TRUE)` (`r sum(pt_sample$acuity == levels(pt_sample$acuity)[3], na.rm = TRUE)/sum(!is.na(pt_sample$acuity) * 100`%) urgent, `r sum(pt_sample$acuity == levels(pt_sample$acuity)[4], na.rm = TRUE)` (`r sum(pt_sample$acuity == levels(pt_sample$acuity)[4], na.rm = TRUE)/sum(!is.na(pt_sample$acuity) * 100`%) stable, and `r sum(pt_sample$acuity == levels(pt_sample$acuity)[5], na.rm = TRUE)` (`r sum(pt_sample$acuity == levels(pt_sample$acuity)[5], na.rm = TRUE)/sum(!is.na(pt_sample$acuity) * 100`%) non-urgent acuity visitors.
+
+
+## Staff Types  
+
+**How many staff participated?**
+
+> There were `r nrow(staff)` staff participants, including `r sum(staff$staff_type == "MD")` MDs, `r sum(staff$staff_type == "RN")` registered nurses (RNs), `r sum(staff$staff_type == "NT")` nurse technicians (NTs), and `r sum(staff$staff_type == "Staff")` non-clinical staff.  
+
+
+  
+  
+# Edge Data  
+
+## Descriptive Statistics
+
+```{r ci-summarise-tbl, include = TRUE}
+ci_summarise <- function(df, node){
+  if (node == "i") {
+    df %>% 
+      group_by(node_id_i) %>%
+      summarise(node_type = unique(node_type_i),
+            sid = unique(sid_i),
+            ci_count = n(),
+            ci_total = sum(edge_duration),
+            ci_mean = mean(edge_duration),
+            ci_min = min(edge_duration),
+            ci_max = max(edge_duration)) %>% 
+      dplyr::rename(node_id = node_id_i)
+  } else if (node == "j") {
+    df %>% 
+      group_by(node_id_j) %>%
+      summarise(node_type = unique(node_type_j),
+            sid = unique(sid_j),
+            ci_count = n(),
+            ci_total = sum(edge_duration),
+            ci_mean = mean(edge_duration),
+            ci_min = min(edge_duration),
+            ci_max = max(edge_duration)) %>% 
+      dplyr::rename(node_id = node_id_j)
+  } else {
+    stop()
+  }
 }
 
+i_stats <- ci_summarise(edges, node = "i")
+j_stats <- ci_summarise(edges, node = "j")
+
+all_ci_stats <- i_stats %>% 
+  dplyr::union(j_stats) %>% 
+  distinct(node_id, .keep_all = TRUE)
+
+all_ci_stats %>%
+  select(node_type,
+         "CI Frequency" = ci_count,
+         "Total CI Duration"= ci_total,
+         "Mean CI Duration" = ci_mean) %>% 
+  tbl_summary(missing = "no", by = "node_type") %>% 
+  bold_labels() %>% 
+  modify_header(all_stat_cols() ~ "**{level}**\n*N = {n}*") %>%
+  as_kable_extra(booktabs = TRUE,
+                 # longtable = TRUE,
+                 escape = F) %>%
+  kable_styling(full_width = F,
+                position = "float_right",
+                latex_options = c("striped", "scale_down"))
+  # column_spec(1, width = "4cm") %>% 
+  # column_spec(2:6, width = "2cm")
+  # footnote(general = "CI = clinical interaction; RN = registered nurse; MD = medical doctor; NT = nurse technician")
 ```
 
 
-# SessionInfo
+```{r ci-stats-tbl, include = TRUE}
+ci_stats_tbl <- all_ci_stats %>% select(node_type, starts_with("ci_"))
+ci_stats_tbl %>% 
+  mutate(ci_total = round(ci_total/60, 1),
+         ci_mean = round(ci_mean/60, 1),
+         ci_max = round(ci_max/60, 1),
+         node_type = factor(node_type, levels = c("Patient",
+                                                  "RN",
+                                                  "MD",
+                                                  "NT",
+                                                  "Staff"))) %>% 
+  gtsummary::tbl_summary(by = "node_type", label = list(node_type ~ "Participant Type",
+                                ci_count ~ "Clinical Interactions (CIs)",
+                                ci_total ~ "Total Time in CIs (min)",
+                                ci_mean ~ "Mean CI Duration (min)",
+                                ci_min ~ "Minimum CI Duration (sec)",
+                                ci_max ~ "Maximum CI Duration (min)")) %>% 
+  bold_labels() %>% 
+  modify_header(all_stat_cols() ~ "**{level}**\nN = {n}") %>%
+  as_kable_extra(booktabs = TRUE,
+                 # longtable = TRUE,
+                 escape = F) %>%
+  kable_styling(full_width = F,
+                position = "float_right",
+                latex_options = c("striped", "scale_down"))
 
-```{r SessionInfo}
-sessioninfo::session_info()%>%
-  details::details(
-    summary = 'Current session info',
-    open    = FALSE
-  )
 ```
+
+
+
+```{r join-stats-pts}
+pt_sample <- pt_sample %>% 
+  mutate(node_id = str_c(sid, shift_num, sep = "_"),
+         race = fct_explicit_na(race)) %>% 
+  left_join(all_ci_stats, by = c("node_id", "node_type", "sid"))
+
+```
+
+
+```{r race-ci-stats-tbl}
+pt_sample %>% select(race,
+                    starts_with("ci_")) %>% 
+  mutate(ci_total = ci_total/60/60,
+         ci_mean = ci_mean/60,
+         ci_max = ci_max/60) %>% 
+  tbl_summary(by = race, missing = "no",
+              label = list(ci_count ~ "Number of CIs per person",
+                           ci_total ~ "Mean combined CI duration per person (hr)",
+                           ci_mean ~ "Mean CI duration (min)",
+                           ci_min ~ "Minimum CI duration",
+                           ci_max ~ "Maximum CI duration (min)")) %>% 
+  bold_labels() %>% 
+  modify_header(all_stat_cols() ~ "**{level}**\nN = {n}") %>%
+    # add_p(list(all_categorical() ~ "prop.test")) %>% 
+  as_kable_extra(booktabs = TRUE,
+                 longtable = TRUE) %>%
+  kable_styling(position = "left",
+                latex_options = c("repeat_header"))
+```
+
+
+## Node Visualizations
+
+```{r visualization-test-run}
+
+```
+

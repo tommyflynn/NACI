@@ -1,0 +1,503 @@
+---
+title: "NACI Data Prep"
+author: "Tommy J. Flynn"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float: true
+---
+
+```{r setup, message=FALSE}
+#| code-fold: true 
+knitr::opts_chunk$set(error = FALSE,
+                      tidy = TRUE,
+                      # tidy.opts = list(width.cutoff = 60),
+                      message = FALSE,
+                      warning = FALSE)
+library(tidyverse)
+# Tidyverse packages include: 
+# readr
+# forcats
+# tidyr
+# stringr
+# purrr
+# ggplot2
+# dplyr
+# tibble
+
+# library(readxl)
+# library(haven)
+# library(knitr)
+# library(kableExtra)
+library(lubridate)
+# library(labelled)
+# library(gtsummary)
+library(data.table)
+library(beepr)
+small_beep <- function(){
+ beep(2)
+}
+big_beep <- function(df){
+  print(slice_sample(df, n = 10)); beep(8)
+}
+```
+
+# RFID Data  
+
+```{r import-data, eval = FALSE}
+# THIS WILL READ ALL THE .TXT FILES INTO R AS A LIST OF DATA FRAMES
+# NOTE: Set the working director to that of the files being read
+setwd(paste0(getwd(), "/Data/txt_copy/"))
+raw_txt <- list.files(pattern = "*.txt") %>%
+  map_df(~read_csv(., col_names  = c("sid", "pat", "shift_num_ampm", "datetime", "floc", "second"),
+                   col_types = "ccccid", skip = 1))
+raw_csv <- list.files(pattern = "*.csv") %>%
+  map_df(~read_csv(., col_names  = c("sid", "pat", "shift_num_ampm", "datetime", "floc", "second"),
+                   col_types = "ccccid", skip = 1))
+raw_rfid <- raw_csv %>% 
+  filter(str_detect(shift_num_ampm, pattern = "179am|181pm|189pm|191am")) %>% # remove observations from raw_case the rows that already exist in raw_txt, then join
+  bind_rows(raw_txt) # then bind the two data.frames together
+rm(raw_csv, raw_txt) # remove excess files
+head(raw_rfid) # view first 5 rows of raw_rfid
+# write_rds(raw_rfid, "rfid_raw.Rdata")
+
+```
+
+
+## RFID Data Cleaning  
+
+```{r clean-data}
+rfid_raw <- read_rds("rfid_raw.Rdata"); big_beep(rfid_raw)
+rfid_df <- rfid_raw %>% 
+  separate(shift_num_ampm, into = c("shift_num", "shift_ampm"), sep = -2) %>%  # separate shift_num_ampm into two variables, shift_num & shift_ampm
+  mutate(node_type = factor(pat, labels = c("Staff", "Patient")),# turn pat into factor where 0 = Staff & 1 = Patient
+         datetime = dmy_hms(datetime), # make datetime into a dttm object (lubridate)
+         shift_second = second, # rename second and floc to shift_second and location_num, respectively, to maintain consistency with other data files
+         location_num = floc,
+         .keep = "unused")
+big_beep(rfid_df)
+
+```
+
+Every node should have its own unique identifier. Create a unique identifier `node_id` for each patient participant by concatenating `sid` with `shift_num`.
+
+```{r create-nodeID}
+# create new_id by concatenating shift_num and sid
+
+rfid_newid <- rfid_df %>% 
+  mutate(node_id = paste(sid, shift_num, sep = "_"))
+# head(rfid_newid)
+rm(rfid_raw)
+big_beep(rfid_newid)
+```
+
+Left-join staff attributes (i.e., MD, RN, NT, STAFF) to RFID data by key variable `sid` (badges stayed with the same staff members throughout the study) such that every row with an SID in the list of staff badge IDs (i.e., SID number) will now have an attribute column called `node_type`.
+
+```{r add-staff-type}
+# Add staff titles to RFID data
+staff_atts <- read_rds("Data/Rdata/staff_attributes.Rdata") # load staff attributes (i.e., sid & staff_title)
+rfid_types <- rfid_newid %>%
+  left_join(staff_atts, by = "sid") %>% 
+  mutate(staff_type = str_replace(staff_title, "STAFF", "Staff"),
+         .keep = "unused"); big_beep(rfid_types)
+big_beep(rfid_types)
+write_rds(rfid_types, "rfid_types-0115.Rdata")
+```
+  
+
+```{r make-edgelist}
+staff_rfid <- rfid_types %>% filter(node_type != "Patient")
+edges <- rfid_types %>%
+  left_join(staff_rfid, by = c("shift_num", 
+                                 "datetime",
+                                 "location_num"),
+              suffix = c(x = "_i", y = "_j")) %>%
+  filter(node_id_i != node_id_j) %>%
+  select(-starts_with("shift_ampm_")) %>% 
+  relocate(starts_with("node_id"),
+           ends_with("_i"), 
+           ends_with("_j"), 
+           shift_num,
+           datetime,
+           location_num,
+           .before = everything())
+
+# write_rds(edges, "edges_122922.Rdata")
+# edges <- read_rds("edges_122922.Rdata")
+```
+
+```{r add-location-names}
+locations <- read_rds("Data/Rdata/locations.Rdata")
+# glimpse(locations)
+edges_final_all <- edges %>% left_join(locations, by = c("location_num" = "loc_id")) %>% 
+  relocate(starts_with("loc_"), .after = "location_num") %>% 
+  rename(shift_second = shift_second_i) %>% 
+  select(-shift_second_j) %>% 
+  relocate(shift_second, .after = "datetime") %>% 
+  mutate(edge_type = if_else(node_type_i == "Staff" & node_type_j == "Staff",
+                                     "staff-staff", "patient-staff")) %>% 
+  mutate(loc_category = if_else(loc_category == "Clinical Area", "Patient Care", loc_category))  %>% # categories include Clinical Support, Patient Support, & Patient Care
+  mutate(dyad_id = paste(node_id_i, node_id_j, sep = "_"),
+    interaction_id = paste(dyad_id, location_num, sep = "_")) %>% 
+  arrange(interaction_id, shift_second) %>% 
+  mutate(break_point = if_else(shift_second - lag(shift_second) != 1 & interaction_id == lag(interaction_id), 
+                               TRUE, 
+                               FALSE)); big_beep(edges_final_all)
+
+# write_rds(edges_final_all, "edges_pre_rl.Rdata"); big_beep()
+# SAVED LAST ON JANUARY 15, 1052
+# write_csv(edges_final_all, "edges_pre_rl.csv"); big_beep()
+# edges_final_all <- read_rds("edges_pre_rl.Rdata"); beep(8)
+
+```
+
+```{r edge-intervals}
+# edges_final_all <- read_rds("edges_pre_rl.Rdata")
+head(edges)
+edges_rl <- edges_final_all %>% 
+  arrange(interaction_id, datetime) %>% 
+  mutate(rl = rleid(shift_second)); beep(8)
+
+
+test %>% 
+  filter(interaction_id == "0002f495_181_00101fd6_181_88") %>% 
+  arrange(break_point, shift_second) %>%
+  View(); beep(2)
+test %>% filter(interaction_id == "" & shift_second %in% c(29608 * 1.1:29608 * 0.9))
+# write_rds(edges_rl, "edges_rl.Rdata")
+```
+
+
+
+
+```{r edge-durations}
+edges_durations <- edges_rl %>% 
+  group_by(rl) %>% 
+  summarize(edge_start = min(datetime), 
+            edge_end = max(datetime),
+            edge_duration = difftime(edge_end, edge_start, "second"))
+head(edges_durations)
+
+edges_final_all <- edges_rl %>% 
+  left_join(edges_durations, by = "rl") #%>% 
+
+
+edges_final_distinct <- edges_final_all %>% 
+  distinct(rl, .keep_all = TRUE) %>% 
+  select(-datetime)
+# write_rds(edges_final_distinct, "edges_final_distinct.Rdata")
+edges_final <- edges %>% mutate(edge_duration = as.numeric(edge_duration))
+# write_rds(edges_final, "edges_final_1206.Rdata")
+```
+
+
+
+```{r nodes-in-edges}
+i_nodes <- edges %>% 
+  distinct(node_id_i, .keep_all = TRUE) %>% 
+  select(node_id = node_id_i,
+         node_type = node_type_i,
+         sid = sid_i,
+         shift_num)
+j_nodes <- edges %>% 
+  distinct(node_id_j, .keep_all = TRUE) %>% 
+  select(node_id = node_id_j,
+         node_type = node_type_j,
+         sid = sid_j,
+         shift_num)
+nodes_in_edges <- i_nodes %>% 
+  bind_rows(j_nodes) %>% 
+  distinct(node_id, .keep_all = TRUE)
+
+staff_in_edges <- nodes_in_edges %>% filter(node_type != "Patient")
+pts_in_edges <- nodes_in_edges %>% filter(node_type == "Patient")
+```
+
+We observed `r nrow(nodes_in_edges)` unique participants, including patients and ED staff, with one or more CIs. There were `r nrow(pt_sample)-nrow(pts_in_edges)` patient participants without any observed RFID interactions. Since this absence of interactions for some patients was likely caused by errors in data collection, storage, or processing, we did not include those patients in the final network analysis.   
+We assigned every staff participant (n = `r nrow(distinct(staff_in_edges[.(node_type != "Patient"),], sid))`) with one RFID tag to use during the study. Since interactions were impossible between shifts and we did not want observations from one shift to affect the network in another, we assigned a unique identification number to every staff participant (`r nrow(distinct(staff_in_edges[.(node_type != "Patient"),], sid))`) for each shift they worked. Since many staff participants were present during multiple shifts, we report them as `r nrow(staff_in_edges)` unique staff participants. 
+
+
+
+## CI Statistics  
+
+```{r ci-summarise, include = TRUE}
+ci_summarise <- function(df, node){
+  if (node == "i") {
+    df %>% 
+      group_by(node_id_i) %>%
+      summarise(node_type = unique(node_type_i),
+            sid = unique(sid_i),
+            ci_count = n(),
+            ci_total = sum(edge_duration),
+            ci_mean = mean(edge_duration),
+            ci_min = min(edge_duration),
+            ci_max = max(edge_duration)) %>% 
+      dplyr::rename(node_id = node_id_i)
+  } else if (node == "j") {
+    df %>% 
+      group_by(node_id_j) %>%
+      summarise(node_type = unique(node_type_j),
+            sid = unique(sid_j),
+            ci_count = n(),
+            ci_total = sum(edge_duration),
+            ci_mean = mean(edge_duration),
+            ci_min = min(edge_duration),
+            ci_max = max(edge_duration)) %>% 
+      dplyr::rename(node_id = node_id_j)
+  } else {
+    stop()
+  }
+}
+edges %>% distinct(interaction_id) %>% nrow()
+i_stats <- ci_summarise(edges, node = "i")
+j_stats <- ci_summarise(edges, node = "j")
+
+all_ci_stats <- i_stats %>% 
+  dplyr::union(j_stats) %>% 
+  distinct(node_id, .keep_all = TRUE)
+# ci_stats <- ci_stats %>% 
+#   mutate(across(starts_with("ci_"), as.numeric))
+
+```
+
+
+
+
+
+```{r race-ci-stats-tbl}
+pt_sample %>% select(race,
+                    starts_with("ci_")) %>% 
+  mutate(ci_total = ci_total/60/60,
+         ci_mean = ci_mean/60,
+         ci_max = ci_max/60) %>% 
+  tbl_summary(by = race, missing = "no",
+              label = list(ci_count ~ "Number of CIs per person",
+                           ci_total ~ "Mean combined CI duration per person (hr)",
+                           ci_mean ~ "Mean CI duration (min)",
+                           ci_min ~ "Minimum CI duration",
+                           ci_max ~ "Maximum CI duration (min)")) %>% 
+  bold_labels() %>% 
+  modify_header(all_stat_cols() ~ "**{level}**\nN = {n}") %>%
+    # add_p(list(all_categorical() ~ "prop.test")) %>% 
+  as_kable_extra(booktabs = TRUE,
+                 longtable = TRUE) %>%
+  kable_styling(position = "left",
+                latex_options = c("repeat_header"))
+```
+# Patient Data 
+
+## Patient Data Import  
+
+```{r}
+pts <- read_rds("Data/all_pt_attributes.Rdata")
+pop_pt_demo_clean <- read_rds("Data/Rdata/rds_archive/pop_pt_demo_clean.Rdata")
+
+```
+
+## Patient Data Cleaning  
+
+```{r cleanup-pts-w-race}
+test_popdemo <- pop_pt_demo_clean %>% 
+  select(med_rec_no, encounter_no, race)
+
+pts <- pts %>% 
+  mutate(Disposition = case_when(
+      disposition == "AMA"                   ~ "AMA/LWBS",
+      disposition == "Left W/out Being Seen" ~ "AMA/LWBS",
+      disposition == "Transfer"              ~ "Other",
+      disposition == "Expired"               ~ "Other",
+      TRUE ~ as.character(disposition)),
+      arrival_cat = fct_relevel(arrival_cat, c("Ambulatory", "EMS")),
+      .keep = "unused") %>% 
+  mutate(chief_complaint = str_to_lower(chief_complaint),
+               cc_category = as.character(case_when(
+                 str_detect(chief_complaint, "mvc") |
+                   str_detect(chief_complaint, "assault") |
+                   str_detect(chief_complaint, "accident") |
+                   str_detect(chief_complaint, "lac") |
+                   str_detect(chief_complaint, "inj") |
+                   str_detect(chief_complaint, "trauma") | 
+                   str_detect(chief_complaint, "abrasion") |
+                   str_detect(chief_complaint, "penetrat") | 
+                   str_detect(chief_complaint, "fall") |
+                   str_detect(chief_complaint, "wound") | 
+                   str_detect(chief_complaint, "burn") |
+                   str_detect(chief_complaint, "sting") |
+                   str_detect(chief_complaint, "bite") ~ "trauma",
+                 str_detect(chief_complaint, "bleed") |
+                   str_detect(chief_complaint, "hemo") ~ "hemorrhage",
+                 str_detect(chief_complaint, "chest") |
+                   str_detect(chief_complaint, "hypertension") |
+                   str_detect(chief_complaint, "hypotension") |
+                   str_detect(chief_complaint, "cardiac") | 
+                   str_detect(chief_complaint, "palpitations") |
+                   str_detect(chief_complaint, "tachycardia") |
+                   str_detect(chief_complaint, "bradycardia") |
+                   str_detect(chief_complaint, "heartbeat") |
+                   str_detect(chief_complaint, "pace") |
+                   str_detect(chief_complaint, "vascular") ~ "cardiovascular",
+                 str_detect(chief_complaint, "pain") |
+                   str_detect(chief_complaint, "ache") ~ "pain",
+                 str_detect(chief_complaint, "dyspnea") |
+                   str_detect(chief_complaint, "asthma") |
+                   str_detect(chief_complaint, "breath") |
+                   str_detect(chief_complaint, "respiratory") |
+                   str_detect(chief_complaint, "wheez") |
+                   str_detect(chief_complaint, "apnea") |
+                   str_detect(chief_complaint, "ventilat") |
+                   str_detect(chief_complaint, "congestion") |
+                   str_detect(chief_complaint, "cough") ~ "respiratory",
+                 str_detect(chief_complaint, "dizz") |
+                   str_detect(chief_complaint, "syncope") |
+                   str_detect(chief_complaint, "altered") |
+                   str_detect(chief_complaint, "neuro") |
+                   str_detect(chief_complaint, "droop") |
+                   str_detect(chief_complaint, "seizure") |
+                   str_detect(chief_complaint, "esthesia") |
+                   str_detect(chief_complaint, "numbness") |
+                   str_detect(chief_complaint, "aphasia") |
+                   str_detect(chief_complaint, "fatigue") |
+                   str_detect(chief_complaint, "detox") |
+                   str_detect(chief_complaint, "paralysis") |
+                   str_detect(chief_complaint, "confusion") |
+                   str_detect(chief_complaint, "agitation") |
+                   str_detect(chief_complaint, "weakness") ~ "neurological",
+                 str_detect(chief_complaint, "suicid") |
+                   str_detect(chief_complaint, "depression") |
+                   str_detect(chief_complaint, "alcohol") |
+                   str_detect(chief_complaint, "psych") |
+                   str_detect(chief_complaint, "overdose") |
+                   str_detect(chief_complaint, "lethargy") |
+                   str_detect(chief_complaint, "withdrawal") |
+                   str_detect(chief_complaint, "panic") |
+                   str_detect(chief_complaint, "anxiety") ~ "psychological",
+                   str_detect(chief_complaint, "line") |
+                   str_detect(chief_complaint, "surg") |
+                   str_detect(chief_complaint, "re-evaluation") |
+                   str_detect(chief_complaint, "refill") |
+                   str_detect(chief_complaint, "shunt") |
+                   str_detect(chief_complaint, "suture") |
+                   str_detect(chief_complaint, "screen") |
+                   str_detect(chief_complaint, "test") |
+                   str_detect(chief_complaint, "catheter") |
+                   str_detect(chief_complaint, "lab") |
+                   str_detect(chief_complaint, "follow") |
+                   str_detect(chief_complaint, "tube") |
+                   str_detect(chief_complaint, "supplies") |
+                   str_detect(chief_complaint, "check") |
+                   str_detect(chief_complaint, "medication reaction") |
+                   str_detect(chief_complaint, "medication administration") |
+                   str_detect(chief_complaint, "medical") ~ "medical problem/follow up",
+                 str_detect(chief_complaint, "ob") |
+                   str_detect(chief_complaint, "preg") |
+                   str_detect(chief_complaint, "labor") ~ "obstetric",
+                 str_detect(chief_complaint, "urin") |
+                   str_detect(chief_complaint, "uria") |
+                   str_detect(chief_complaint, "vagin") |
+                   str_detect(chief_complaint, "urethra") |
+                   str_detect(chief_complaint, "penile") |
+                   str_detect(chief_complaint, "dysur") ~ "genitourinary",
+                 str_detect(chief_complaint, "rash") |
+                   str_detect(chief_complaint, "skin") |
+                   str_detect(chief_complaint, "cyst") |
+                   str_detect(chief_complaint, "swelling") |
+                   str_detect(chief_complaint, "edema") |
+                   str_detect(chief_complaint, "itch") |
+                   str_detect(chief_complaint, "ulcer") |
+                   str_detect(chief_complaint, "abscess") ~ "dermatological",
+                 str_detect(chief_complaint, "naus") |
+                   str_detect(chief_complaint, "vomit") |
+                   str_detect(chief_complaint, "emesis") |
+                   str_detect(chief_complaint, "diarrhea") |
+                   str_detect(chief_complaint, "appetite") |
+                   str_detect(chief_complaint, "weight") |
+                   str_detect(chief_complaint, "abdominal") |
+                   str_detect(chief_complaint, "abd") |
+                   str_detect(chief_complaint, "dehydration") |
+                   str_detect(chief_complaint, "heartburn") |
+                   str_detect(chief_complaint, "aicd") |
+                   str_detect(chief_complaint, "swallow") |
+                   str_detect(chief_complaint, "reflux") |
+                   str_detect(chief_complaint, "poor") |
+                   str_detect(chief_complaint, "jaundice") |
+                   str_detect(chief_complaint, "incontin") |
+                   str_detect(chief_complaint, "hernia") |
+                   str_detect(chief_complaint, "constipat") ~ "gastrointestinal",
+                 str_detect(chief_complaint, "fever") | 
+                   str_detect(chief_complaint, "sore throat") |
+                   str_detect(chief_complaint, "uri") |
+                   str_detect(chief_complaint, "uti") |
+                   str_detect(chief_complaint, "itis") |
+                   str_detect(chief_complaint, "chills") |
+                   str_detect(chief_complaint, "exposure") |
+                   str_detect(chief_complaint, "symptoms") |
+                   str_detect(chief_complaint, "nasal") |
+                   str_detect(chief_complaint, "infection") |
+                   str_detect(chief_complaint, "std") |
+                   str_detect(chief_complaint, "flu") ~ "infectious",
+                 str_detect(chief_complaint, "eye") |
+                   str_detect(chief_complaint, "ear") |
+                   str_detect(chief_complaint, "nose") | 
+                   str_detect(chief_complaint, "speaking") |
+                   str_detect(chief_complaint, "vision") |
+                   str_detect(chief_complaint, "epistaxis") |
+                   str_detect(chief_complaint, "vision") ~ "ENT",
+                 str_detect(chief_complaint, "glycemia") ~ "endocrine",
+                 str_detect(chief_complaint, "sickle") ~ "sickle cell anemia",
+                 str_detect(chief_complaint, "allergic") |
+                   str_detect(chief_complaint, "hive") ~ "allergic",
+                 str_detect(chief_complaint, "other") |
+                   str_detect(chief_complaint, "ama") |
+                   str_detect(chief_complaint, "elopement") |
+                   str_detect(chief_complaint, "not recorded") ~ NA_character_,
+                 TRUE ~ chief_complaint)),
+               cc_category = fct_lump_min(cc_category, min = 500)) %>% 
+  mutate(node_id = if_else(!is.na(sid), paste(sid, shift_num, sep = "_"), NA_character_),
+         node_type = "Patient",
+         cc_category = as.character(cc_category),
+         arrival_cat = as.character(arrival_cat)) %>%
+  mutate("Acuity" = acuity,
+         "Race" = fct_explicit_na(race),
+         "Sex" = sex,
+         "Age" = age,
+         "Approached" = approached,
+         .keep = "unused") %>% 
+  relocate(cc_category, .after = chief_complaint) %>% 
+  relocate(node_id, node_type, .before = everything()) %>% 
+  left_join(test_popdemo, by = c("med_rec_no", "encounter_no")) %>% 
+  mutate(Race_2 = case_when(
+    race == "1" ~ "White", 
+    race == "2" ~ "Black", 
+    race == 3 ~ "Other", 
+    is.na(race) ~ NA_character_,
+    TRUE ~ as.character(Race))) %>% 
+  mutate(Race = if_else(Race == "(Missing)", Race_2, as.character(Race)),
+         .keep = "unused")
+
+```
+
+# Joined RFID/Pt Data  
+
+Note: there were 641 Hispanic and 3 Asian race designations, we condensed both into  "other" along with the original "other."
+```{r join-pts-cistats}
+
+pt_ci_stats <- pts %>% 
+  left_join(ci_stats, by = c("node_id", 
+                             "node_type",
+                             "sid"))
+```
+
+
+
+
+# SessionInfo
+
+```{r Session-Info}
+sessioninfo::session_info()%>%
+  details::details(
+    summary = 'Current session info',
+    open    = FALSE
+  )
+```
