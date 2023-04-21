@@ -103,7 +103,7 @@ rfid_types <- rfid_newid %>%
   mutate(staff_type = str_replace(staff_title, "STAFF", "Staff"),
          .keep = "unused"); big_beep(rfid_types)
 big_beep(rfid_types)
-write_rds(rfid_types, "rfid_types-0115.Rdata")
+# write_rds(rfid_types, "rfid_types-0115.Rdata")
 ```
   
 
@@ -124,11 +124,13 @@ edges <- rfid_types %>%
            location_num,
            .before = everything())
 
-# write_rds(edges, "edges_122922.Rdata")
-# edges <- read_rds("edges_122922.Rdata")
+# write_rds(edges, "edge_seconds-04192023.Rdata") [saved then deleted 04/19/23]
+# edges <- read_rds("edges_04192023.Rdata")
 ```
 
-```{r add-location-names}
+
+
+```{r locations-and-dyads}
 locations <- read_rds("Data/Rdata/locations.Rdata")
 # glimpse(locations)
 edges_final_all <- edges %>% left_join(locations, by = c("location_num" = "loc_id")) %>% 
@@ -139,69 +141,49 @@ edges_final_all <- edges %>% left_join(locations, by = c("location_num" = "loc_i
   mutate(edge_type = if_else(node_type_i == "Staff" & node_type_j == "Staff",
                                      "staff-staff", "patient-staff")) %>% 
   mutate(loc_category = if_else(loc_category == "Clinical Area", "Patient Care", loc_category))  %>% # categories include Clinical Support, Patient Support, & Patient Care
-  mutate(dyad_id = paste(node_id_i, node_id_j, sep = "_"),
-    interaction_id = paste(dyad_id, location_num, sep = "_")) %>% 
-  arrange(interaction_id, shift_second) %>% 
-  mutate(break_point = if_else(shift_second - lag(shift_second) != 1 & interaction_id == lag(interaction_id), 
-                               TRUE, 
-                               FALSE)); big_beep(edges_final_all)
+  mutate(dyad_id = paste(node_id_i, node_id_j, sep = "/"),
+    interaction_id = paste(dyad_id, location_num, sep = "-")) ; big_beep(edges_final_all)
 
-# write_rds(edges_final_all, "edges_pre_rl.Rdata"); big_beep()
-# SAVED LAST ON JANUARY 15, 1052
-# write_csv(edges_final_all, "edges_pre_rl.csv"); big_beep()
-# edges_final_all <- read_rds("edges_pre_rl.Rdata"); beep(8)
-
-```
-
-```{r edge-intervals}
-# edges_final_all <- read_rds("edges_pre_rl.Rdata")
-head(edges)
-edges_rl <- edges_final_all %>% 
-  arrange(interaction_id, datetime) %>% 
-  mutate(rl = rleid(shift_second)); beep(8)
-
-
-test %>% 
-  filter(interaction_id == "0002f495_181_00101fd6_181_88") %>% 
-  arrange(break_point, shift_second) %>%
-  View(); beep(2)
-test %>% filter(interaction_id == "" & shift_second %in% c(29608 * 1.1:29608 * 0.9))
-# write_rds(edges_rl, "edges_rl.Rdata")
+# write_rds(edges_final_all, "edges_final_all-041923.Rdata"); big_beep(edges_final_all) [saved 4/19/2023]
 ```
 
 
+```{r CI-breaks}
+interactions_count <- edges_final_all %>% 
+  count(interaction_id); beep(8)
 
+edge_file <- edges_final_all %>% 
+  left_join(interactions_count, by = "interaction_id") %>% 
+  rename(ci_seconds = n) %>% 
+  distinct(interaction_id, .keep_all = TRUE) %>% 
+  select(-datetime, -shift_second)
 
-```{r edge-durations}
-edges_durations <- edges_rl %>% 
-  group_by(rl) %>% 
-  summarize(edge_start = min(datetime), 
-            edge_end = max(datetime),
-            edge_duration = difftime(edge_end, edge_start, "second"))
-head(edges_durations)
+edge_file %>% count(shift_num) %>%
+  summarise(ci_mean = mean(n), 
+            ci_min = min(n), 
+            ci_max = max(n), 
+            ci_sd = sd(n),
+            ci_median = median(n))
 
-edges_final_all <- edges_rl %>% 
-  left_join(edges_durations, by = "rl") #%>% 
-
-
-edges_final_distinct <- edges_final_all %>% 
-  distinct(rl, .keep_all = TRUE) %>% 
-  select(-datetime)
-# write_rds(edges_final_distinct, "edges_final_distinct.Rdata")
-edges_final <- edges %>% mutate(edge_duration = as.numeric(edge_duration))
-# write_rds(edges_final, "edges_final_1206.Rdata")
+big_beep(edge_file)
+write_rds(edge_file, "edge_file-04192023.Rdata"); beep(2)
 ```
+
+
+
+
+
 
 
 
 ```{r nodes-in-edges}
-i_nodes <- edges %>% 
+i_nodes <- edge_file %>% 
   distinct(node_id_i, .keep_all = TRUE) %>% 
   select(node_id = node_id_i,
          node_type = node_type_i,
          sid = sid_i,
          shift_num)
-j_nodes <- edges %>% 
+j_nodes <- edge_file %>% 
   distinct(node_id_j, .keep_all = TRUE) %>% 
   select(node_id = node_id_j,
          node_type = node_type_j,
@@ -211,8 +193,8 @@ nodes_in_edges <- i_nodes %>%
   bind_rows(j_nodes) %>% 
   distinct(node_id, .keep_all = TRUE)
 
-staff_in_edges <- nodes_in_edges %>% filter(node_type != "Patient")
-pts_in_edges <- nodes_in_edges %>% filter(node_type == "Patient")
+# staff_in_edges <- nodes_in_edges %>% filter(node_type != "Patient")
+# pts_in_edges <- nodes_in_edges %>% filter(node_type == "Patient")
 ```
 
 We observed `r nrow(nodes_in_edges)` unique participants, including patients and ED staff, with one or more CIs. There were `r nrow(pt_sample)-nrow(pts_in_edges)` patient participants without any observed RFID interactions. Since this absence of interactions for some patients was likely caused by errors in data collection, storage, or processing, we did not include those patients in the final network analysis.   
@@ -222,43 +204,35 @@ We assigned every staff participant (n = `r nrow(distinct(staff_in_edges[.(node_
 
 ## CI Statistics  
 
-```{r ci-summarise, include = TRUE}
-ci_summarise <- function(df, node){
-  if (node == "i") {
-    df %>% 
-      group_by(node_id_i) %>%
-      summarise(node_type = unique(node_type_i),
-            sid = unique(sid_i),
-            ci_count = n(),
-            ci_total = sum(edge_duration),
-            ci_mean = mean(edge_duration),
-            ci_min = min(edge_duration),
-            ci_max = max(edge_duration)) %>% 
-      dplyr::rename(node_id = node_id_i)
-  } else if (node == "j") {
-    df %>% 
-      group_by(node_id_j) %>%
-      summarise(node_type = unique(node_type_j),
-            sid = unique(sid_j),
-            ci_count = n(),
-            ci_total = sum(edge_duration),
-            ci_mean = mean(edge_duration),
-            ci_min = min(edge_duration),
-            ci_max = max(edge_duration)) %>% 
-      dplyr::rename(node_id = node_id_j)
-  } else {
-    stop()
-  }
-}
-edges %>% distinct(interaction_id) %>% nrow()
-i_stats <- ci_summarise(edges, node = "i")
-j_stats <- ci_summarise(edges, node = "j")
-
-all_ci_stats <- i_stats %>% 
-  dplyr::union(j_stats) %>% 
-  distinct(node_id, .keep_all = TRUE)
-# ci_stats <- ci_stats %>% 
-#   mutate(across(starts_with("ci_"), as.numeric))
+```{r ci-summarise, include = FALSE, eval=FALSE}
+# ci_summarise <- function(df, node){
+#   if (node == "i") {
+#     df %>% 
+#       group_by(node_id_i) %>%
+#       summarise(node_type = unique(node_type_i),
+#             sid = unique(sid_i),
+#             ci_count = n(),
+#             ci_total = sum(edge_duration),
+#             ci_mean = mean(edge_duration),
+#             ci_min = min(edge_duration),
+#             ci_max = max(edge_duration)) %>% 
+#       dplyr::rename(node_id = node_id_i)
+#   } else if (node == "j") {
+#     df %>% 
+#       group_by(node_id_j) %>%
+#       summarise(node_type = unique(node_type_j),
+#             sid = unique(sid_j),
+#             ci_count = n(),
+#             ci_total = sum(edge_duration),
+#             ci_mean = mean(edge_duration),
+#             ci_min = min(edge_duration),
+#             ci_max = max(edge_duration)) %>% 
+#       dplyr::rename(node_id = node_id_j)
+#   } else {
+#     stop()
+#   }
+# }
+# 
 
 ```
 
@@ -266,7 +240,7 @@ all_ci_stats <- i_stats %>%
 
 
 
-```{r race-ci-stats-tbl}
+```{r race-ci-stats-tbl, eval = FALSE}
 pt_sample %>% select(race,
                     starts_with("ci_")) %>% 
   mutate(ci_total = ci_total/60/60,
@@ -291,7 +265,7 @@ pt_sample %>% select(race,
 ## Patient Data Import  
 
 ```{r}
-pts <- read_rds("Data/all_pt_attributes.Rdata")
+pts_raw <- read_rds("Data/Rdata/all_pt_attributes.Rdata")
 pop_pt_demo_clean <- read_rds("Data/Rdata/rds_archive/pop_pt_demo_clean.Rdata")
 
 ```
@@ -302,7 +276,7 @@ pop_pt_demo_clean <- read_rds("Data/Rdata/rds_archive/pop_pt_demo_clean.Rdata")
 test_popdemo <- pop_pt_demo_clean %>% 
   select(med_rec_no, encounter_no, race)
 
-pts <- pts %>% 
+all_pts <- pts_raw %>% 
   mutate(Disposition = case_when(
       disposition == "AMA"                   ~ "AMA/LWBS",
       disposition == "Left W/out Being Seen" ~ "AMA/LWBS",
@@ -373,7 +347,7 @@ pts <- pts %>%
                    str_detect(chief_complaint, "withdrawal") |
                    str_detect(chief_complaint, "panic") |
                    str_detect(chief_complaint, "anxiety") ~ "psychological",
-                   str_detect(chief_complaint, "line") |
+                 str_detect(chief_complaint, "line") |
                    str_detect(chief_complaint, "surg") |
                    str_detect(chief_complaint, "re-evaluation") |
                    str_detect(chief_complaint, "refill") |
@@ -475,20 +449,20 @@ pts <- pts %>%
     TRUE ~ as.character(Race))) %>% 
   mutate(Race = if_else(Race == "(Missing)", Race_2, as.character(Race)),
          .keep = "unused")
-
 ```
 
-# Joined RFID/Pt Data  
 
-Note: there were 641 Hispanic and 3 Asian race designations, we condensed both into  "other" along with the original "other."
-```{r join-pts-cistats}
-
-pt_ci_stats <- pts %>% 
-  left_join(ci_stats, by = c("node_id", 
-                             "node_type",
-                             "sid"))
+```{r all-pts}
+all_pts <- read_rds("all_pts.Rdata")
+all_pts <- all_pts %>% 
+  rename(disposition = Disposition,
+         acuity = Acuity,
+         race = Race,
+         sex = Sex,
+         age = Age)
+all_pts %>% glimpse()
+# write_rds(all_pts, "all_pts.Rdata")
 ```
-
 
 
 

@@ -18,6 +18,7 @@ library(tidyverse)
 library(tinytex)
 library(kableExtra)
 library(lubridate)
+library(gt)
 library(gtsummary)
 library(lessR)
 library(ggplot2)
@@ -26,18 +27,15 @@ library(ggplot2)
 
 ```{r data, echo = FALSE}
 # all visitors for the year
-pts <- read_rds("Data/Rdata/all_pt_attributes.Rdata")
+pts <- read_rds("all_pts.Rdata")
 # other visitor groups
 co_pts <- pts %>% 
-  filter(!is.na(shift_num))
+  filter(!is.na(arrival_dttm))
 # participants
 pt_sample <- pts %>% 
-  filter(!is.na(sid))
-# staff
-staff <- read_rds("Data/staff_attributes.Rdata") %>%
-  mutate(node_type = if_else(staff_title == "STAFF", "Staff", staff_title), .keep = "unused")
+  filter(!is.na(node_id))
 # RFID data
-edges <- read_rds("edges_final_all.Rdata")
+edges <- read_rds("edge_file-04192023.Rdata")
 ```
 
 # Node Data  
@@ -47,26 +45,26 @@ The ED had `r nrow(pts)` patient visits between July 2009 and June 2010, and `r 
 ## Sample      
 
 ```{r demographics-tbl}
-sumtbl_df <- pts %>% mutate(pop_group = "Visitors during study year") %>% 
+sumtbl_df <- pts %>% mutate(pop_group = "Annual Patient Population") %>% 
   bind_rows(co_pts) %>% 
-  mutate(pop_group = if_else(is.na(pop_group), "Visitors during observed shifts", pop_group)) %>% 
+  mutate(pop_group = if_else(is.na(pop_group), "Patient Population", pop_group)) %>% 
   bind_rows(pt_sample) %>% 
-  mutate(pop_group = if_else(is.na(pop_group), "Visitor sample", pop_group)) %>% 
+  mutate(pop_group = if_else(is.na(pop_group), "Patient Sample", pop_group)) %>% 
   mutate(pop_group = factor(pop_group, 
-                            levels = c("Visitors during study year", 
-                                       "Visitors during observed shifts",
-                                       "Visitor sample")))
+                            levels = c("Annual Patient Population", 
+                                       "Patient Population",
+                                       "Patient Sample")))
 
 
 sumtbl_df %>% 
-  # select("Acuity",
-  #        "Race" = fct_explicit_na(race),
-  #        "Sex" = sex,
-  #        "Age" = age,
-  #        "Arrival Category" = arrival_cat,
-  #        Disposition,
-  #        pop_group,
-  #        .keep = "none") %>% 
+  mutate(Acuity = acuity,
+         Race = fct_na_value_to_level(race, level = NA),
+         Sex = sex,
+         Age = age,
+         "Arrival Category" = arrival_cat,
+         Disposition = disposition,
+         pop_group = pop_group,
+         .keep = "none") %>%
   tbl_summary(., 
               missing = "no", 
               by = "pop_group") %>% 
@@ -80,10 +78,9 @@ sumtbl_df %>%
 
 ```{r race-group-tble}
 sumtbl_df %>%
-  filter(pop_group == "Visitor sample" &
-           Race != "Other" &
-           !is.na(Race)) %>% 
-  mutate(Race = factor(Race, levels = c("Black", "White"))) %>%
+  filter(race != "Other" &
+           !is.na(race)) %>% 
+  mutate(Race = factor(race, levels = c("Black", "White"))) %>%
   select(-pop_group) %>% 
   # mutate("Acuity" = acuity,
   #        "Race" = fct_explicit_na(race),
@@ -103,11 +100,9 @@ sumtbl_df %>%
                 latex_options = c("repeat_header"))
 ```
 
-```{r case-controls}
 
-```
 
-## Patient Demographics
+## Sample Q&A
 
 **How many patients were female?**
 
@@ -134,15 +129,10 @@ sumtbl_df %>%
 
 > There were `r sum(pt_sample$acuity == levels(pt_sample$acuity)[1], na.rm = TRUE)` (`r sum(pt_sample$acuity == levels(pt_sample$acuity)[1], na.rm = TRUE)/sum(!is.na(pt_sample$acuity) * 100`%) immediate, `r sum(pt_sample$acuity == levels(pt_sample$acuity)[2], na.rm = TRUE)` (`r sum(pt_sample$acuity == levels(pt_sample$acuity)[2], na.rm = TRUE)/sum(!is.na(pt_sample$acuity) * 100`%) emergent, `r sum(pt_sample$acuity == levels(pt_sample$acuity)[3], na.rm = TRUE)` (`r sum(pt_sample$acuity == levels(pt_sample$acuity)[3], na.rm = TRUE)/sum(!is.na(pt_sample$acuity) * 100`%) urgent, `r sum(pt_sample$acuity == levels(pt_sample$acuity)[4], na.rm = TRUE)` (`r sum(pt_sample$acuity == levels(pt_sample$acuity)[4], na.rm = TRUE)/sum(!is.na(pt_sample$acuity) * 100`%) stable, and `r sum(pt_sample$acuity == levels(pt_sample$acuity)[5], na.rm = TRUE)` (`r sum(pt_sample$acuity == levels(pt_sample$acuity)[5], na.rm = TRUE)/sum(!is.na(pt_sample$acuity) * 100`%) non-urgent acuity visitors.
 
-
-## Staff Types  
-
 **How many staff participated?**
 
 > There were `r nrow(staff)` staff participants, including `r sum(staff$staff_type == "MD")` MDs, `r sum(staff$staff_type == "RN")` registered nurses (RNs), `r sum(staff$staff_type == "NT")` nurse technicians (NTs), and `r sum(staff$staff_type == "Staff")` non-clinical staff.  
 
-
-  
   
 # Edge Data  
 
